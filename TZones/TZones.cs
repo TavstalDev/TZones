@@ -29,7 +29,7 @@ namespace Tavstal.TZones
             // Attach event, which will be fired when all plugins are loaded.
             Level.onPostLevelLoaded += Event_OnPluginsLoaded;
             // Attach player related events
-            PlayerEventHandler.AttachEvents();
+            UnturnedEventHandler.AttachEvents();
 
             Logger.Log("#########################################");
             Logger.Log("# Thanks for using my plugin");
@@ -62,7 +62,7 @@ namespace Tavstal.TZones
         public override void OnUnLoad()
         {
             Level.onPostLevelLoaded -= Event_OnPluginsLoaded;
-            PlayerEventHandler.DetachEvents();
+            UnturnedEventHandler.DetachEvents();
             Logger.Log($"# {Name} has been successfully unloaded.");
         }
 
