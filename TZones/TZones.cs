@@ -1,7 +1,7 @@
 ﻿using SDG.Unturned;
 using System.Collections.Generic;
-using Tavstal.TZones.Handlers;
-using Tavstal.TZones.Managers;
+using Tavstal.TZones.Utils.Handlers;
+using Tavstal.TZones.Utils.Managers;
 using Tavstal.TLibrary.Compatibility;
 using Logger = Rocket.Core.Logging.Logger;
 
