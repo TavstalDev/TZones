@@ -1,28 +1,24 @@
 ﻿using SDG.Unturned;
 using System.Collections.Generic;
-using Tavstal.TExample.Handlers;
-using Tavstal.TExample.Hooks;
-using Tavstal.TExample.Managers;
+using Tavstal.TZones.Handlers;
+using Tavstal.TZones.Managers;
 using Tavstal.TLibrary.Compatibility;
-using Tavstal.TLibrary.Compatibility.Economy;
-using Tavstal.TLibrary.Managers;
 using Logger = Rocket.Core.Logging.Logger;
 
-namespace Tavstal.TExample
+namespace Tavstal.TZones
 {
     /// <summary>
     /// The main plugin class.
     /// </summary>
-    public class ExampleMain : PluginBase<ExampleConfig>
+    public class TZones : PluginBase<TZonesConfig>
     {
-        public new static ExampleMain Instance { get; private set; }
-        public new static TLogger Logger = new TLogger("TExample", false);
+        public new static TZones Instance { get; private set; }
+        public new static TLogger Logger = new TLogger("TZones", false);
         public new static DatabaseManager DatabaseManager { get; private set; }
         /// <summary>
         /// Used to prevent error spamming that is related to database configuration.
         /// </summary>
         public static bool IsConnectionAuthFailed { get; set; }
-        public static IEconomyProvider EconomyProvider { get; private set; }
 
         /// <summary>
         /// Fired when the plugin is loaded.
@@ -81,17 +77,6 @@ namespace Tavstal.TExample
 
             Logger.LogLateInit();
             Logger.LogWarning("# Searching for economy plugin...");
-            // Create HookManager and load all hooks
-            HookManager = new HookManager(this);
-            HookManager.LoadAll(Assembly);
-
-            if (!HookManager.IsHookLoadable<UconomyHook>())
-            {
-                Logger.LogError($"# Failed to load economy hook. Unloading {GetPluginName()}...");
-                this?.UnloadPlugin();
-                return;
-            }
-            EconomyProvider = HookManager.GetHook<UconomyHook>();
         }
 
 
@@ -99,8 +84,7 @@ namespace Tavstal.TExample
            new Dictionary<string, string>
            {
                { "prefix", $"&e[{GetPluginName()}]" },
-               { "error_player_not_found", "&cPlayer was not found." },
-               { "success_command_example_hi_sent", "&aThe message has been successfully sent to the player." }
+               { "error_player_not_found", "&cPlayer was not found." }
            };
     }
 }

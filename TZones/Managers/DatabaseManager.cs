@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Tavstal.TExample.Models;
+using Tavstal.TZones.Models;
 using Tavstal.TLibrary.Compatibility;
 using Tavstal.TLibrary.Compatibility.Database;
 using Tavstal.TLibrary.Compatibility.Interfaces;
@@ -10,12 +10,12 @@ using Tavstal.TLibrary.Extensions;
 using Tavstal.TLibrary.Helpers.General;
 using Tavstal.TLibrary.Managers;
 
-namespace Tavstal.TExample.Managers
+namespace Tavstal.TZones.Managers
 {
     public class DatabaseManager : DatabaseManagerBase
     {
 #pragma warning disable IDE1006 //
-        private static ExampleConfig _pluginConfig => ExampleMain.Instance.Config;
+        private static TZonesConfig _pluginConfig => TZones.Instance.Config;
 #pragma warning restore IDE1006 //
 
         public DatabaseManager(IPlugin plugin, IConfigurationBase config) : base(plugin, config)
@@ -34,15 +34,14 @@ namespace Tavstal.TExample.Managers
                 using (var connection = CreateConnection())
                 {
                     if (!await connection.OpenSafeAsync())
-                        ExampleMain.IsConnectionAuthFailed = true;
+                        TZones.IsConnectionAuthFailed = true;
                     if (connection.State != System.Data.ConnectionState.Open)
                         throw new Exception("# Failed to connect to the database. Please check the plugin's config file.");
 
-                    // Player Table
-                    if (await connection.DoesTableExistAsync<PlayerData>(_pluginConfig.Database.DatabaseTable_Players))
+                    /*if (await connection.DoesTableExistAsync<PlayerData>(_pluginConfig.Database.DatabaseTable_Players))
                         await connection.CheckTableAsync<PlayerData>(_pluginConfig.Database.DatabaseTable_Players);
                     else
-                        await connection.CreateTableAsync<PlayerData>(_pluginConfig.Database.DatabaseTable_Players);
+                        await connection.CreateTableAsync<PlayerData>(_pluginConfig.Database.DatabaseTable_Players);*/
 
                     if (connection.State != System.Data.ConnectionState.Closed)
                         connection.Close();
@@ -50,13 +49,13 @@ namespace Tavstal.TExample.Managers
             }
             catch (Exception ex)
             {
-                ExampleMain.Logger.LogException("Error in checkSchema:");
-                ExampleMain.Logger.LogError(ex);
+                TZones.Logger.LogException("Error in checkSchema:");
+                TZones.Logger.LogError(ex);
             }
         }
 
         #region Player Table
-        public async Task<bool> AddPlayer(ulong steamId, string steamName, string characterName)
+        /*public async Task<bool> AddPlayer(ulong steamId, string steamName, string characterName)
         {
             MySqlConnection MySQLConnection = CreateConnection();
             return await MySQLConnection.AddTableRowAsync(tableName: _pluginConfig.Database.DatabaseTable_Players, value: new PlayerData(steamId, steamName, characterName, DateTime.Now));
@@ -88,7 +87,7 @@ namespace Tavstal.TExample.Managers
         {
             MySqlConnection MySQLConnection = CreateConnection();
             return await MySQLConnection.GetTableRowAsync<PlayerData>(tableName: _pluginConfig.Database.DatabaseTable_Players, whereClause: $"SteamId='{steamId}'", null);
-        }
+        }*/
         #endregion
     }
 }

@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json;
-using Tavstal.TExample.Models;
+using Tavstal.TZones.Models;
 using Tavstal.TLibrary.Compatibility;
 
-namespace Tavstal.TExample
+namespace Tavstal.TZones
 {
-    public class ExampleConfig : ConfigurationBase
+    public class TZonesConfig : ConfigurationBase
     {
         [JsonProperty(Order = 3)]
         public DatabaseData Database { get; set; }
@@ -15,7 +15,7 @@ namespace Tavstal.TExample
         }
 
         // Required because of the library
-        public ExampleConfig() { }
-        public ExampleConfig(string fileName, string path) : base(fileName, path) { }
+        public TZonesConfig() { }
+        public TZonesConfig(string fileName, string path) : base(fileName, path) { }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Tavstal.TLibrary.Compatibility;
 
-namespace Tavstal.TExample.Models
+namespace Tavstal.TZones.Models
 {
     public class DatabaseData : DatabaseSettingsBase
     {
