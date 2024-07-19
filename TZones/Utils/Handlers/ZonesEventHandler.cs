@@ -19,7 +19,9 @@ namespace Tavstal.TZones.Utils.Handlers
 
             ZonesManager.OnPlayerEnterZone += OnPlayerEnterZone;
             ZonesManager.OnPlayerLeaveZone += OnPlayerLeaveZone;
+            ZonesManager.OnZoneCreated += OnZoneCreated;
             ZonesManager.OnZoneUpdated += OnZoneUpdated;
+            ZonesManager.OnZoneDeleted += OnZoneDeleted;
         }
 
         public static void DetachEvents()
@@ -31,7 +33,9 @@ namespace Tavstal.TZones.Utils.Handlers
 
             ZonesManager.OnPlayerEnterZone -= OnPlayerEnterZone;
             ZonesManager.OnPlayerLeaveZone -= OnPlayerLeaveZone;
+            ZonesManager.OnZoneCreated -= OnZoneCreated;
             ZonesManager.OnZoneUpdated -= OnZoneUpdated;
+            ZonesManager.OnZoneDeleted -= OnZoneDeleted;
         }
 
         private static void OnPlayerEnterZone(UnturnedPlayer player, Zone zone)
@@ -44,9 +48,20 @@ namespace Tavstal.TZones.Utils.Handlers
             
         }
 
+        private static void OnZoneCreated(Zone zone)
+        {
+            
+        }
+
         private static void OnZoneUpdated(Zone zone)
         {
             
         }
+
+        private static void OnZoneDeleted(Zone zone)
+        {
+            
+        }
+
     }
 }
