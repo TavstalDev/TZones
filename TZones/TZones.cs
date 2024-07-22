@@ -86,5 +86,9 @@ namespace Tavstal.TZones
                { "prefix", $"&e[{GetPluginName()}]" },
                { "error_player_not_found", "&cPlayer was not found." }
            };
+
+        private void Update() {
+            
+        }
     }
 }
