@@ -1,7 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Rocket.Unturned.Player;
+using Tavstal.TLibrary.Helpers.General;
 using Tavstal.TZones.Models.Core;
+using Tavstal.TZones.Models.Enums;
+using UnityEngine;
 
 namespace Tavstal.TZones.Utils.Managers
 {
@@ -126,6 +130,58 @@ namespace Tavstal.TZones.Utils.Managers
                 _zoneBlocks.Add(zone.Id, blocks);
                 #endregion
             }
+        }
+        
+        public static List<Zone> GetZonesFromPosition(Vector3 position) 
+        {
+            List<Zone> zones = new List<Zone>();
+
+            foreach (var data in _nodes) {
+                if (IsPointInNodes(data.Value, position)) {
+                    Zone zone = _zones.FirstOrDefault(x => x.Id == data.Key);
+                    if (zone != null)
+                        zones.Add(zone);
+                }
+            }
+
+            return zones;
+        }
+
+        private static bool IsPointInNodes(List<Node> nodes, Vector3 point)
+        {
+            bool isInside = false;
+            int j = nodes.Count - 1;
+
+            for (int i = 0; i < nodes.Count; j = i++)
+            {
+                if (nodes[i].Type != ENodeType.None)
+                    continue;
+
+                if (((nodes[i].Z > point.z) != (nodes[j].Z > point.z)) &&
+                    (point.x < (nodes[j].X - nodes[i].X) * (point.z - nodes[i].Z) / (nodes[j].Z - nodes[i].Z) + nodes[i].X))
+                {
+                    isInside = !isInside;
+                }
+            }
+
+            if (isInside)
+            {
+                Node upperNode = nodes.FirstOrDefault(x => x.Type == ENodeType.Upper);
+                if (upperNode != null) {
+                    if (point.y > upperNode.Y) {
+                        return false;
+                    }
+                }
+                Node lowerNode = nodes.FirstOrDefault(x => x.Type == ENodeType.Lower);
+                if (lowerNode != null) {
+                    if (point.y < lowerNode.Y)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return isInside;
         }
         #endregion
     }
