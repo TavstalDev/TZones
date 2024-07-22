@@ -1,6 +1,7 @@
 using System;
 using Tavstal.TLibrary.Compatibility;
 using Tavstal.TLibrary.Compatibility.Database;
+using Tavstal.TZones.Models.Enums;
 using UnityEngine;
 
 namespace Tavstal.TZones.Models.Core
@@ -17,26 +18,26 @@ namespace Tavstal.TZones.Models.Core
         [SqlMember]
         public new float Z { get; set; }
         [SqlMember]
-        public bool IsUpper { get; set; }
+        public ENodeType Type { get; set; }
 
         public Node() {}
 
-        public Node(ulong zoneId, float x, float y, float z, bool isUpper)
+        public Node(ulong zoneId, float x, float y, float z, ENodeType type)
         {
             ZoneId = zoneId;
             X = x;
             Y = y;
             Z = z;
-            IsUpper = isUpper;
+            Type = type;
         }
 
-        public Node(ulong zoneId, Vector3 position, bool isUpper)
+        public Node(ulong zoneId, Vector3 position, ENodeType type)
         {
             ZoneId = zoneId;
             X = position.x;
             Y = position.y;
             Z = position.z;
-            IsUpper = isUpper;
+            Type = type;
         }
     }
 }
