@@ -259,13 +259,13 @@ namespace Tavstal.TZones.Utils.Managers
         #endregion
     
         #region Zone Nodes
-        public async Task AddNodeAsync(ulong zoneId, float x, float y, float z, bool isUpper)
+        public async Task AddNodeAsync(ulong zoneId, float x, float y, float z, ENodeType type)
         {
             using (var connection = CreateConnection()) {
                 try 
                 {
                     await connection.AddTableRowAsync(_pluginConfig.Database.TableZoneNodes, 
-                        new Node(zoneId, x, y, z, isUpper));
+                        new Node(zoneId, x, y, z, type));
                 }
                 catch (Exception ex) 
                 {
@@ -279,7 +279,7 @@ namespace Tavstal.TZones.Utils.Managers
             using (var connection = CreateConnection()) {
                 try 
                 {
-                    await connection.RemoveTableRowAsync<Node>(_pluginConfig.Database.TableZoneNodes, $"ZoneId=`{node.ZoneId}` AND X=`{node.X}` AND Y=`{node.Y}` AND Z=`{node.Z}` AND IsUpper=`{node.IsUpper}`", null);
+                    await connection.RemoveTableRowAsync<Node>(_pluginConfig.Database.TableZoneNodes, $"ZoneId=`{node.ZoneId}` AND X=`{node.X}` AND Y=`{node.Y}` AND Z=`{node.Z}` AND Type=`{node.Type}`", null);
                 }
                 catch (Exception ex) 
                 {
