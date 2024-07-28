@@ -147,6 +147,13 @@ namespace Tavstal.TZones.Utils.Managers
             return zones;
         }
 
+        public static bool IsPointInZone(this Zone zone, Vector3 position) {
+            if (_nodes.TryGetValue(zone.Id, out List<Node> nodes)) {
+                return IsPointInNodes(nodes, position);
+            }
+            return false;
+        }
+
         private static bool IsPointInNodes(List<Node> nodes, Vector3 point)
         {
             bool isInside = false;
@@ -182,6 +189,32 @@ namespace Tavstal.TZones.Utils.Managers
             }
 
             return isInside;
+        }
+        
+        public static bool HasFlag(this Zone zone, string flagName) {
+            Flag flag = _flags.Find(x => x.Name == flagName);
+            if (flag == null) 
+                return false;
+
+            if (_zoneFlags.TryGetValue(zone.Id, out List<ZoneFlag> flags)) {
+                return flags.Any(x => x.FlagId == flag.Id);
+            }
+            return false;
+        }
+
+        public static ZoneEvent GetEvent(this Zone zone, EEventType eventType) {
+            if (_zoneEvents.TryGetValue(zone.Id, out List<ZoneEvent> events)) {
+                return events.Find(x => x.Type == eventType);
+            }
+            return null;
+        }
+
+        public static bool IsBlocked(this Zone zone, ushort unturnedId, EBlockType blockType) 
+        {
+            if (_zoneBlocks.TryGetValue(zone.Id, out List<Block> blocks)) {
+                return blocks.Any(x => x.UnturnedId == unturnedId && x.Type == blockType);
+            }
+            return false;
         }
         #endregion
     }

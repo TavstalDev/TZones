@@ -11,6 +11,8 @@ namespace Tavstal.TZones.Utils.Constants
         public const string NoLockpick = "NoLockpick";
         public const string NoBarricades = "NoBarricades";
         public const string NoStructures = "NoStructures";
+        public const string NoBarricadeSalvage = "NoBarricadeSalvage";
+        public const string NoStructureSalvage = "NoStructureSalvage";
         public const string NoItemEquip = "NoItemEquip";
         public const string NoItemUnequip = "NoItemUnequip";
         public const string NoItemDrop = "NoItemDrop";
@@ -19,7 +21,6 @@ namespace Tavstal.TZones.Utils.Constants
         public const string NoZombie = "NoZombie";
         public const string InfiniteGenerator = "InfiniteGenerator";
         public const string NoVehicleCarjack = "NoVehicleCarjack";
-        public const string NoPvP = "NoPvP";
         public const string NoVehicleSiphoning = "NoVehicleSiphoning";
         
     }
