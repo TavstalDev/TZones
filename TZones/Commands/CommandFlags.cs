@@ -24,6 +24,16 @@ namespace Tavstal.TZones.Commands
                 (IRocketPlayer caller, string[] args) =>
                 {
                     
+                }),
+            new SubCommand("list", "", "list <page>", new List<string>(), new List<string>() { "tzones.command.flags.list" }, 
+                (IRocketPlayer caller, string[] args) =>
+                {
+                    
+                }),
+            new SubCommand("remove", "", "remove [name]", new List<string>(), new List<string>() { "tzones.command.flags.remove" }, 
+                (IRocketPlayer caller, string[] args) =>
+                {
+                    
                 })
         };
 

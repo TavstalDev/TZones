@@ -24,6 +24,21 @@ namespace Tavstal.TZones.Commands
                 (IRocketPlayer caller, string[] args) =>
                 {
                     
+                }),
+            new SubCommand("list", "", "list [zone | node | flag | event | block]", new List<string>(), new List<string>() { "tzones.command.zones.list" }, 
+                (IRocketPlayer caller, string[] args) =>
+                {
+                    
+                }),
+            new SubCommand("edit", "", "edit [zone | event]", new List<string>(), new List<string>() { "tzones.command.zones.edit" }, 
+                (IRocketPlayer caller, string[] args) =>
+                {
+                    
+                }),
+            new SubCommand("remove", "", "remove [zone | node | flag | event | block]", new List<string>(), new List<string>() { "tzones.command.zones.remove" }, 
+                (IRocketPlayer caller, string[] args) =>
+                {
+                    
                 })
         };
 
