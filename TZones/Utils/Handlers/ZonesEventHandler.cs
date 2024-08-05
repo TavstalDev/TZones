@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Rocket.Core;
 using Rocket.Unturned.Player;
+using SDG.Unturned;
+using Tavstal.TLibrary.Helpers.Unturned;
 using Tavstal.TZones.Models.Core;
 using Tavstal.TZones.Models.Enums;
 using Tavstal.TZones.Utils.Managers;
@@ -48,27 +51,33 @@ namespace Tavstal.TZones.Utils.Handlers
                     switch (zEvent.Type) {
                         case EEventType.EnterAddEffect: 
                         {
-
+                            if (ushort.TryParse(zEvent.Value, out ushort effect))
+                            {
+                                player.TriggerEffect(effect);
+                            } 
                             break;
                         }
                         case EEventType.EnterRemoveEffect: 
                         {
-
+                            if (ushort.TryParse(zEvent.Value, out ushort effect))
+                            {
+                                EffectManager.askEffectClearByID(effect, player.SteamPlayer().transportConnection);
+                            } 
                             break;
                         }
                         case EEventType.EnterAddGroup: 
                         {
-
+                            R.Permissions.AddPlayerToGroup(zEvent.Value, player);
                             break;
                         }
                         case EEventType.EnterRemoveGroup: 
                         {
-
+                            R.Permissions.RemovePlayerFromGroup(zEvent.Value, player);
                             break;
                         }
                         case EEventType.EnterMessage: 
                         {
-
+                            UChatHelper.SendPlainChatMessage(player.SteamPlayer(), zEvent.Value);
                             break;
                         }
                     }
@@ -84,27 +93,33 @@ namespace Tavstal.TZones.Utils.Handlers
                     switch (zEvent.Type) {
                         case EEventType.LeaveAddEffect: 
                         {
-
+                            if (ushort.TryParse(zEvent.Value, out ushort effect))
+                            {
+                                player.TriggerEffect(effect);
+                            } 
                             break;
                         }
                         case EEventType.LeaveAddGroup: 
                         {
-
+                            R.Permissions.AddPlayerToGroup(zEvent.Value, player);
                             break;
                         }
                         case EEventType.LeaveMessage: 
                         {
-
+                            UChatHelper.SendPlainChatMessage(player.SteamPlayer(), zEvent.Value);
                             break;
                         }
                         case EEventType.LeaveRemoveEffect: 
                         {
-
+                            if (ushort.TryParse(zEvent.Value, out ushort effect))
+                            {
+                                EffectManager.askEffectClearByID(effect, player.SteamPlayer().transportConnection);
+                            } 
                             break;
                         }
                         case EEventType.LeaveRemoveGroup: 
                         {
-
+                            R.Permissions.RemovePlayerFromGroup(zEvent.Value, player);
                             break;
                         }
                     }

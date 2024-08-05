@@ -39,6 +39,7 @@ namespace Tavstal.TZones
             Level.onPostLevelLoaded += Event_OnPluginsLoaded;
             // Attach player related events
             UnturnedEventHandler.AttachEvents();
+            ZonesEventHandler.AttachEvents();
 
             Logger.Log("#########################################");
             Logger.Log("# Thanks for using my plugin");
@@ -72,6 +73,7 @@ namespace Tavstal.TZones
         {
             Level.onPostLevelLoaded -= Event_OnPluginsLoaded;
             UnturnedEventHandler.DetachEvents();
+            ZonesEventHandler.DetachEvents();
             Logger.Log($"# {Name} has been successfully unloaded.");
         }
 
@@ -85,7 +87,6 @@ namespace Tavstal.TZones
             }
 
             Logger.LogLateInit();
-            Logger.LogWarning("# Searching for economy plugin...");
         }
 
 
@@ -116,7 +117,8 @@ namespace Tavstal.TZones
             });
         }
 
-        private void UpdatePlayers() {
+        private void UpdatePlayers() 
+        {
             foreach (SteamPlayer steamPlayer in Provider.clients) {
                 UnturnedPlayer uPlayer = UnturnedPlayer.FromSteamPlayer(steamPlayer);
                 ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
@@ -140,35 +142,36 @@ namespace Tavstal.TZones
             }
         }
 
-        private void UpdateZombies(Zone zone) {
+        private void UpdateZombies(Zone zone) 
+        {
             if (zone.HasFlag(Flags.NoZombie) && ZombieManager.regions != null) 
+            {
+                foreach (ZombieRegion t in ZombieManager.regions.Where(t => t.zombies != null))
                 {
-                    foreach (ZombieRegion t in ZombieManager.regions.Where(t => t.zombies != null))
+                    foreach (var zombie in t.zombies.Where(z => z != null && z.transform?.position != null))
                     {
-                        foreach (var zombie in t.zombies.Where(z => z != null && z.transform?.position != null))
-                        {
-                            if (zombie.isDead) 
-                                continue;
-                            if (!zone.IsPointInZone(zombie.transform.position)) 
-                                continue;
-                            zombie.gear = 0;
-                            zombie.isDead = true;
-                            ZombieManager.sendZombieDead(zombie, Vector3.zero);
-                        }
+                        if (zombie.isDead) 
+                            continue;
+                        if (!zone.IsPointInZone(zombie.transform.position)) 
+                            continue;
+                        zombie.gear = 0;
+                        zombie.isDead = true;
+                        ZombieManager.sendZombieDead(zombie, Vector3.zero);
                     }
                 }
+            }
         }
 
         private void UpdateGenerators(Zone zone) {
             if (zone.HasFlag(Flags.InfiniteGenerator)) 
+            {
+                InteractableGenerator[] generators = FindObjectsOfType<InteractableGenerator>();
+                foreach (var generator in generators)
                 {
-                    InteractableGenerator[] generators = FindObjectsOfType<InteractableGenerator>();
-                    foreach (var generator in generators)
-                    {
-                        if (ZonesManager.IsPointInZone(zone, generator.transform.position) && generator.fuel < generator.capacity - 10)
-                           BarricadeManager.sendFuel(generator.transform, generator.capacity);
-                    }
+                    if (ZonesManager.IsPointInZone(zone, generator.transform.position) && generator.fuel < generator.capacity - 10)
+                        BarricadeManager.sendFuel(generator.transform, generator.capacity);
                 }
+            }
         }
     #pragma warning restore IDE0051
     #endregion
