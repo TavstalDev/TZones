@@ -16,8 +16,8 @@ namespace Tavstal.TZones.Utils.Constants
         public const string NoItemEquip = "NoItemEquip";
         public const string NoItemUnequip = "NoItemUnequip";
         public const string NoItemDrop = "NoItemDrop";
-        public const string NoEnter = "NoEnter";
-        public const string NoLeave = "NoLeave";
+        public const string NoEnter = "NoEnter"; // TODO
+        public const string NoLeave = "NoLeave"; // TODO
         public const string NoZombie = "NoZombie";
         public const string InfiniteGenerator = "InfiniteGenerator";
         public const string NoVehicleCarjack = "NoVehicleCarjack";

@@ -62,8 +62,7 @@ namespace Tavstal.TZones.Utils.Managers
                             new Flag(Flags.NoZombie, "Prevents zombie spawning.", "TZones"),
                             new Flag(Flags.InfiniteGenerator, "Refuels generators.", "TZones"),
                             new Flag(Flags.NoVehicleCarjack, "Prevents carjacking vehicles", "TZones"),
-                            new Flag(Flags.NoVehicleSiphoning, "Prevents siphoning vehicles", "TZones"),
-                            new Flag(Flags.NoPvP, "Prevents PvP.", "TZones")
+                            new Flag(Flags.NoVehicleSiphoning, "Prevents siphoning vehicles", "TZones")
                         });
                     }
 
