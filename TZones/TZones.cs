@@ -94,7 +94,16 @@ namespace Tavstal.TZones
            new Dictionary<string, string>
            {
                { "prefix", $"&e[{GetPluginName()}]" },
-               { "error_player_not_found", "&cPlayer was not found." }
+               { "error_player_not_found", "&cPlayer was not found." },
+               { "error_flag_not_found", "&cThe '{0}' flag does not exist." },
+               { "command_flags_add_syntax", "&cWrong syntax! Usage: /flags add [name] [description]" },
+               { "command_flags_add_duplicate", "&cThe '{0}' flag already exists." },
+               { "command_flags_add", "&aYou have successfully added the '{0}' flag." },
+               { "command_flags_list_element", "&a{0} - {1}"},
+               { "command_flags_list_end", "&aYou have reached the end of the list."},
+               { "command_flags_list_next", "&aUse &e/flags list {0} &ato view the next page."},
+               { "command_flags_remove_syntax", "&cWrong syntax! Usage: /flags remove [name]"},
+               { "command_flags_remove", "&aYou have successfully removed the '{0}' flag."}
            };
 
 #region Unity Update
