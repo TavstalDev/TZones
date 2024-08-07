@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Tavstal.TZones.Utils.Handlers;
 using Tavstal.TZones.Utils.Managers;
 using Tavstal.TLibrary.Compatibility;
-using Logger = Rocket.Core.Logging.Logger;
 using Rocket.Unturned.Player;
 using Tavstal.TZones.Components;
 using Tavstal.TZones.Models.Core;
@@ -20,7 +19,7 @@ namespace Tavstal.TZones
     public class TZones : PluginBase<TZonesConfig>
     {
         public new static TZones Instance { get; private set; }
-        public new static TLogger Logger = new TLogger("TZones", false);
+        public new static readonly TLogger Logger = new TLogger("TZones", false);
         public new static DatabaseManager DatabaseManager { get; private set; }
         /// <summary>
         /// Used to prevent error spamming that is related to database configuration.
@@ -82,7 +81,7 @@ namespace Tavstal.TZones
             if (IsConnectionAuthFailed)
             {
                 Logger.LogWarning($"# Unloading {GetPluginName()} due to database authentication error.");
-                this?.UnloadPlugin();
+                this.UnloadPlugin();
                 return;
             }
 
@@ -125,7 +124,7 @@ namespace Tavstal.TZones
                 UpdateZombies(zone);
             });
         }
-
+        
         private void UpdatePlayers() 
         {
             foreach (SteamPlayer steamPlayer in Provider.clients) {
@@ -135,13 +134,13 @@ namespace Tavstal.TZones
                 List<Zone> currentZones = ZonesManager.GetZonesFromPosition(uPlayer.Position);
 
                 foreach (Zone zone in comp.Zones) {
-                    if (!currentZones.Any(x => x.Id == zone.Id)) {
+                    if (currentZones.All(x => x.Id != zone.Id)) {
                         ZonesManager.FPlayerLeaveZone(uPlayer, zone);
                     }
                 }
 
                 foreach (Zone zone in currentZones) {
-                    if (!comp.Zones.Any(x => x.Id == zone.Id)) {
+                    if (comp.Zones.All(x => x.Id != zone.Id)) {
                         ZonesManager.FPlayerEnterZone(uPlayer, zone);
                     }
                 }
@@ -157,7 +156,7 @@ namespace Tavstal.TZones
             {
                 foreach (ZombieRegion t in ZombieManager.regions.Where(t => t.zombies != null))
                 {
-                    foreach (var zombie in t.zombies.Where(z => z != null && z.transform?.position != null))
+                    foreach (var zombie in t.zombies.Where(z => z))
                     {
                         if (zombie.isDead) 
                             continue;
@@ -171,18 +170,20 @@ namespace Tavstal.TZones
             }
         }
 
-        private void UpdateGenerators(Zone zone) {
-            if (zone.HasFlag(Flags.InfiniteGenerator)) 
+        // ReSharper disable Unity.PerformanceAnalysis
+        private void UpdateGenerators(Zone zone)
+        {
+            if (!zone.HasFlag(Flags.InfiniteGenerator))
+                return;
+            InteractableGenerator[] generators = FindObjectsOfType<InteractableGenerator>();
+            foreach (var generator in generators)
             {
-                InteractableGenerator[] generators = FindObjectsOfType<InteractableGenerator>();
-                foreach (var generator in generators)
-                {
-                    if (ZonesManager.IsPointInZone(zone, generator.transform.position) && generator.fuel < generator.capacity - 10)
-                        BarricadeManager.sendFuel(generator.transform, generator.capacity);
-                }
+                if (zone.IsPointInZone(generator.transform.position) &&
+                    generator.fuel < generator.capacity - 10)
+                    BarricadeManager.sendFuel(generator.transform, generator.capacity);
             }
         }
-    #pragma warning restore IDE0051
+#pragma warning restore IDE0051
     #endregion
     }
 }

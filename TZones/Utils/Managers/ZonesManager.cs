@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Rocket.Unturned.Player;
-using Tavstal.TLibrary.Helpers.General;
 using Tavstal.TZones.Models.Core;
 using Tavstal.TZones.Models.Enums;
 using UnityEngine;
@@ -15,17 +14,18 @@ namespace Tavstal.TZones.Utils.Managers
         private static bool _isDirty { get; set; }
         // Because the unturned events use 'ref', and the database is async, cache must be used
         private static List<Flag> _flags { get; set; }
-        public static List<Flag> Flags { get { return _flags; } }
+        public static List<Flag> Flags => _flags;
         private static List<Zone> _zones { get; set; }
-        public static List<Zone> Zones { get { return _zones; } }
+        public static List<Zone> Zones => _zones;
         private static Dictionary<ulong, List<Node>> _nodes { get; set; }
-        public static Dictionary<ulong, List<Node>> Nodes { get { return _nodes;}}
+        public static Dictionary<ulong, List<Node>> Nodes => _nodes;
         private static Dictionary<ulong, List<ZoneFlag>> _zoneFlags { get; set; }
-        public static Dictionary<ulong, List<ZoneFlag>> ZoneFlags { get { return _zoneFlags;}}
+        public static Dictionary<ulong, List<ZoneFlag>> ZoneFlags => _zoneFlags;
         private static Dictionary<ulong, List<ZoneEvent>> _zoneEvents { get; set; }
-        public static Dictionary<ulong, List<ZoneEvent>> ZoneEvents { get { return _zoneEvents;}}
+        public static Dictionary<ulong, List<ZoneEvent>> ZoneEvents => _zoneEvents;
         private static Dictionary<ulong, List<Block>> _zoneBlocks { get; set; }
-        public static Dictionary<ulong, List<Block>> ZoneBlocks { get { return _zoneBlocks;}}
+        public static Dictionary<ulong, List<Block>> ZoneBlocks => _zoneBlocks;
+
         #endregion
         
         #region Events

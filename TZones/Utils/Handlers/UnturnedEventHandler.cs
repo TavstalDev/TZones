@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using Rocket.Unturned;
+﻿using Rocket.Unturned;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
 using Steamworks;
@@ -14,7 +13,7 @@ namespace Tavstal.TZones.Utils.Handlers
 {
     public static class UnturnedEventHandler
     {
-        private static bool _isAttached = false;
+        private static bool _isAttached;
 
         public static void AttachEvents()
         {

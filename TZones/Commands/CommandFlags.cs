@@ -1,5 +1,4 @@
 using Rocket.API;
-using Rocket.Unturned.Player;
 using System.Collections.Generic;
 using Tavstal.TLibrary.Compatibility;
 using Tavstal.TLibrary.Compatibility.Interfaces;
@@ -55,7 +54,7 @@ namespace Tavstal.TZones.Commands
                         page = int.Parse(args[0]);
                         if (page < 1)
                            page = 1;
-                    } catch {}
+                    } catch { /*ignore*/ }
 
                     bool reachedEnd = false;
                     for (int i = 0; i < 3; i++) 

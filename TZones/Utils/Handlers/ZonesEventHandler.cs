@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Rocket.Core;
 using Rocket.Unturned.Player;
@@ -12,8 +11,7 @@ namespace Tavstal.TZones.Utils.Handlers
 {
     public static class ZonesEventHandler
     {
-        private static bool _isAttached = false;
-
+        private static bool _isAttached;
 
         public static void AttachEvents()
         {

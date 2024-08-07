@@ -38,23 +38,21 @@ namespace Tavstal.TZones.Utils.Managers
                         throw new Exception("# Failed to connect to the database. Please check the plugin's config file.");
 
                     // Flags
-                    if (await connection.DoesTableExistAsync<Flag>(_pluginConfig.Database.TableFlags))
-                        await connection.CheckTableAsync<Flag>(_pluginConfig.Database.TableFlags);
-                    else
+                    if (!await connection.DoesTableExistAsync<Flag>(_pluginConfig.Database.TableFlags))
                     {
                         await connection.CreateTableAsync<Flag>(_pluginConfig.Database.TableFlags);
-
-                        await connection.AddTableRowsAsync(_pluginConfig.Database.TableFlags, new List<Flag>() {
+                        await connection.AddTableRowsAsync(_pluginConfig.Database.TableFlags, new List<Flag>()
+                        {
                             new Flag(Flags.NoDamage, "Prevents barricade and structure damage.", "TZones"),
                             new Flag(Flags.NoVehicleDamage, "Prevents vehicle damage.", "TZones"),
                             new Flag(Flags.NoTireDamage, "Prevents tire damage.", "TZones"),
                             new Flag(Flags.NoPlayerDamage, "Prevents player damage.", "TZones"),
                             new Flag(Flags.NoAnimalDamage, "Prevents animal damage.", "TZones"),
                             new Flag(Flags.NoZombieDamage, "Prevents zombie damage.", "TZones"),
-                            new Flag(Flags.NoLockpick, "Prevents lockpicking.", "TZones"),
+                            new Flag(Flags.NoLockpick, "Prevents lock picking.", "TZones"),
                             new Flag(Flags.NoBarricades, "Prevents placing barricades.", "TZones"),
                             new Flag(Flags.NoStructures, "Prevents placing structures.", "TZones"),
-                            new Flag(Flags.NoItemEquip, "Prevents equiping items.", "TZones"),
+                            new Flag(Flags.NoItemEquip, "Prevents equipping items.", "TZones"),
                             new Flag(Flags.NoItemUnequip, "Prevents unequipping items.", "TZones"),
                             new Flag(Flags.NoItemDrop, "Prevents dropping items.", "TZones"),
                             new Flag(Flags.NoEnter, "Prevents entering the zone.", "TZones"),
@@ -65,6 +63,8 @@ namespace Tavstal.TZones.Utils.Managers
                             new Flag(Flags.NoVehicleSiphoning, "Prevents siphoning vehicles", "TZones")
                         });
                     }
+                    else
+                        await connection.CheckTableAsync<Flag>(_pluginConfig.Database.TableFlags);
 
 
                     // Zones
@@ -98,7 +98,7 @@ namespace Tavstal.TZones.Utils.Managers
                         await connection.CreateTableAsync<Block>(_pluginConfig.Database.TableZoneBlocklist);
 
                     if (connection.State != System.Data.ConnectionState.Closed)
-                        connection.Close();
+                        await connection.CloseAsync();
                 }
             }
             catch (Exception ex)
