@@ -40,7 +40,7 @@ namespace Tavstal.TZones.Commands
                     }
 
                     await TZones.DatabaseManager.AddFlagAsync(args[0], args[1], caller.DisplayName);
-                    // TODO - update zone cache
+                    ZonesManager.SetDirty();
                     TZones.Instance.SendCommandReply(caller, "command_flags_add", args[0]);
                 }),
             new SubCommand("list", "", "list <page>", new List<string>(), new List<string>() { "tzones.command.flags.list" }, 
@@ -94,7 +94,7 @@ namespace Tavstal.TZones.Commands
                     }
 
                     await TZones.DatabaseManager.RemoveFlagAsync(targetFlag.Id);
-                    // TODO - update zone cache
+                    ZonesManager.SetDirty();
                     TZones.Instance.SendCommandReply(caller, "command_flags_remove", targetFlag.Name);
                 })
         };

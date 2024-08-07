@@ -12,6 +12,7 @@ namespace Tavstal.TZones.Utils.Managers
     public static class ZonesManager
     {
         #region Fields
+        private static bool _isDirty { get; set; }
         // Because the unturned events use 'ref', and the database is async, cache must be used
         private static List<Flag> _flags { get; set; }
         public static List<Flag> Flags { get { return _flags; } }
@@ -66,6 +67,10 @@ namespace Tavstal.TZones.Utils.Managers
         #endregion
 
         #region Methods
+        public static void SetDirty() {
+            _isDirty = true;
+        }
+
         public static async Task RefreshAllAsync() {
             _flags = await TZones.DatabaseManager.GetFlagsAsync(string.Empty);
             _zones = await TZones.DatabaseManager.GetZonesAsync(string.Empty);
