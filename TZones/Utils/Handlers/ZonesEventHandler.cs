@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Rocket.Core;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
@@ -43,84 +42,106 @@ namespace Tavstal.TZones.Utils.Handlers
 
         private static void OnPlayerEnterZone(UnturnedPlayer player, Zone zone)
         {
-            if (ZonesManager.ZoneEvents.TryGetValue(zone.Id, out List<ZoneEvent> events)) {
-                foreach (ZoneEvent zEvent in events) {
+            if (!ZonesManager.ZoneEvents.TryGetValue(zone.Id, out var events))
+                return;
 
-                    switch (zEvent.Type) {
-                        case EEventType.EnterAddEffect: 
+            foreach (ZoneEvent zEvent in events)
+            {
+                switch (zEvent.Type)
+                {
+                    case EEventType.EnterAddEffect:
+                    {
+                        if (ushort.TryParse(zEvent.Value, out ushort effect))
                         {
-                            if (ushort.TryParse(zEvent.Value, out ushort effect))
-                            {
-                                player.TriggerEffect(effect);
-                            } 
-                            break;
+                            player.TriggerEffect(effect);
                         }
-                        case EEventType.EnterRemoveEffect: 
-                        {
-                            if (ushort.TryParse(zEvent.Value, out ushort effect))
-                            {
-                                EffectManager.askEffectClearByID(effect, player.SteamPlayer().transportConnection);
-                            } 
-                            break;
-                        }
-                        case EEventType.EnterAddGroup: 
-                        {
-                            R.Permissions.AddPlayerToGroup(zEvent.Value, player);
-                            break;
-                        }
-                        case EEventType.EnterRemoveGroup: 
-                        {
-                            R.Permissions.RemovePlayerFromGroup(zEvent.Value, player);
-                            break;
-                        }
-                        case EEventType.EnterMessage: 
-                        {
-                            UChatHelper.SendPlainChatMessage(player.SteamPlayer(), zEvent.Value);
-                            break;
-                        }
+
+                        break;
                     }
+                    case EEventType.EnterRemoveEffect:
+                    {
+                        if (ushort.TryParse(zEvent.Value, out ushort effect))
+                        {
+                            EffectManager.askEffectClearByID(effect, player.SteamPlayer().transportConnection);
+                        }
+
+                        break;
+                    }
+                    case EEventType.EnterAddGroup:
+                    {
+                        R.Permissions.AddPlayerToGroup(zEvent.Value, player);
+                        break;
+                    }
+                    case EEventType.EnterRemoveGroup:
+                    {
+                        R.Permissions.RemovePlayerFromGroup(zEvent.Value, player);
+                        break;
+                    }
+                    case EEventType.EnterMessage:
+                    {
+                        UChatHelper.SendPlainChatMessage(player.SteamPlayer(), zEvent.Value);
+                        break;
+                    }
+                    case EEventType.LeaveMessage:
+                    case EEventType.LeaveAddGroup:
+                    case EEventType.LeaveRemoveGroup:
+                    case EEventType.LeaveAddEffect:
+                    case EEventType.LeaveRemoveEffect:
+                    default:
+                        break;
                 }
             }
         }
 
         private static void OnPlayerLeaveZone(UnturnedPlayer player, Zone zone)
         {
-            if (ZonesManager.ZoneEvents.TryGetValue(zone.Id, out List<ZoneEvent> events)) {
-                foreach (ZoneEvent zEvent in events) {
+            if (!ZonesManager.ZoneEvents.TryGetValue(zone.Id, out var events))
+                return;
 
-                    switch (zEvent.Type) {
-                        case EEventType.LeaveAddEffect: 
+            foreach (ZoneEvent zEvent in events)
+            {
+                switch (zEvent.Type)
+                {
+                    case EEventType.LeaveAddEffect:
+                    {
+                        if (ushort.TryParse(zEvent.Value, out ushort effect))
                         {
-                            if (ushort.TryParse(zEvent.Value, out ushort effect))
-                            {
-                                player.TriggerEffect(effect);
-                            } 
-                            break;
+                            player.TriggerEffect(effect);
                         }
-                        case EEventType.LeaveAddGroup: 
-                        {
-                            R.Permissions.AddPlayerToGroup(zEvent.Value, player);
-                            break;
-                        }
-                        case EEventType.LeaveMessage: 
-                        {
-                            UChatHelper.SendPlainChatMessage(player.SteamPlayer(), zEvent.Value);
-                            break;
-                        }
-                        case EEventType.LeaveRemoveEffect: 
-                        {
-                            if (ushort.TryParse(zEvent.Value, out ushort effect))
-                            {
-                                EffectManager.askEffectClearByID(effect, player.SteamPlayer().transportConnection);
-                            } 
-                            break;
-                        }
-                        case EEventType.LeaveRemoveGroup: 
-                        {
-                            R.Permissions.RemovePlayerFromGroup(zEvent.Value, player);
-                            break;
-                        }
+
+                        break;
                     }
+                    case EEventType.LeaveAddGroup:
+                    {
+                        R.Permissions.AddPlayerToGroup(zEvent.Value, player);
+                        break;
+                    }
+                    case EEventType.LeaveMessage:
+                    {
+                        UChatHelper.SendPlainChatMessage(player.SteamPlayer(), zEvent.Value);
+                        break;
+                    }
+                    case EEventType.LeaveRemoveEffect:
+                    {
+                        if (ushort.TryParse(zEvent.Value, out ushort effect))
+                        {
+                            EffectManager.askEffectClearByID(effect, player.SteamPlayer().transportConnection);
+                        }
+
+                        break;
+                    }
+                    case EEventType.LeaveRemoveGroup:
+                    {
+                        R.Permissions.RemovePlayerFromGroup(zEvent.Value, player);
+                        break;
+                    }
+                    case EEventType.EnterMessage:
+                    case EEventType.EnterAddGroup:
+                    case EEventType.EnterRemoveGroup:
+                    case EEventType.EnterAddEffect:
+                    case EEventType.EnterRemoveEffect:
+                    default:
+                        break;
                 }
             }
         }
