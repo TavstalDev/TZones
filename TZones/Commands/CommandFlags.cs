@@ -5,6 +5,7 @@ using Tavstal.TLibrary.Compatibility.Interfaces;
 using Tavstal.TLibrary.Extensions;
 using Tavstal.TLibrary.Helpers.Unturned;
 using Tavstal.TZones.Models.Core;
+using Tavstal.TZones.Utils.Constants;
 using Tavstal.TZones.Utils.Managers;
 
 namespace Tavstal.TZones.Commands
@@ -89,6 +90,12 @@ namespace Tavstal.TZones.Commands
                     if (targetFlag == null)
                     {
                         TZones.Instance.SendCommandReply(caller, "error_flag_not_found", args[0]);
+                        return;
+                    }
+
+                    if (Flags.Defaults.Contains(targetFlag.Name))
+                    {
+                        TZones.Instance.SendCommandReply(caller, "command_flags_remove_default", targetFlag.Name);
                         return;
                     }
 
