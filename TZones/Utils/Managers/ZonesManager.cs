@@ -67,11 +67,22 @@ namespace Tavstal.TZones.Utils.Managers
         #endregion
 
         #region Methods
-        public static void SetDirty() {
+        public static void SetDirty() 
+        {
             _isDirty = true;
         }
 
-        public static async Task RefreshAllAsync() {
+        public static async Task CheckDirtyAsync()
+        {
+            if (!_isDirty)
+                return;
+
+            _isDirty = false;
+            await RefreshAllAsync();
+        }
+
+        private static async Task RefreshAllAsync() 
+        {
             _flags = await TZones.DatabaseManager.GetFlagsAsync(string.Empty);
             _zones = await TZones.DatabaseManager.GetZonesAsync(string.Empty);
             _nodes = new Dictionary<ulong, List<Node>>();
@@ -152,7 +163,8 @@ namespace Tavstal.TZones.Utils.Managers
             return zones;
         }
 
-        public static bool IsPointInZone(this Zone zone, Vector3 position) {
+        public static bool IsPointInZone(this Zone zone, Vector3 position) 
+        {
             if (_nodes.TryGetValue(zone.Id, out List<Node> nodes)) {
                 return IsPointInNodes(nodes, position);
             }
