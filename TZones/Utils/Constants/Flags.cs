@@ -1,7 +1,17 @@
+using System.Collections.Generic;
+
 namespace Tavstal.TZones.Utils.Constants
 {
     public static class Flags
     {
+        private static readonly List<string> _defaults = new List<string>()
+        {
+            NoDamage, NoVehicleDamage, NoPlayerDamage, NoAnimalDamage, NoZombieDamage, NoTireDamage,
+            NoLockpick, NoBarricades, NoStructures, NoBarricadeSalvage, NoStructureSalvage, NoItemEquip, NoItemUnequip,
+            NoItemDrop, NoEnter, NoLeave, NoZombie, InfiniteGenerator, NoVehicleCarjack, NoVehicleSiphoning
+        };
+        public static List<string> Defaults => _defaults;
+        
         public const string NoDamage = "NoDamage";
         public const string NoVehicleDamage = "NoVehicleDamage";
         public const string NoPlayerDamage = "NoPlayerDamage";
