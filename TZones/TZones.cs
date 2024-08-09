@@ -95,6 +95,7 @@ namespace Tavstal.TZones
                { "prefix", $"&e[{GetPluginName()}]" },
                { "error_player_not_found", "&cPlayer was not found." },
                { "error_flag_not_found", "&cThe '{0}' flag does not exist." },
+               { "error_zone_not_found", "&cThe '{0}' zone does not exist." },
                { "command_flags_add_syntax", "&cWrong syntax! Usage: /flags add [name] [description]" },
                { "command_flags_add_duplicate", "&cThe '{0}' flag already exists." },
                { "command_flags_add", "&aYou have successfully added the '{0}' flag." },
@@ -102,16 +103,37 @@ namespace Tavstal.TZones
                { "command_flags_list_end", "&aYou have reached the end of the list."},
                { "command_flags_list_next", "&aUse &e/flags list {0} &ato view the next page."},
                { "command_flags_remove_syntax", "&cWrong syntax! Usage: /flags remove [name]"},
-               { "command_flags_remove", "&aYou have successfully removed the '{0}' flag."}
+               { "command_flags_remove_default", "&cYou can not remove a default flag." },
+               { "command_flags_remove", "&aYou have successfully removed the '{0}' flag."},
+               { "command_zones_list_syntax", "&cWrong syntax! Usage: /zones list [[zone] <page> | [node | flag | event | block] [zoneName] <page>]" },
+               { "command_zones_list_zone", "&3- &aId: {0}, Name: {1}, Description: {2}" },
+               { "command_zones_list_node", "&3- &aId: {0}, Type: {1}, X: {2}, Y: {3}, Z: {4}" },
+               { "command_zones_list_flag", "&3- &aName: {0}, Id: {1}" },
+               { "command_zones_list_event", "&3- &aType: {0}, Value: {1}" },
+               { "command_zones_list_block", "&3- &aId: {1}, Type: {0}" },
+               { "command_zones_list_next", "&aUse &e/zones list {0} &ato view the next page." },
+               { "command_zones_list_end", "&aYou have reached the end of the list." },
+               { "", "" },
+               { "", "" },
+               { "", "" },
+               { "", "" },
+               { "", "" },
+               { "", "" },
+               { "", "" },
+               { "", "" },
+               { "", "" },
+               { "", "" },
            };
 
-#region Unity Update
-#pragma warning disable IDE0051
-        private void Update() {
+        #region Unity Update
+        #pragma warning disable IDE0051
+        private async void Update() {
             _frame++;
             if (_frame % 10 != 0) {
                 return;
             }
+
+            await ZonesManager.CheckDirtyAsync();
             
             // Note: 
             // Future performance issues might be solved with Parallel.ForEach instead of regular foreach
@@ -183,7 +205,7 @@ namespace Tavstal.TZones
                     BarricadeManager.sendFuel(generator.transform, generator.capacity);
             }
         }
-#pragma warning restore IDE0051
-    #endregion
+        #pragma warning restore IDE0051
+        #endregion
     }
 }
