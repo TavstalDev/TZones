@@ -1,3 +1,4 @@
+using System;
 using Rocket.API;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,7 @@ using Tavstal.TLibrary.Compatibility.Interfaces;
 using Tavstal.TLibrary.Extensions;
 using Tavstal.TLibrary.Helpers.Unturned;
 using Tavstal.TZones.Models.Core;
+using Tavstal.TZones.Models.Enums;
 using Tavstal.TZones.Utils.Managers;
 
 namespace Tavstal.TZones.Commands
@@ -17,7 +19,7 @@ namespace Tavstal.TZones.Commands
         public override AllowedCaller AllowedCaller => AllowedCaller.Both;
         public override string Name => "zones";
         public override string Help => "Manage zones.";
-        public override string Syntax => "list | add | edit | remove";
+        public override string Syntax => "add | list | remove";
         public override List<string> Aliases => new List<string>() { "regions" };
         public override List<string> Permissions => new List<string> { "tzones.command.zones" };
 
@@ -27,7 +29,45 @@ namespace Tavstal.TZones.Commands
             new SubCommand("add", "", "add [zone | node | flag | event | block]", new List<string>(), new List<string>() { "tzones.command.zones.add" }, 
                 async (IRocketPlayer caller, string[] args) =>
                 {
-                    
+                    if (args.Length < 1)
+                    {
+                        TZones.Instance.SendCommandReply(caller, "command_zones_add_syntax");
+                        return;
+                    }
+
+                    switch (args[0].ToLower())
+                    {
+                        case "zone":
+                        {
+
+                            break;
+                        }
+                        case "node":
+                        {
+
+                            break;
+                        }
+                        case "flag":
+                        {
+
+                            break;
+                        }
+                        case "event":
+                        {
+
+                            break;
+                        }
+                        case "block":
+                        {
+
+                            break;
+                        }
+                        default:
+                        {
+                            TZones.Instance.SendCommandReply(caller, "command_zones_add_syntax");
+                            break;
+                        }
+                    }
                 }),
             new SubCommand("list", "", "list [[zone] <page> | [node | flag | event | block] [zoneName] <page>]", new List<string>(), new List<string>() { "tzones.command.zones.list" }, 
                 (IRocketPlayer caller, string[] args) =>
@@ -215,15 +255,199 @@ namespace Tavstal.TZones.Commands
                     else
                         TZones.Instance.SendCommandReply(caller, "command_zones_list_next", nextPage);
                 }),
-            new SubCommand("edit", "", "edit [zone | event]", new List<string>(), new List<string>() { "tzones.command.zones.edit" }, 
-                async (IRocketPlayer caller, string[] args) =>
-                {
-                    
-                }),
             new SubCommand("remove", "", "remove [zone | node | flag | event | block]", new List<string>(), new List<string>() { "tzones.command.zones.remove" }, 
                 async (IRocketPlayer caller, string[] args) =>
                 {
+                    if (args.Length < 1)
+                    {
+                        TZones.Instance.SendCommandReply(caller, "command_zones_remove_syntax");
+                        return;
+                    }
+
+                    switch (args[0].ToLower())
+                    {
+                        case "zone":
+                        {
+                            if (args.Length != 2)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "command_zones_remove_zone_syntax");
+                                return;
+                            }
+
+                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            if (zone == null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                return;
+                            }
+
+                            await TZones.DatabaseManager.RemoveZoneAsync(zone.Id);
+                            ZonesManager.SetDirty();
+                            
+                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_zone", args[1]);
+                            break;
+                        }
+                        case "node":
+                        {
+                            if (args.Length != 3)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "command_zones_remove_node_syntax");
+                                return;
+                            }
+
+                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            if (zone == null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                return;
+                            }
+
+                            ulong nodeId = 0;
+                            try
+                            {
+                                nodeId = ulong.Parse(args[2]);
+                            }
+                            catch { /* ignore */}
+                            
+                            Node node = ZonesManager.Nodes[zone.Id]?.Find(x => x.Id == nodeId);
+                            if (node == null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_node_not_found", zone.Name, args[2]);
+                                return;
+                            }
+
+                            await TZones.DatabaseManager.RemoveNodeAsync(node);
+                            ZonesManager.SetDirty();
+                            
+                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_node", node.Id);
+                            break;
+                        }
+                        case "flag":
+                        {
+                            if (args.Length != 3)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "command_zones_remove_flag_syntax");
+                                return;
+                            }
+                            
+                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            if (zone == null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                return;
+                            }
+                            
+                            ulong flagId = 0;
+                            try
+                            {
+                                flagId = ulong.Parse(args[2]);
+                            }
+                            catch { /* ignore */}
                     
+                            ZoneFlag flag = ZonesManager.ZoneFlags[zone.Id]?.Find(x => x.FlagId == flagId);
+                            if (flag == null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zoneflag_not_found", zone.Name, args[2]);
+                                return;
+                            }
+
+                            await TZones.DatabaseManager.RemoveZoneFlagAsync(zone.Id, flag.FlagId);
+                            ZonesManager.SetDirty();
+                            
+                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_flag", flag.FlagId, zone.Name);
+                            break;
+                        }
+                        case "event":
+                        {
+                            if (args.Length != 3)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "command_zones_remove_event_syntax");
+                                return;
+                            }
+                            
+                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            if (zone == null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                return;
+                            }
+                            
+                            EEventType eventType;
+                            try
+                            {
+                                eventType = (EEventType)Enum.Parse(typeof(EEventType), args[2], true);
+                            }
+                            catch
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_event_type_not_found", args[2]);
+                                break;
+                            }
+                            
+                            ZoneEvent zoneEvent = ZonesManager.ZoneEvents[zone.Id]?.Find(x => x.Type == eventType);
+                            if (zoneEvent == null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zoneevent_not_found", zone.Name, args[2]);
+                                return;
+                            }
+
+                            await TZones.DatabaseManager.RemoveZoneEventAsync(zone.Id, zoneEvent.Type);
+                            ZonesManager.SetDirty();
+                            
+                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_event", zoneEvent.Type.ToString(), zone.Name);
+                            break;
+                        }
+                        case "block":
+                        {
+                            if (args.Length != 4)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "command_zones_remove_block_syntax");
+                                return;
+                            }
+                            
+                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            if (zone == null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                return;
+                            }
+
+                            EBlockType blockType;
+                            try
+                            {
+                                blockType = (EBlockType)Enum.Parse(typeof(EBlockType), args[2], true);
+                            }
+                            catch
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_block_type_not_found", args[2]);
+                                break;
+                            }
+
+                            ushort id = 0;
+                            try
+                            {
+                                id = ushort.Parse(args[3]);
+                            }
+                            catch { /* ignored */}
+
+                            Block block = ZonesManager.ZoneBlocks[zone.Id]?.Find(x => x.Type == blockType && x.UnturnedId == id);
+                            if (block == null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zone_block_not_found", blockType.ToString(), id);
+                                return;
+                            }
+
+                            await TZones.DatabaseManager.RemoveBlockAsync(block);
+                            ZonesManager.SetDirty();
+                            
+                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_block");
+                            break; 
+                        }
+                        default:
+                        {
+                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_syntax");
+                            break;
+                        }
+                    }
                 })
         };
 
