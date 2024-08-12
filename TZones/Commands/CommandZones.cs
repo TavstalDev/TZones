@@ -3,6 +3,7 @@ using Rocket.API;
 using System.Collections.Generic;
 using System.Linq;
 using MySqlX.XDevAPI.Common;
+using Rocket.Unturned.Player;
 using Tavstal.TLibrary.Compatibility;
 using Tavstal.TLibrary.Compatibility.Interfaces;
 using Tavstal.TLibrary.Extensions;
@@ -35,31 +36,140 @@ namespace Tavstal.TZones.Commands
                         return;
                     }
 
+                    if (!(caller is UnturnedPlayer player))
+                    {
+                        TZones.Instance.SendCommandReply(caller, "error_not_player");
+                        return;
+                    }
+
                     switch (args[0].ToLower())
                     {
                         case "zone":
                         {
+                            if (args.Length != 3)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "command_zones_add_zone_syntax");
+                                return;
+                            }
 
+                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            if (zone != null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zone_already_exist", zone.Name);
+                                return;
+                            }
+                            
+                            await TZones.DatabaseManager.AddZoneAsync(args[1], args[2], ulong.Parse(caller.Id));
+                            ZonesManager.SetDirty();
+                            
+                            TZones.Instance.SendCommandReply(caller, "command_zones_add_zone", args[1]);
                             break;
                         }
                         case "node":
                         {
+                            if (args.Length < 2 || args.Length > 3)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "command_zones_add_node_syntax");
+                                return;
+                            }
 
+                            if (args.Length == 2)
+                                args[2] = "none";
+                            
+                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            if (zone == null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                return;
+                            }
+                            
+                            ENodeType nodeType;
+                            switch (args[2].ToLower())
+                            {
+                                case "none":
+                                {
+                                    nodeType = ENodeType.None;
+                                    break;
+                                }
+                                case "lower":
+                                case "low":
+                                {
+                                    nodeType = ENodeType.Lower;
+                                    break;
+                                }
+                                case "upper":
+                                case "up":
+                                {
+                                    nodeType = ENodeType.Upper;
+                                    break;
+                                }
+                                default:
+                                {
+                                    TZones.Instance.SendCommandReply(caller, "error_node_type_not_found", args[2]);
+                                    return;
+                                }
+                            }
+                            
+                            await TZones.DatabaseManager.AddNodeAsync(zone.Id, player.Position.x, player.Position.y, player.Position.z, nodeType);
+                            ZonesManager.SetDirty();
+                            
+                            TZones.Instance.SendCommandReply(caller, "command_zones_add_node");
                             break;
                         }
                         case "flag":
                         {
+                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            if (zone == null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                return;
+                            }
+                            
+                            Flag flag = ZonesManager.Flags.Find(x => x.Name == args[2]);
+                            if (flag == null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_flag_not_found", args[2]);
+                                return;
+                            }
 
+                            ZoneFlag zoneFlag = ZonesManager.ZoneFlags[zone.Id]?.Find(x => x.FlagId == flag.Id);
+                            if (zoneFlag != null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zoneflag_already_exist");
+                                return;
+                            }
+                            
+                            await TZones.DatabaseManager.AddZoneFlagAsync(zone.Id, flag.Id);
+                            ZonesManager.SetDirty();
+                            
                             break;
                         }
                         case "event":
                         {
-
+                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            if (zone == null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                return;
+                            }
+                            
+                            await TZones.DatabaseManager.AddZoneEventAsync(zone.Id, );
+                            ZonesManager.SetDirty();
+                            
                             break;
                         }
                         case "block":
                         {
-
+                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            if (zone == null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                return;
+                            }
+                            
+                            await TZones.DatabaseManager.AddBlockAsync(zone.Id, );
+                            ZonesManager.SetDirty();
+                            
                             break;
                         }
                         default:
@@ -380,7 +490,7 @@ namespace Tavstal.TZones.Commands
                             catch
                             {
                                 TZones.Instance.SendCommandReply(caller, "error_event_type_not_found", args[2]);
-                                break;
+                                return;
                             }
                             
                             ZoneEvent zoneEvent = ZonesManager.ZoneEvents[zone.Id]?.Find(x => x.Type == eventType);
@@ -419,7 +529,7 @@ namespace Tavstal.TZones.Commands
                             catch
                             {
                                 TZones.Instance.SendCommandReply(caller, "error_block_type_not_found", args[2]);
-                                break;
+                                return;
                             }
 
                             ushort id = 0;
