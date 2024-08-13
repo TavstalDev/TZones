@@ -118,6 +118,12 @@ namespace Tavstal.TZones.Commands
                         }
                         case "flag":
                         {
+                            if (args.Length != 3)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "command_zones_add_flag_syntax");
+                                return;
+                            }
+                            
                             Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
                             if (zone == null)
                             {
@@ -142,24 +148,49 @@ namespace Tavstal.TZones.Commands
                             await TZones.DatabaseManager.AddZoneFlagAsync(zone.Id, flag.Id);
                             ZonesManager.SetDirty();
                             
+                            TZones.Instance.SendCommandReply(caller, "command_zones_add_flag");
                             break;
                         }
                         case "event":
                         {
+                            if (args.Length != 4)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "command_zones_add_event_syntax");
+                                return;
+                            }
+                            
                             Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
                             if (zone == null)
                             {
                                 TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
                                 return;
                             }
+
+                            EEventType eventType;
+                            try
+                            {
+                                eventType = (EEventType)Enum.Parse(typeof(EEventType), args[2], true);
+                            }
+                            catch
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_event_type_not_found", args[2]);
+                                return;
+                            }
                             
-                            await TZones.DatabaseManager.AddZoneEventAsync(zone.Id, );
+                            await TZones.DatabaseManager.AddZoneEventAsync(zone.Id, eventType, args[3]);
                             ZonesManager.SetDirty();
                             
+                            TZones.Instance.SendCommandReply(caller, "command_zones_add_event");
                             break;
                         }
                         case "block":
                         {
+                            if (args.Length != 4)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "command_zones_add_block_syntax");
+                                return;
+                            }
+                            
                             Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
                             if (zone == null)
                             {
@@ -167,9 +198,29 @@ namespace Tavstal.TZones.Commands
                                 return;
                             }
                             
-                            await TZones.DatabaseManager.AddBlockAsync(zone.Id, );
+                            EBlockType blockType;
+                            try
+                            {
+                                blockType = (EBlockType)Enum.Parse(typeof(EBlockType), args[2], true);
+                            }
+                            catch
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_block_type_not_found", args[2]);
+                                return;
+                            }
+                    
+                            ushort unturnedId = 0;
+                            try
+                            {
+                                unturnedId = ushort.Parse(args[3]);
+                            }
+                            catch { /* ignored */}
+                            
+                            
+                            await TZones.DatabaseManager.AddBlockAsync(zone.Id, unturnedId, blockType);
                             ZonesManager.SetDirty();
                             
+                            TZones.Instance.SendCommandReply(caller, "command_zones_add_block");
                             break;
                         }
                         default:
