@@ -9,5 +9,11 @@ namespace Tavstal.TZones.Components
     {
         public List<Zone> Zones { get; set; }
         public Vector3 LastPosition { get; set; }
+
+        public ZonePlayerComponent()
+        {
+            Zones = new List<Zone>();
+            LastPosition = Player.Position;
+        }
     }
 }

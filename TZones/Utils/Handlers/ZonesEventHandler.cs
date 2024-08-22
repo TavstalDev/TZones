@@ -4,7 +4,9 @@ using SDG.Unturned;
 using Tavstal.TLibrary.Helpers.Unturned;
 using Tavstal.TZones.Models.Core;
 using Tavstal.TZones.Models.Enums;
+using Tavstal.TZones.Utils.Constants;
 using Tavstal.TZones.Utils.Managers;
+using UnityEngine;
 
 namespace Tavstal.TZones.Utils.Handlers
 {
@@ -40,10 +42,16 @@ namespace Tavstal.TZones.Utils.Handlers
             ZonesManager.OnZoneDeleted -= OnZoneDeleted;
         }
 
-        private static void OnPlayerEnterZone(UnturnedPlayer player, Zone zone)
+        private static void OnPlayerEnterZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition)
         {
             if (!ZonesManager.ZoneEvents.TryGetValue(zone.Id, out var events))
                 return;
+
+            if (zone.HasFlag(Flags.NoEnter))
+            {
+                player.Teleport(lastPosition, player.Rotation);
+                TZones.Instance.SendChatMessage("warn_zone_noenter", player.SteamPlayer());
+            }
 
             foreach (ZoneEvent zEvent in events)
             {
@@ -93,10 +101,16 @@ namespace Tavstal.TZones.Utils.Handlers
             }
         }
 
-        private static void OnPlayerLeaveZone(UnturnedPlayer player, Zone zone)
+        private static void OnPlayerLeaveZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition)
         {
             if (!ZonesManager.ZoneEvents.TryGetValue(zone.Id, out var events))
                 return;
+
+            if (zone.HasFlag(Flags.NoLeave))
+            {
+                player.Teleport(lastPosition, player.Rotation);
+                TZones.Instance.SendChatMessage("warn_zone_noleave", player.SteamPlayer());
+            }
 
             foreach (ZoneEvent zEvent in events)
             {

@@ -105,16 +105,8 @@ namespace Tavstal.TZones
                { "error_block_type_not_found", "&cThe &e{0} &cblock type does not exist." },
                { "error_zone_block_not_found", "&cThe zone block with &e{0} &ctype and &e{1} &cid does not exist." },
                { "error_zone_already_exist", "&cThe &e{0} &czone already exists." },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
+               { "warn_zone_noenter", "&6You can not enter the &e{0} &6zone." },
+               { "warn_zone_noleave", "&6You can not leave the &e{0} &6zone." },
                { "command_flags_add_syntax", "&cWrong syntax! Usage: /flags add [name] [description]" },
                { "command_flags_add_duplicate", "&cThe '{0}' flag already exists." },
                { "command_flags_add", "&aYou have successfully added the &e{0} &aflag." },
@@ -135,18 +127,6 @@ namespace Tavstal.TZones
                { "command_zones_add_event", "&aYou have successfully added a new event." },
                { "command_zones_add_block_syntax", "&cWrong syntax! Usage: /zones add block [zoneName] [blockType] [unturnedId]" },
                { "command_zones_add_block", "&aYou have successfully added a new block to the zone." },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
                { "command_zones_list_syntax", "&cWrong syntax! Usage: /zones list [[zone] <page> | [node | flag | event | block] [zoneName] <page>]" },
                { "command_zones_list_zone", "&3- &aId: {0}, Name: {1}, Description: {2}" },
                { "command_zones_list_node", "&3- &aId: {0}, Type: {1}, X: {2}, Y: {3}, Z: {4}" },
@@ -166,13 +146,6 @@ namespace Tavstal.TZones
                { "command_zones_remove_flag", "&aYou have successfully removed the &e{0} &aflag from the &e{0} &azone." },
                { "command_zones_remove_event", "&aYou have successfully removed the &e{0} &aevent." },
                { "command_zones_remove_block", "&aYou have successfully removed the block." },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
-               { "", "" },
            };
 
         #region Unity Update
@@ -207,18 +180,18 @@ namespace Tavstal.TZones
 
                 foreach (Zone zone in comp.Zones) {
                     if (currentZones.All(x => x.Id != zone.Id)) {
-                        ZonesManager.FPlayerLeaveZone(uPlayer, zone);
+                        ZonesManager.FPlayerLeaveZone(uPlayer, zone, comp.LastPosition);
                     }
                 }
 
                 foreach (Zone zone in currentZones) {
                     if (comp.Zones.All(x => x.Id != zone.Id)) {
-                        ZonesManager.FPlayerEnterZone(uPlayer, zone);
+                        ZonesManager.FPlayerEnterZone(uPlayer, zone, comp.LastPosition);
                     }
                 }
 
                 comp.Zones = currentZones;
-
+                comp.LastPosition = uPlayer.Position;
             }
         }
 

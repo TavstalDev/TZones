@@ -29,18 +29,18 @@ namespace Tavstal.TZones.Utils.Managers
         #endregion
         
         #region Events
-        public delegate void PlayerEnterZonedHandler(UnturnedPlayer player, Zone zone);
+        public delegate void PlayerEnterZonedHandler(UnturnedPlayer player, Zone zone, Vector3 lastPosition);
         public static event PlayerEnterZonedHandler OnPlayerEnterZone;
-        internal static void FPlayerEnterZone(UnturnedPlayer player, Zone zone)
+        internal static void FPlayerEnterZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition)
         {
-            OnPlayerEnterZone?.Invoke(player, zone);
+            OnPlayerEnterZone?.Invoke(player, zone, lastPosition);
         }
 
-        public delegate void PlayerLeaveZonedHandler(UnturnedPlayer player, Zone zone);
+        public delegate void PlayerLeaveZonedHandler(UnturnedPlayer player, Zone zone, Vector3 lastPosition);
         public static event PlayerLeaveZonedHandler OnPlayerLeaveZone;
-        internal static void FPlayerLeaveZone(UnturnedPlayer player, Zone zone)
+        internal static void FPlayerLeaveZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition)
         {
-            OnPlayerLeaveZone?.Invoke(player, zone);
+            OnPlayerLeaveZone?.Invoke(player, zone, lastPosition);
         }
 
         public delegate void ZoneCreatedHandler(Zone zone);
