@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Tavstal.TZones.Models.Database;
-using Tavstal.TLibrary.Compatibility;
+using Tavstal.TLibrary.Models.Plugin;
 
 namespace Tavstal.TZones
 {
@@ -11,7 +11,7 @@ namespace Tavstal.TZones
         [JsonProperty(Order = 3)]
         public DatabaseData Database { get; set; }
 
-        public override void LoadDefaults()
+        public new void LoadDefaults()
         {
             Database = new DatabaseData("tzones_zones", "tzones_nodes", "tzones_flags", "tzones_zoneflags", "tzones_events", "tzones_blocklist");
         }

@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Tavstal.TLibrary.Compatibility;
+using Tavstal.TLibrary.Models.Database;
 
 namespace Tavstal.TZones.Models.Database
 {

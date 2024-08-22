@@ -1,7 +1,8 @@
 using Rocket.API;
 using System.Collections.Generic;
-using Tavstal.TLibrary.Compatibility;
-using Tavstal.TLibrary.Compatibility.Interfaces;
+using System.Threading.Tasks;
+using Tavstal.TLibrary.Models.Commands;
+using Tavstal.TLibrary.Models.Plugin;
 using Tavstal.TLibrary.Extensions;
 using Tavstal.TLibrary.Helpers.Unturned;
 using Tavstal.TZones.Models.Core;
@@ -12,7 +13,7 @@ namespace Tavstal.TZones.Commands
 {
     public class CommandFlags: CommandBase
     {
-        public override IPlugin Plugin => TZones.Instance; 
+        protected override IPlugin Plugin => TZones.Instance; 
         public override AllowedCaller AllowedCaller => AllowedCaller.Both;
         public override string Name => "flags";
         public override string Help => "Manage flags.";
@@ -21,10 +22,10 @@ namespace Tavstal.TZones.Commands
         public override List<string> Permissions => new List<string> { "tzones.command.flags" };
 
         // 'help' subcommand is built-in, you don't need to add it
-        public override List<SubCommand> SubCommands => new List<SubCommand>()
+        protected override List<SubCommand> SubCommands => new List<SubCommand>()
         {
             new SubCommand("add", "", "add [name] [description]", new List<string>(), new List<string>() { "tzones.command.flags.add" }, 
-                async (IRocketPlayer caller, string[] args) =>
+                async (caller, args) =>
                 {
                     if (args.Length != 2) 
                     {
@@ -44,7 +45,7 @@ namespace Tavstal.TZones.Commands
                     TZones.Instance.SendCommandReply(caller, "command_flags_add", args[0]);
                 }),
             new SubCommand("list", "", "list <page>", new List<string>(), new List<string>() { "tzones.command.flags.list" }, 
-                (IRocketPlayer caller, string[] args) =>
+                (caller, args) =>
                 {
                     List<Flag> flags = ZonesManager.Flags;
 
@@ -76,9 +77,11 @@ namespace Tavstal.TZones.Commands
                         TZones.Instance.SendCommandReply(caller, "command_flags_list_end");
                     else
                         TZones.Instance.SendCommandReply(caller, "command_flags_list_next", page + 1);
+                    
+                    return  Task.CompletedTask;
                 }),
             new SubCommand("remove", "", "remove [name]", new List<string>(), new List<string>() { "tzones.command.flags.remove" }, 
-                async (IRocketPlayer caller, string[] args) =>
+                async (caller, args) =>
                 {
                     if (args.Length != 1) 
                     {
@@ -105,9 +108,9 @@ namespace Tavstal.TZones.Commands
                 })
         };
 
-        public override bool ExecutionRequested(IRocketPlayer caller, string[] args)
+        protected override Task<bool> ExecutionRequested(IRocketPlayer caller, string[] args)
         {
-            return true;
+            return Task.FromResult(true);
         }
     }
 }

@@ -1,13 +1,13 @@
 using System;
-using Rocket.API;
 using System.Collections.Generic;
 using System.Linq;
-using MySqlX.XDevAPI.Common;
+using System.Threading.Tasks;
+using Rocket.API;
 using Rocket.Unturned.Player;
-using Tavstal.TLibrary.Compatibility;
-using Tavstal.TLibrary.Compatibility.Interfaces;
 using Tavstal.TLibrary.Extensions;
 using Tavstal.TLibrary.Helpers.Unturned;
+using Tavstal.TLibrary.Models.Commands;
+using Tavstal.TLibrary.Models.Plugin;
 using Tavstal.TZones.Models.Core;
 using Tavstal.TZones.Models.Enums;
 using Tavstal.TZones.Utils.Managers;
@@ -16,19 +16,19 @@ namespace Tavstal.TZones.Commands
 {
     public class CommandZones: CommandBase
     {
-        public override IPlugin Plugin => TZones.Instance; 
+        protected override IPlugin Plugin => TZones.Instance; 
         public override AllowedCaller AllowedCaller => AllowedCaller.Both;
         public override string Name => "zones";
         public override string Help => "Manage zones.";
         public override string Syntax => "add | list | remove";
-        public override List<string> Aliases => new List<string>() { "regions" };
+        public override List<string> Aliases => new List<string> { "regions" };
         public override List<string> Permissions => new List<string> { "tzones.command.zones" };
 
         // 'help' subcommand is built-in, you don't need to add it
-        public override List<SubCommand> SubCommands => new List<SubCommand>()
+        protected override List<SubCommand> SubCommands => new List<SubCommand>
         {
-            new SubCommand("add", "", "add [zone | node | flag | event | block]", new List<string>(), new List<string>() { "tzones.command.zones.add" }, 
-                async (IRocketPlayer caller, string[] args) =>
+            new SubCommand("add", "", "add [zone | node | flag | event | block]", new List<string>(), new List<string> { "tzones.command.zones.add" }, 
+                async (caller, args) =>
                 {
                     if (args.Length < 1)
                     {
@@ -230,19 +230,19 @@ namespace Tavstal.TZones.Commands
                         }
                     }
                 }),
-            new SubCommand("list", "", "list [[zone] <page> | [node | flag | event | block] [zoneName] <page>]", new List<string>(), new List<string>() { "tzones.command.zones.list" }, 
-                (IRocketPlayer caller, string[] args) =>
+            new SubCommand("list", "", "list [[zone] <page> | [node | flag | event | block] [zoneName] <page>]", new List<string>(), new List<string> { "tzones.command.zones.list" }, 
+                (caller, args) =>
                 {
                     if (args.Length < 1)
                     {
                         TZones.Instance.SendCommandReply(caller, "command_zones_list_syntax");
-                        return;
+                        return Task.CompletedTask;
                     }
                     
                     if (args.Length < 2 && !args[0].ToLower().Equals("zone"))
                     {
                         TZones.Instance.SendCommandReply(caller, "command_zones_list_syntax");
-                        return;
+                        return Task.CompletedTask;
                     }
 
                     bool reachedEnd = false;
@@ -266,8 +266,6 @@ namespace Tavstal.TZones.Commands
                                     page = 1;
                                 break;
                             }
-                            default:
-                                break;
                         }
                     } catch { /*ignore*/ }
 
@@ -301,7 +299,7 @@ namespace Tavstal.TZones.Commands
                             if (zone == null)
                             {
                                 TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
-                                return;
+                                return Task.CompletedTask;
                             }
                             
                             var list = ZonesManager.Nodes[zone.Id];
@@ -328,7 +326,7 @@ namespace Tavstal.TZones.Commands
                             if (zone == null)
                             {
                                 TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
-                                return;
+                                return Task.CompletedTask;
                             }
                             
                             var list = ZonesManager.ZoneFlags[zone.Id];
@@ -357,7 +355,7 @@ namespace Tavstal.TZones.Commands
                             if (zone == null)
                             {
                                 TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
-                                return;
+                                return Task.CompletedTask;
                             }
                             
                             var list = ZonesManager.ZoneEvents[zone.Id];
@@ -384,7 +382,7 @@ namespace Tavstal.TZones.Commands
                             if (zone == null)
                             {
                                 TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
-                                return;
+                                return Task.CompletedTask;
                             }
                             
                             var list = ZonesManager.ZoneBlocks[zone.Id];
@@ -407,7 +405,7 @@ namespace Tavstal.TZones.Commands
                         default:
                         {
                             TZones.Instance.SendCommandReply(caller, "command_zones_list_syntax");
-                            return;
+                            return Task.CompletedTask;
                         }
                     }
                     
@@ -415,9 +413,11 @@ namespace Tavstal.TZones.Commands
                         TZones.Instance.SendCommandReply(caller, "command_zones_list_end");
                     else
                         TZones.Instance.SendCommandReply(caller, "command_zones_list_next", nextPage);
+                    
+                    return Task.CompletedTask;
                 }),
-            new SubCommand("remove", "", "remove [zone | node | flag | event | block]", new List<string>(), new List<string>() { "tzones.command.zones.remove" }, 
-                async (IRocketPlayer caller, string[] args) =>
+            new SubCommand("remove", "", "remove [zone | node | flag | event | block]", new List<string>(), new List<string> { "tzones.command.zones.remove" }, 
+                async (caller, args) =>
                 {
                     if (args.Length < 1)
                     {
@@ -612,9 +612,9 @@ namespace Tavstal.TZones.Commands
                 })
         };
 
-        public override bool ExecutionRequested(IRocketPlayer caller, string[] args)
+        protected override Task<bool> ExecutionRequested(IRocketPlayer caller, string[] args)
         {
-            return true;
+            return Task.FromResult(true);
         }
     }
 }

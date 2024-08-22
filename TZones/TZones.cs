@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Tavstal.TZones.Utils.Handlers;
 using Tavstal.TZones.Utils.Managers;
-using Tavstal.TLibrary.Compatibility;
+using Tavstal.TLibrary.Models.Plugin;
 using Rocket.Unturned.Player;
 using Tavstal.TZones.Components;
 using Tavstal.TZones.Models.Core;

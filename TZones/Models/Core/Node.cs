@@ -1,6 +1,6 @@
 using System;
-using Tavstal.TLibrary.Compatibility;
-using Tavstal.TLibrary.Compatibility.Database;
+using Tavstal.TLibrary.Models;
+using Tavstal.TLibrary.Models.Database.Attributes;
 using Tavstal.TZones.Models.Enums;
 using UnityEngine;
 

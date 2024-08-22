@@ -25,8 +25,8 @@ namespace Tavstal.TZones.Commands
             TZones.Instance.SendPlainCommandReply(caller, $"# Github: https://github.com/TavstalDev/TLibrary/tree/master");
             #endregion
             TZones.Instance.SendPlainCommandReply(caller, "#########################################");
-            TZones.Instance.SendPlainCommandReply(caller, string.Format("# Build Version: {0}", TZones.Version));
-            TZones.Instance.SendPlainCommandReply(caller, string.Format("# Build Date: {0}", TZones.BuildDate));
+            TZones.Instance.SendPlainCommandReply(caller, $"# Build Version: {TZones.Version}");
+            TZones.Instance.SendPlainCommandReply(caller, $"# Build Date: {TZones.BuildDate}");
             TZones.Instance.SendPlainCommandReply(caller, "#########################################");
         }
     }

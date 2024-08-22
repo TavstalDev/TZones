@@ -1,5 +1,5 @@
 using System;
-using Tavstal.TLibrary.Compatibility.Database;
+using Tavstal.TLibrary.Models.Database.Attributes;
 using Tavstal.TZones.Models.Enums;
 
 namespace Tavstal.TZones.Models.Core
