@@ -72,7 +72,7 @@ namespace Tavstal.TZones.Utils.Managers
             _isDirty = true;
         }
 
-        public static async Task CheckDirtyAsync()
+        internal static async Task CheckDirtyAsync()
         {
             if (!_isDirty)
                 return;
@@ -112,7 +112,7 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
         
-        public static async Task RefreshZoneAsync(ulong zoneId) 
+        internal static async Task RefreshZoneAsync(ulong zoneId) 
         {
             Zone zone = _zones.Find(x => x.Id == zoneId);
             if (zone != null) {
@@ -148,6 +148,31 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
         
+        public static async Task<bool> AddCustomFlagAsync(string name, string description, string register) 
+        {
+            Flag flag = Flags.Find(x => x.Name == name); 
+            if (flag != null) 
+                return false;
+            
+            await TZones.DatabaseManager.AddFlagAsync(name, description, register);
+            SetDirty();
+            return true;
+        }
+
+        public static async Task<int> RemoveCustomFlagAsync(string name)
+        {
+            Flag targetFlag = ZonesManager.Flags.Find(x => x.Name == name);
+            if (targetFlag == null)
+                return 1;
+
+            if (Constants.Flags.Defaults.Contains(targetFlag.Name))
+                return 2;
+            
+            await TZones.DatabaseManager.RemoveFlagAsync(targetFlag.Id);
+            SetDirty();
+            return 0;
+        }
+
         public static List<Zone> GetZonesFromPosition(Vector3 position) 
         {
             List<Zone> zones = new List<Zone>();
@@ -219,6 +244,43 @@ namespace Tavstal.TZones.Utils.Managers
             return false;
         }
 
+        public static Flag GetFlag(string flagName)
+        {
+            return _flags.Find(x => x.Name == flagName);
+        }
+        
+        public static Zone GetZone(string name)
+        {
+            return Zones.Find(x => x.Name == name);
+        }
+
+        public static List<Node> GetNodes(string zoneName)
+        {
+            Zone zone = GetZone(zoneName);
+            if (zone == null)
+                return null;
+
+            return _nodes[zone.Id];
+        }
+
+        public static List<ZoneFlag> GetZoneFlags(string zoneName)
+        {
+            Zone zone = GetZone(zoneName);
+            if (zone == null)
+                return null;
+
+            return _zoneFlags[zone.Id];
+        }
+
+        public static List<Block> GetZoneBlocks(string zoneName)
+        {
+            Zone zone = GetZone(zoneName);
+            if (zone == null)
+                return null;
+
+            return _zoneBlocks[zone.Id];
+        }
+        
         public static ZoneEvent GetEvent(this Zone zone, EEventType eventType) {
             if (_zoneEvents.TryGetValue(zone.Id, out List<ZoneEvent> events)) {
                 return events.Find(x => x.Type == eventType);

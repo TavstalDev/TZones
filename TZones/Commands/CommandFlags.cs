@@ -32,17 +32,11 @@ namespace Tavstal.TZones.Commands
                         TZones.Instance.SendCommandReply(caller, "command_flags_add_syntax");
                         return;
                     }
-
-                    Flag flag = ZonesManager.Flags.Find(x => x.Name == args[0]); 
-                    if (flag != null) 
-                    {
+                    
+                    if (await ZonesManager.AddCustomFlagAsync(args[0], args[1], caller.DisplayName))
+                        TZones.Instance.SendCommandReply(caller, "command_flags_add", args[0]);
+                    else
                         TZones.Instance.SendCommandReply(caller, "command_flags_add_duplicate", args[0]);
-                        return;
-                    }
-
-                    await TZones.DatabaseManager.AddFlagAsync(args[0], args[1], caller.DisplayName);
-                    ZonesManager.SetDirty();
-                    TZones.Instance.SendCommandReply(caller, "command_flags_add", args[0]);
                 }),
             new SubCommand("list", "", "list <page>", new List<string>(), new List<string>() { "tzones.command.flags.list" }, 
                 (caller, args) =>
@@ -88,23 +82,20 @@ namespace Tavstal.TZones.Commands
                         TZones.Instance.SendCommandReply(caller, "command_flags_remove_syntax");
                         return;
                     }
-
-                    Flag targetFlag = ZonesManager.Flags.Find(x => x.Name == args[0]);
-                    if (targetFlag == null)
+                    
+                    int result = await ZonesManager.RemoveCustomFlagAsync(args[0]);
+                    switch (result)
                     {
-                        TZones.Instance.SendCommandReply(caller, "error_flag_not_found", args[0]);
-                        return;
+                        case 0:
+                            TZones.Instance.SendCommandReply(caller, "command_flags_remove", args[0]);
+                            break;
+                        case 1:
+                            TZones.Instance.SendCommandReply(caller, "error_flag_not_found", args[0]);
+                            break;
+                        default:
+                            TZones.Instance.SendCommandReply(caller, "command_flags_remove_default", args[0]);
+                            break;
                     }
-
-                    if (Flags.Defaults.Contains(targetFlag.Name))
-                    {
-                        TZones.Instance.SendCommandReply(caller, "command_flags_remove_default", targetFlag.Name);
-                        return;
-                    }
-
-                    await TZones.DatabaseManager.RemoveFlagAsync(targetFlag.Id);
-                    ZonesManager.SetDirty();
-                    TZones.Instance.SendCommandReply(caller, "command_flags_remove", targetFlag.Name);
                 })
         };
 
