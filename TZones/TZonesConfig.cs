@@ -11,7 +11,7 @@ namespace Tavstal.TZones
         [JsonProperty(Order = 3)]
         public DatabaseData Database { get; set; }
 
-        public new void LoadDefaults()
+        public override void LoadDefaults()
         {
             Database = new DatabaseData("tzones_zones", "tzones_nodes", "tzones_flags", "tzones_zoneflags", "tzones_events", "tzones_blocklist");
         }
