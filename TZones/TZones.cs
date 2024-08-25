@@ -3,13 +3,6 @@ using System.Collections.Generic;
 using Tavstal.TZones.Utils.Handlers;
 using Tavstal.TZones.Utils.Managers;
 using Tavstal.TLibrary.Models.Plugin;
-using Rocket.Unturned.Player;
-using Tavstal.TZones.Components;
-using Tavstal.TZones.Models.Core;
-using System.Linq;
-using Tavstal.TZones.Utils.Constants;
-using UnityEngine;
-using System.Threading.Tasks;
 
 namespace Tavstal.TZones
 {
@@ -85,14 +78,14 @@ namespace Tavstal.TZones
                 return;
             }
 
-            Logger.LogLateInit();
+            ZonesManager.SetDirty();
         }
 
 
         public override Dictionary<string, string> DefaultLocalization =>
            new Dictionary<string, string>
            {
-               { "prefix", "&d[TZones]" },
+               { "prefix", "&d[TZones] " },
                { "error_not_player", "&cThis command can only be called by players." },
                { "error_player_not_found", "&cPlayer was not found." },
                { "error_flag_not_found", "&cThe &e{0} &cflag does not exist." },
@@ -149,86 +142,14 @@ namespace Tavstal.TZones
            };
 
         #region Unity Update
-        #pragma warning disable IDE0051
         private async void Update() {
             _frame++;
             if (_frame % 10 != 0) {
                 return;
             }
-
-            await ZonesManager.CheckDirtyAsync();
             
-            // Note: 
-            // Future performance issues might be solved with Parallel.ForEach instead of regular foreach
-            // Only use it at heavy load, or else it won't make it faster
-            UpdatePlayers();
-
-            // Update Generators & Zombies
-            Parallel.ForEach(ZonesManager.Zones, zone => {
-                UpdateGenerators(zone);
-                UpdateZombies(zone);
-            });
+            await ZonesManager.UpdateUnityAsync();
         }
-        
-        private void UpdatePlayers() 
-        {
-            foreach (SteamPlayer steamPlayer in Provider.clients) {
-                UnturnedPlayer uPlayer = UnturnedPlayer.FromSteamPlayer(steamPlayer);
-                ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
-
-                List<Zone> currentZones = ZonesManager.GetZonesFromPosition(uPlayer.Position);
-
-                foreach (Zone zone in comp.Zones) {
-                    if (currentZones.All(x => x.Id != zone.Id)) {
-                        ZonesManager.FPlayerLeaveZone(uPlayer, zone, comp.LastPosition);
-                    }
-                }
-
-                foreach (Zone zone in currentZones) {
-                    if (comp.Zones.All(x => x.Id != zone.Id)) {
-                        ZonesManager.FPlayerEnterZone(uPlayer, zone, comp.LastPosition);
-                    }
-                }
-
-                comp.Zones = currentZones;
-                comp.LastPosition = uPlayer.Position;
-            }
-        }
-
-        private void UpdateZombies(Zone zone) 
-        {
-            if (zone.HasFlag(Flags.NoZombie) && ZombieManager.regions != null) 
-            {
-                foreach (ZombieRegion t in ZombieManager.regions.Where(t => t.zombies != null))
-                {
-                    foreach (var zombie in t.zombies.Where(z => z))
-                    {
-                        if (zombie.isDead) 
-                            continue;
-                        if (!zone.IsPointInZone(zombie.transform.position)) 
-                            continue;
-                        zombie.gear = 0;
-                        zombie.isDead = true;
-                        ZombieManager.sendZombieDead(zombie, Vector3.zero);
-                    }
-                }
-            }
-        }
-
-        // ReSharper disable Unity.PerformanceAnalysis
-        private void UpdateGenerators(Zone zone)
-        {
-            if (!zone.HasFlag(Flags.InfiniteGenerator))
-                return;
-            InteractableGenerator[] generators = FindObjectsOfType<InteractableGenerator>();
-            foreach (var generator in generators)
-            {
-                if (zone.IsPointInZone(generator.transform.position) &&
-                    generator.fuel < generator.capacity - 10)
-                    BarricadeManager.sendFuel(generator.transform, generator.capacity);
-            }
-        }
-        #pragma warning restore IDE0051
         #endregion
     }
 }
