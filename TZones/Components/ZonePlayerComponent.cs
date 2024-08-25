@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Rocket.Unturned.Player;
 using Tavstal.TZones.Models.Core;
@@ -9,11 +10,14 @@ namespace Tavstal.TZones.Components
     {
         public List<Zone> Zones { get; set; }
         public Vector3 LastPosition { get; set; }
+        public DateTime SpamPreventEnd { get; set; }
 
-        public ZonePlayerComponent()
+        protected override void Load()
         {
+            base.Load();
             Zones = new List<Zone>();
             LastPosition = Player.Position;
+            SpamPreventEnd = DateTime.Now;
         }
     }
 }
