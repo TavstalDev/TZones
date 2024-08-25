@@ -1,7 +1,9 @@
+using System;
 using Rocket.Core;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
 using Tavstal.TLibrary.Helpers.Unturned;
+using Tavstal.TZones.Components;
 using Tavstal.TZones.Models.Core;
 using Tavstal.TZones.Models.Enums;
 using Tavstal.TZones.Utils.Constants;
@@ -42,15 +44,27 @@ namespace Tavstal.TZones.Utils.Handlers
             ZonesManager.OnZoneDeleted -= OnZoneDeleted;
         }
 
-        private static void OnPlayerEnterZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition)
+        private static void OnPlayerEnterZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition, ref bool shouldAllow)
         {
             if (!ZonesManager.ZoneEvents.TryGetValue(zone.Id, out var events))
                 return;
 
             if (zone.HasFlag(Flags.NoEnter))
             {
-                player.Teleport(lastPosition, player.Rotation);
-                TZones.Instance.SendChatMessage("warn_zone_noenter", player.SteamPlayer());
+                shouldAllow = false;
+                ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
+                
+                if (player.IsInVehicle)
+                    player.CurrentVehicle.forceRemovePlayer(out _, player.CSteamID, out _, out _);
+
+                player.Teleport(new Vector3(lastPosition.x, lastPosition.y, lastPosition.z), player.Rotation);
+
+                if (comp.SpamPreventEnd < DateTime.Now)
+                {
+                    TZones.Instance.SendCommandReply(player, "warn_zone_noenter", zone.Name);
+                    comp.SpamPreventEnd = DateTime.Now.AddSeconds(5);
+                }
+                return;
             }
 
             foreach (ZoneEvent zEvent in events)
@@ -87,7 +101,7 @@ namespace Tavstal.TZones.Utils.Handlers
                     }
                     case EEventType.EnterMessage:
                     {
-                        UChatHelper.SendPlainChatMessage(player.SteamPlayer(), zEvent.Value);
+                        TZones.Instance.SendPlainCommandReply(player, zEvent.Value);
                         break;
                     }
                     case EEventType.LeaveMessage:
@@ -101,15 +115,27 @@ namespace Tavstal.TZones.Utils.Handlers
             }
         }
 
-        private static void OnPlayerLeaveZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition)
+        private static void OnPlayerLeaveZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition, ref bool shouldAllow)
         {
             if (!ZonesManager.ZoneEvents.TryGetValue(zone.Id, out var events))
                 return;
 
             if (zone.HasFlag(Flags.NoLeave))
             {
-                player.Teleport(lastPosition, player.Rotation);
-                TZones.Instance.SendChatMessage("warn_zone_noleave", player.SteamPlayer());
+                shouldAllow = false;
+                ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
+
+                if (player.IsInVehicle)
+                    player.CurrentVehicle.forceRemovePlayer(out _, player.CSteamID, out _, out _);
+
+                player.Teleport(new Vector3(lastPosition.x, lastPosition.y, lastPosition.z), player.Rotation);
+                
+                if (comp.SpamPreventEnd < DateTime.Now)
+                {
+                    TZones.Instance.SendCommandReply(player, "warn_zone_noleave", zone.Name);
+                    comp.SpamPreventEnd = DateTime.Now.AddSeconds(5);
+                }
+                return;
             }
 
             foreach (ZoneEvent zEvent in events)
@@ -132,7 +158,7 @@ namespace Tavstal.TZones.Utils.Handlers
                     }
                     case EEventType.LeaveMessage:
                     {
-                        UChatHelper.SendPlainChatMessage(player.SteamPlayer(), zEvent.Value);
+                        TZones.Instance.SendPlainCommandReply(player, zEvent.Value);
                         break;
                     }
                     case EEventType.LeaveRemoveEffect:
