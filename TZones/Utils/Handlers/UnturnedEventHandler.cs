@@ -1,4 +1,5 @@
-﻿using Rocket.Unturned;
+﻿using System.Collections.Generic;
+using Rocket.Unturned;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
 using Steamworks;
@@ -107,8 +108,23 @@ namespace Tavstal.TZones.Utils.Handlers
         private static void OnPlayerDamageRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
             ZonePlayerComponent comp = parameters.player.GetComponent<ZonePlayerComponent>();
+            UnturnedPlayer targetPlayer = UnturnedPlayer.FromCSteamID(parameters.killer);
+            if (targetPlayer != null)
+            {
+                ZonePlayerComponent targetComp = targetPlayer.GetComponent<ZonePlayerComponent>();
+                foreach (Zone zone in targetComp.Zones) 
+                {
+                    if (zone.HasFlag(Flags.NoPlayerDamage)) 
+                    {
+                        shouldAllow = false;
+                        break;
+                    }
+                }
+            }
+            
 
-            foreach (Zone zone in comp.Zones) {
+            foreach (Zone zone in comp.Zones) 
+            {
                 if (zone.HasFlag(Flags.NoPlayerDamage)) {
                     shouldAllow = false;
                     break;
@@ -120,7 +136,8 @@ namespace Tavstal.TZones.Utils.Handlers
         {
             ZonePlayerComponent comp = equipment.player.GetComponent<ZonePlayerComponent>();
 
-            foreach (Zone zone in comp.Zones) {
+            foreach (Zone zone in comp.Zones) 
+            {
                 if (zone.HasFlag(Flags.NoItemEquip) ||zone.IsBlocked(asset.id, EBlockType.Equip)) {
                     shouldAllow = false;
                     break;
@@ -132,7 +149,8 @@ namespace Tavstal.TZones.Utils.Handlers
         {
             ZonePlayerComponent comp = equipment.player.GetComponent<ZonePlayerComponent>();
 
-            foreach (Zone zone in comp.Zones) {
+            foreach (Zone zone in comp.Zones) 
+            {
                 if (zone.HasFlag(Flags.NoItemUnequip) || zone.IsBlocked(equipment.asset.id, EBlockType.Unequip)) {
                     shouldAllow = false;
                     break;
@@ -144,8 +162,10 @@ namespace Tavstal.TZones.Utils.Handlers
         {
             ZonePlayerComponent comp = inventory.player.GetComponent<ZonePlayerComponent>();
 
-            foreach (Zone zone in comp.Zones) {
-                if (zone.HasFlag(Flags.NoItemDrop)) {
+            foreach (Zone zone in comp.Zones) 
+            {
+                if (zone.HasFlag(Flags.NoItemDrop)) 
+                {
                     shouldAllow = false;
                     break;
                 }
@@ -163,8 +183,20 @@ namespace Tavstal.TZones.Utils.Handlers
 
             ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
 
-            foreach (Zone zone in comp.Zones) {
-                if (zone.HasFlag(Flags.NoBarricades) || zone.IsBlocked(asset.id, EBlockType.Build)) {
+            foreach (Zone zone in comp.Zones) 
+            {
+                if (zone.HasFlag(Flags.NoBarricades) || zone.IsBlocked(asset.id, EBlockType.Build)) 
+                {
+                    shouldAllow = false;
+                    break;
+                }
+            }
+
+            List<Zone> objectZones = ZonesManager.GetZonesFromPosition(point);
+            foreach (Zone zone in objectZones) 
+            {
+                if (zone.HasFlag(Flags.NoBarricades) || zone.IsBlocked(asset.id, EBlockType.Build)) 
+                {
                     shouldAllow = false;
                     break;
                 }
@@ -179,8 +211,19 @@ namespace Tavstal.TZones.Utils.Handlers
 
             ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
 
-            foreach (Zone zone in comp.Zones) {
+            foreach (Zone zone in comp.Zones) 
+            {
                 if (zone.HasFlag(Flags.NoBarricadeSalvage)) {
+                    shouldAllow = false;
+                    break;
+                }
+            }
+            
+            List<Zone> objectZones = ZonesManager.GetZonesFromPosition(barricade.interactable.transform.position);
+            foreach (Zone zone in objectZones) 
+            {
+                if (zone.HasFlag(Flags.NoBarricadeSalvage)) 
+                {
                     shouldAllow = false;
                     break;
                 }
@@ -195,8 +238,19 @@ namespace Tavstal.TZones.Utils.Handlers
 
             ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
 
-            foreach (Zone zone in comp.Zones) {
+            foreach (Zone zone in comp.Zones) 
+            {
                 if (zone.HasFlag(Flags.NoDamage)) {
+                    shouldAllow = false;
+                    break;
+                }
+            }
+            
+            List<Zone> objectZones = ZonesManager.GetZonesFromPosition(barricadeTransform.position);
+            foreach (Zone zone in objectZones) 
+            {
+                if (zone.HasFlag(Flags.NoDamage)) 
+                {
                     shouldAllow = false;
                     break;
                 }
@@ -213,8 +267,19 @@ namespace Tavstal.TZones.Utils.Handlers
 
             ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
 
-            foreach (Zone zone in comp.Zones) {
+            foreach (Zone zone in comp.Zones) 
+            {
                 if (zone.HasFlag(Flags.NoStructures) || zone.IsBlocked(asset.id, EBlockType.Build)) {
+                    shouldAllow = false;
+                    break;
+                }
+            }
+            
+            List<Zone> objectZones = ZonesManager.GetZonesFromPosition(point);
+            foreach (Zone zone in objectZones) 
+            {
+                if (zone.HasFlag(Flags.NoStructures) || zone.IsBlocked(asset.id, EBlockType.Build)) 
+                {
                     shouldAllow = false;
                     break;
                 }
@@ -235,6 +300,16 @@ namespace Tavstal.TZones.Utils.Handlers
                     break;
                 }
             }
+            
+            List<Zone> objectZones = ZonesManager.GetZonesFromPosition(structure.GetServersideData().point);
+            foreach (Zone zone in objectZones) 
+            {
+                if (zone.HasFlag(Flags.NoStructureSalvage)) 
+                {
+                    shouldAllow = false;
+                    break;
+                }
+            }
         }
 
         private static void OnDamageStructureRequested(CSteamID instigatorSteamID, Transform structureTransform, ref ushort pendingTotalDamage, ref bool shouldAllow, EDamageOrigin damageOrigin)
@@ -244,9 +319,19 @@ namespace Tavstal.TZones.Utils.Handlers
                 return;
 
             ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
-
-            foreach (Zone zone in comp.Zones) {
+            foreach (Zone zone in comp.Zones) 
+            {
                 if (zone.HasFlag(Flags.NoDamage)) {
+                    shouldAllow = false;
+                    break;
+                }
+            }
+            
+            List<Zone> objectZones = ZonesManager.GetZonesFromPosition(structureTransform.position);
+            foreach (Zone zone in objectZones) 
+            {
+                if (zone.HasFlag(Flags.NoDamage)) 
+                {
                     shouldAllow = false;
                     break;
                 }
@@ -260,7 +345,8 @@ namespace Tavstal.TZones.Utils.Handlers
         {
             ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
 
-            foreach (Zone zone in comp.Zones) {
+            foreach (Zone zone in comp.Zones) 
+            {
                 if (zone.IsBlocked(vehicle.id, EBlockType.VehicleEnter)) {
                     shouldAllow = false;
                     break;
@@ -288,8 +374,19 @@ namespace Tavstal.TZones.Utils.Handlers
 
             ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
 
-            foreach (Zone zone in comp.Zones) {
+            foreach (Zone zone in comp.Zones) 
+            {
                 if (zone.HasFlag(Flags.NoVehicleDamage)) {
+                    shouldAllow = false;
+                    break;
+                }
+            }
+            
+            List<Zone> objectZones = ZonesManager.GetZonesFromPosition(vehicle.transform.position);
+            foreach (Zone zone in objectZones) 
+            {
+                if (zone.HasFlag(Flags.NoVehicleDamage)) 
+                {
                     shouldAllow = false;
                     break;
                 }
@@ -310,6 +407,16 @@ namespace Tavstal.TZones.Utils.Handlers
                     break;
                 }
             }
+            
+            List<Zone> objectZones = ZonesManager.GetZonesFromPosition(vehicle.transform.position);
+            foreach (Zone zone in objectZones) 
+            {
+                if (zone.HasFlag(Flags.NoTireDamage)) 
+                {
+                    shouldAllow = false;
+                    break;
+                }
+            }
         }
 
         private static void OnSiphonVehicleRequested(InteractableVehicle vehicle, Player instigatingPlayer, ref bool shouldAllow, ref ushort desiredAmount)
@@ -322,6 +429,16 @@ namespace Tavstal.TZones.Utils.Handlers
                     break;
                 }
             }
+            
+            List<Zone> objectZones = ZonesManager.GetZonesFromPosition(vehicle.transform.position);
+            foreach (Zone zone in objectZones) 
+            {
+                if (zone.HasFlag(Flags.NoVehicleSiphoning)) 
+                {
+                    shouldAllow = false;
+                    break;
+                }
+            }
         }
 
         private static void OnVehicleLockpicked(InteractableVehicle vehicle, Player instigatingPlayer, ref bool shouldAllow)
@@ -330,6 +447,16 @@ namespace Tavstal.TZones.Utils.Handlers
 
             foreach (Zone zone in comp.Zones) {
                 if (zone.HasFlag(Flags.NoLockpick)) {
+                    shouldAllow = false;
+                    break;
+                }
+            }
+            
+            List<Zone> objectZones = ZonesManager.GetZonesFromPosition(vehicle.transform.position);
+            foreach (Zone zone in objectZones) 
+            {
+                if (zone.HasFlag(Flags.NoLockpick)) 
+                {
                     shouldAllow = false;
                     break;
                 }
@@ -362,6 +489,16 @@ namespace Tavstal.TZones.Utils.Handlers
                         break;
                     }
                 }
+                
+                List<Zone> objectZones = ZonesManager.GetZonesFromPosition(parameters.animal.transform.position);
+                foreach (Zone zone in objectZones) 
+                {
+                    if (zone.HasFlag(Flags.NoAnimalDamage)) 
+                    {
+                        shouldAllow = false;
+                        break;
+                    }
+                }
             }
         }
 
@@ -373,6 +510,16 @@ namespace Tavstal.TZones.Utils.Handlers
 
                 foreach (Zone zone in comp.Zones) {
                     if (zone.HasFlag(Flags.NoZombieDamage)) {
+                        shouldAllow = false;
+                        break;
+                    }
+                }
+                
+                List<Zone> objectZones = ZonesManager.GetZonesFromPosition(parameters.zombie.transform.position);
+                foreach (Zone zone in objectZones) 
+                {
+                    if (zone.HasFlag(Flags.NoZombieDamage)) 
+                    {
                         shouldAllow = false;
                         break;
                     }
