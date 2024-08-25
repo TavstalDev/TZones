@@ -6,7 +6,6 @@ using Tavstal.TLibrary.Models.Plugin;
 using Tavstal.TLibrary.Extensions;
 using Tavstal.TLibrary.Helpers.Unturned;
 using Tavstal.TZones.Models.Core;
-using Tavstal.TZones.Utils.Constants;
 using Tavstal.TZones.Utils.Managers;
 
 namespace Tavstal.TZones.Commands
@@ -101,7 +100,7 @@ namespace Tavstal.TZones.Commands
 
         protected override Task<bool> ExecutionRequested(IRocketPlayer caller, string[] args)
         {
-            return Task.FromResult(true);
+            return Task.FromResult(false);
         }
     }
 }

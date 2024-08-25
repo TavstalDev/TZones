@@ -73,8 +73,9 @@ namespace Tavstal.TZones.Commands
                                 return;
                             }
 
-                            if (args.Length == 2)
-                                args[2] = "none";
+                            string type = "none";
+                            if (args.Length > 2)
+                                type = args[2];
                             
                             Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
                             if (zone == null)
@@ -84,7 +85,7 @@ namespace Tavstal.TZones.Commands
                             }
                             
                             ENodeType nodeType;
-                            switch (args[2].ToLower())
+                            switch (type.ToLower())
                             {
                                 case "none":
                                 {
@@ -105,7 +106,7 @@ namespace Tavstal.TZones.Commands
                                 }
                                 default:
                                 {
-                                    TZones.Instance.SendCommandReply(caller, "error_node_type_not_found", args[2]);
+                                    TZones.Instance.SendCommandReply(caller, "error_node_type_not_found", type);
                                     return;
                                 }
                             }
@@ -614,7 +615,7 @@ namespace Tavstal.TZones.Commands
 
         protected override Task<bool> ExecutionRequested(IRocketPlayer caller, string[] args)
         {
-            return Task.FromResult(true);
+            return Task.FromResult(false);
         }
     }
 }
