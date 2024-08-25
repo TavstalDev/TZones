@@ -128,7 +128,7 @@ namespace Tavstal.TZones.Utils.Managers
             using (var connection = CreateConnection()) {
                 try 
                 {
-                    await connection.RemoveTableRowAsync<Flag>(_pluginConfig.Database.TableFlags, $"Id=`{id}`", null);
+                    await connection.RemoveTableRowAsync<Flag>(_pluginConfig.Database.TableFlags, $"Id='{id}'", null);
                 }
                 catch (Exception ex) 
                 {
@@ -162,7 +162,7 @@ namespace Tavstal.TZones.Utils.Managers
             using (var connection = CreateConnection()) {
                 try 
                 {
-                    flag = await connection.GetTableRowAsync<Flag>(_pluginConfig.Database.TableFlags, $"Name=`{name}`", null);
+                    flag = await connection.GetTableRowAsync<Flag>(_pluginConfig.Database.TableFlags, $"Name='{name}'", null);
                 }
                 catch (Exception ex) 
                 {
@@ -195,7 +195,7 @@ namespace Tavstal.TZones.Utils.Managers
             using (var connection = CreateConnection()) {
                 try 
                 {
-                    await connection.RemoveTableRowAsync<Zone>(_pluginConfig.Database.TableZones, $"Id=`{zoneId}`", null);
+                    await connection.RemoveTableRowAsync<Zone>(_pluginConfig.Database.TableZones, $"Id='{zoneId}'", null);
                 }
                 catch (Exception ex) 
                 {
@@ -210,7 +210,7 @@ namespace Tavstal.TZones.Utils.Managers
             {
                 try 
                 {
-                    await connection.UpdateTableRowAsync<Zone>(_pluginConfig.Database.TableZones, $"Id=`{zoneId}`", SqlParameter.Get<Zone>(x=> x.Description, description));
+                    await connection.UpdateTableRowAsync<Zone>(_pluginConfig.Database.TableZones, $"Id='{zoneId}'", SqlParameter.Get<Zone>(x=> x.Description, description));
                 }
                 catch (Exception ex) 
                 {
@@ -277,7 +277,7 @@ namespace Tavstal.TZones.Utils.Managers
             using (var connection = CreateConnection()) {
                 try 
                 {
-                    await connection.RemoveTableRowAsync<Node>(_pluginConfig.Database.TableZoneNodes, $"ZoneId=`{node.ZoneId}` AND X=`{node.X}` AND Y=`{node.Y}` AND Z=`{node.Z}` AND Type=`{node.Type}`", null);
+                    await connection.RemoveTableRowAsync<Node>(_pluginConfig.Database.TableZoneNodes, $"ZoneId='{node.ZoneId}' AND X='{node.X}' AND Y='{node.Y}' AND Z='{node.Z}' AND Type='{node.Type}'", null);
                 }
                 catch (Exception ex) 
                 {
@@ -344,7 +344,7 @@ namespace Tavstal.TZones.Utils.Managers
             using (var connection = CreateConnection()) {
                 try 
                 {
-                    await connection.RemoveTableRowAsync<ZoneFlag>(_pluginConfig.Database.TableZoneFlags, $"ZoneId=`{zoneId}` AND FlagId=`{flagId}`", null);
+                    await connection.RemoveTableRowAsync<ZoneFlag>(_pluginConfig.Database.TableZoneFlags, $"ZoneId='{zoneId}' AND FlagId='{flagId}'", null);
                 }
                 catch (Exception ex) 
                 {
@@ -411,7 +411,7 @@ namespace Tavstal.TZones.Utils.Managers
             using (var connection = CreateConnection()) {
                 try 
                 {
-                    await connection.RemoveTableRowAsync<ZoneEvent>(_pluginConfig.Database.TableZoneEvents, $"ZoneId=`{zoneId}` AND Type=`{eventType}`", null);
+                    await connection.RemoveTableRowAsync<ZoneEvent>(_pluginConfig.Database.TableZoneEvents, $"ZoneId='{zoneId}' AND Type='{eventType}'", null);
                 }
                 catch (Exception ex) 
                 {
@@ -426,7 +426,7 @@ namespace Tavstal.TZones.Utils.Managers
             {
                 try 
                 {
-                    await connection.UpdateTableRowAsync<ZoneEvent>(_pluginConfig.Database.TableZoneEvents, $"ZoneId=`{zoneId}` AND Type=`{eventType}`", 
+                    await connection.UpdateTableRowAsync<ZoneEvent>(_pluginConfig.Database.TableZoneEvents, $"ZoneId='{zoneId}' AND Type='{eventType}'", 
                     SqlParameter.Get<ZoneEvent>(x => x.Value, newValue));
                 }
                 catch (Exception ex) 
@@ -495,7 +495,7 @@ namespace Tavstal.TZones.Utils.Managers
                 try 
                 {
                     await connection.RemoveTableRowAsync<Block>(_pluginConfig.Database.TableZoneBlocklist, 
-                    $"ZoneId=`{block.ZoneId}` AND UnturnedId=`{block.UnturnedId}` AND Type=`{block.Type}`", null);
+                    $"ZoneId='{block.ZoneId}' AND UnturnedId='{block.UnturnedId}' AND Type='{block.Type}'", null);
                 }
                 catch (Exception ex) 
                 {
