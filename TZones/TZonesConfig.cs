@@ -13,6 +13,9 @@ namespace Tavstal.TZones
 
         public override void LoadDefaults()
         {
+            DebugMode = false;
+            Locale = "en";
+            DownloadLocalePacks = true;
             Database = new DatabaseData("tzones_zones", "tzones_nodes", "tzones_flags", "tzones_zoneflags", "tzones_events", "tzones_blocklist");
         }
 
