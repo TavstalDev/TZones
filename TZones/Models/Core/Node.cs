@@ -13,11 +13,11 @@ namespace Tavstal.TZones.Models.Core
         public ulong Id { get; set; }
         [SqlMember(isUnsigned: true)]
         public ulong ZoneId { get; set; }
-        [SqlMember]
+        [SqlMember(columnType: "float")]
         public new float X { get; set; }
-        [SqlMember]
+        [SqlMember(columnType: "float")]
         public new float Y { get; set; }
-        [SqlMember]
+        [SqlMember(columnType: "float")]
         public new float Z { get; set; }
         [SqlMember]
         public ENodeType Type { get; set; }
