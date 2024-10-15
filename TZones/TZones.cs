@@ -36,9 +36,8 @@ namespace Tavstal.TZones
             Logger.Log("#########################################");
             Logger.Log("# Thanks for using my plugin");
             Logger.Log($"# Plugin Created By {VersionInfo.CompanyName}");
-            Logger.Log("# Discord: @YourDiscordName");
-            Logger.Log("# Website: https://your.website.example");
-            Logger.Log("# Discord Guild: https://discord.gg/your_invite");
+            Logger.Log("# Discord: @Tavstal");
+            Logger.Log("# Source: https://github.com/TavstalDev/TZones");
             // Please do not remove this region and its code, because the license require credits to the author.
             #region Credits to Tavstal
             Logger.Log("#########################################");
