@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Rocket.Unturned;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
 using Steamworks;
+using Tavstal.TLibrary.Extensions.Unturned;
 using Tavstal.TZones.Components;
 using Tavstal.TZones.Models.Core;
 using Tavstal.TZones.Models.Enums;
@@ -107,28 +109,38 @@ namespace Tavstal.TZones.Utils.Handlers
 
         private static void OnPlayerDamageRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
-            ZonePlayerComponent comp = parameters.player.GetComponent<ZonePlayerComponent>();
-            UnturnedPlayer targetPlayer = UnturnedPlayer.FromCSteamID(parameters.killer);
-            if (targetPlayer != null)
+            try
             {
-                ZonePlayerComponent targetComp = targetPlayer.GetComponent<ZonePlayerComponent>();
-                foreach (Zone zone in targetComp.Zones) 
+                ZonePlayerComponent comp = parameters.player.GetComponent<ZonePlayerComponent>();
+                UnturnedPlayer targetPlayer = UnturnedPlayer.FromCSteamID(parameters.killer);
+                if (targetPlayer != null && parameters.killer.isOnline())
                 {
-                    if (zone.HasFlag(Flags.NoPlayerDamage)) 
+                    ZonePlayerComponent targetComp = targetPlayer.GetComponent<ZonePlayerComponent>();
+                    foreach (Zone zone in targetComp.Zones)
+                    {
+                        if (zone.HasFlag(Flags.NoPlayerDamage))
+                        {
+                            shouldAllow = false;
+                            break;
+                        }
+                    }
+                }
+
+
+                foreach (Zone zone in comp.Zones)
+                {
+                    if (zone.HasFlag(Flags.NoPlayerDamage))
                     {
                         shouldAllow = false;
                         break;
                     }
                 }
             }
-            
-
-            foreach (Zone zone in comp.Zones) 
+            catch (Exception ex)
             {
-                if (zone.HasFlag(Flags.NoPlayerDamage)) {
-                    shouldAllow = false;
-                    break;
-                }
+                TZones.Logger.LogException("Error in OnPlayerDamageRequested:");
+                TZones.Logger.LogError(ex);
+                shouldAllow = true;
             }
         }
 
@@ -479,51 +491,72 @@ namespace Tavstal.TZones.Utils.Handlers
         #region PvE
         private static void OnDamageAnimalRequested(ref DamageAnimalParameters parameters, ref bool shouldAllow)
         {
-            if (parameters.instigator is Player player)
+            try
             {
-                ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
-
-                foreach (Zone zone in comp.Zones) {
-                    if (zone.HasFlag(Flags.NoAnimalDamage)) {
-                        shouldAllow = false;
-                        break;
-                    }
-                }
-                
-                List<Zone> objectZones = ZonesManager.GetZonesFromPosition(parameters.animal.transform.position);
-                foreach (Zone zone in objectZones) 
+                if (parameters.instigator is Player player)
                 {
-                    if (zone.HasFlag(Flags.NoAnimalDamage)) 
+                    ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
+                    foreach (Zone zone in comp.Zones)
                     {
-                        shouldAllow = false;
-                        break;
+                        if (zone.HasFlag(Flags.NoAnimalDamage))
+                        {
+                            shouldAllow = false;
+                            break;
+                        }
+                    }
+
+                    List<Zone> objectZones = ZonesManager.GetZonesFromPosition(parameters.animal.transform.position);
+                    foreach (Zone zone in objectZones)
+                    {
+                        if (zone.HasFlag(Flags.NoAnimalDamage))
+                        {
+                            shouldAllow = false;
+                            break;
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                TZones.Logger.LogException("Error in OnDamageAnimalRequested:");
+                TZones.Logger.LogError(ex);
+                shouldAllow = true;
             }
         }
 
         private static void OnDamageZombieRequested(ref DamageZombieParameters parameters, ref bool shouldAllow)
         {
-            if (parameters.instigator is Player player)
+            try
             {
-                ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
-
-                foreach (Zone zone in comp.Zones) {
-                    if (zone.HasFlag(Flags.NoZombieDamage)) {
-                        shouldAllow = false;
-                        break;
-                    }
-                }
-                
-                List<Zone> objectZones = ZonesManager.GetZonesFromPosition(parameters.zombie.transform.position);
-                foreach (Zone zone in objectZones) 
+                if (parameters.instigator is Player player)
                 {
-                    if (zone.HasFlag(Flags.NoZombieDamage)) 
+                    ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
+
+                    foreach (Zone zone in comp.Zones)
                     {
-                        shouldAllow = false;
-                        break;
+                        if (zone.HasFlag(Flags.NoZombieDamage))
+                        {
+                            shouldAllow = false;
+                            break;
+                        }
+                    }
+
+                    List<Zone> objectZones = ZonesManager.GetZonesFromPosition(parameters.zombie.transform.position);
+                    foreach (Zone zone in objectZones)
+                    {
+                        if (zone.HasFlag(Flags.NoZombieDamage))
+                        {
+                            shouldAllow = false;
+                            break;
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                TZones.Logger.LogException("Error in OnDamageZombieRequested:");
+                TZones.Logger.LogError(ex);
+                shouldAllow = true;
             }
         }
         #endregion
