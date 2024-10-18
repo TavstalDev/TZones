@@ -18,7 +18,8 @@ namespace Tavstal.TZones
         /// Used to prevent error spamming that is related to database configuration.
         /// </summary>
         public static bool IsConnectionAuthFailed { get; set; }
-        private static int _frame { get; set; }
+
+        private static int _frame;
 
         /// <summary>
         /// Fired when the plugin is loaded.
