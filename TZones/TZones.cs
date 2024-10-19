@@ -11,9 +11,9 @@ namespace Tavstal.TZones
     /// </summary>
     public class TZones : PluginBase<TZonesConfig>
     {
-        public new static TZones Instance { get; private set; }
+        public static TZones Instance { get; private set; }
         public new static readonly TLogger Logger = new TLogger("TZones", false);
-        public new static DatabaseManager DatabaseManager { get; private set; }
+        public static DatabaseManager DatabaseManager { get; private set; }
         /// <summary>
         /// Used to prevent error spamming that is related to database configuration.
         /// </summary>
