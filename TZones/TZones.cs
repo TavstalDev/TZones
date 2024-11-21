@@ -9,6 +9,7 @@ namespace Tavstal.TZones
     /// <summary>
     /// The main plugin class.
     /// </summary>
+    // ReSharper disable once InconsistentNaming
     public class TZones : PluginBase<TZonesConfig>
     {
         public static TZones Instance { get; private set; }
