@@ -49,7 +49,7 @@ namespace Tavstal.TZones.Utils.Handlers
             if (!ZonesManager.ZoneEvents.TryGetValue(zone.Id, out var events))
                 return;
 
-            if (zone.HasFlag(Flags.NoEnter))
+            if (zone.HasFlag(Flags.Enter))
             {
                 shouldAllow = false;
                 ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
@@ -120,7 +120,7 @@ namespace Tavstal.TZones.Utils.Handlers
             if (!ZonesManager.ZoneEvents.TryGetValue(zone.Id, out var events))
                 return;
 
-            if (zone.HasFlag(Flags.NoLeave))
+            if (zone.HasFlag(Flags.Leave))
             {
                 shouldAllow = false;
                 ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();

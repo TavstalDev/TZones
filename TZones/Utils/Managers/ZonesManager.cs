@@ -18,19 +18,19 @@ namespace Tavstal.TZones.Utils.Managers
     {
         #region Fields
 
-        private static bool _isDirty { get; set; }
+        private static bool _isDirty;
         // Because the unturned events use 'ref', and the database is async, cache must be used
-        private static List<Flag> _flags { get; set; }
+        private static List<Flag> _flags;
         public static List<Flag> Flags => _flags;
-        private static List<Zone> _zones { get; set; }
+        private static List<Zone> _zones;
         public static List<Zone> Zones => _zones;
-        private static Dictionary<ulong, List<Node>> _nodes { get; set; }
+        private static Dictionary<ulong, List<Node>> _nodes;
         public static Dictionary<ulong, List<Node>> Nodes => _nodes;
-        private static Dictionary<ulong, List<ZoneFlag>> _zoneFlags { get; set; }
+        private static Dictionary<ulong, List<ZoneFlag>> _zoneFlags;
         public static Dictionary<ulong, List<ZoneFlag>> ZoneFlags => _zoneFlags;
-        private static Dictionary<ulong, List<ZoneEvent>> _zoneEvents { get; set; }
+        private static Dictionary<ulong, List<ZoneEvent>> _zoneEvents;
         public static Dictionary<ulong, List<ZoneEvent>> ZoneEvents => _zoneEvents;
-        private static Dictionary<ulong, List<Block>> _zoneBlocks { get; set; }
+        private static Dictionary<ulong, List<Block>> _zoneBlocks;
         public static Dictionary<ulong, List<Block>> ZoneBlocks => _zoneBlocks;
 
         #endregion
@@ -370,7 +370,7 @@ namespace Tavstal.TZones.Utils.Managers
         private static void UpdateZombies(Zone zone) 
         {
             
-            if (zone.HasFlag(Constants.Flags.NoZombie) && ZombieManager.regions != null) 
+            if (zone.HasFlag(Constants.Flags.Zombie) && ZombieManager.regions != null) 
             {
                 foreach (ZombieRegion t in ZombieManager.regions.Where(t => t.zombies != null))
                 {

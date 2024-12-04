@@ -10,7 +10,7 @@ namespace Tavstal.TZones
     /// The main plugin class.
     /// </summary>
     // ReSharper disable once InconsistentNaming
-    public class TZones : PluginBase<TZonesConfig>
+    public class TZones : PluginBase<ZonesConfig>
     {
         public static TZones Instance { get; private set; }
         public new static readonly TLogger Logger = new TLogger("TZones", false);

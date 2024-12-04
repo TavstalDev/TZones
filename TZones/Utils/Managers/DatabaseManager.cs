@@ -14,7 +14,8 @@ namespace Tavstal.TZones.Utils.Managers
 {
     public class DatabaseManager : DatabaseManagerBase
     {
-        private static TZonesConfig _pluginConfig => TZones.Instance.Config;
+        // ReSharper disable once InconsistentNaming
+        private static ZonesConfig _pluginConfig => TZones.Instance.Config;
 
         public DatabaseManager(IPlugin plugin, IConfigurationBase config) : base(plugin, config)
         {
@@ -42,24 +43,24 @@ namespace Tavstal.TZones.Utils.Managers
                         await connection.CreateTableAsync<Flag>(_pluginConfig.Database.TableFlags);
                         await connection.AddTableRowsAsync(_pluginConfig.Database.TableFlags, new List<Flag>()
                         {
-                            new Flag(Flags.NoDamage, "Prevents barricade and structure damage.", "TZones"),
-                            new Flag(Flags.NoVehicleDamage, "Prevents vehicle damage.", "TZones"),
-                            new Flag(Flags.NoTireDamage, "Prevents tire damage.", "TZones"),
-                            new Flag(Flags.NoPlayerDamage, "Prevents player damage.", "TZones"),
-                            new Flag(Flags.NoAnimalDamage, "Prevents animal damage.", "TZones"),
-                            new Flag(Flags.NoZombieDamage, "Prevents zombie damage.", "TZones"),
-                            new Flag(Flags.NoLockpick, "Prevents lock picking.", "TZones"),
-                            new Flag(Flags.NoBarricades, "Prevents placing barricades.", "TZones"),
-                            new Flag(Flags.NoStructures, "Prevents placing structures.", "TZones"),
-                            new Flag(Flags.NoItemEquip, "Prevents equipping items.", "TZones"),
-                            new Flag(Flags.NoItemUnequip, "Prevents unequipping items.", "TZones"),
-                            new Flag(Flags.NoItemDrop, "Prevents dropping items.", "TZones"),
-                            new Flag(Flags.NoEnter, "Prevents entering the zone.", "TZones"),
-                            new Flag(Flags.NoLeave, "Prevents leaving the zone.", "TZones"),
-                            new Flag(Flags.NoZombie, "Prevents zombie spawning.", "TZones"),
+                            new Flag(Flags.Damage, "Prevents barricade and structure damage.", "TZones"),
+                            new Flag(Flags.VehicleDamage, "Prevents vehicle damage.", "TZones"),
+                            new Flag(Flags.TireDamage, "Prevents tire damage.", "TZones"),
+                            new Flag(Flags.PlayerDamage, "Prevents player damage.", "TZones"),
+                            new Flag(Flags.AnimalDamage, "Prevents animal damage.", "TZones"),
+                            new Flag(Flags.ZombieDamage, "Prevents zombie damage.", "TZones"),
+                            new Flag(Flags.Lockpick, "Prevents lock picking.", "TZones"),
+                            new Flag(Flags.Barricades, "Prevents placing barricades.", "TZones"),
+                            new Flag(Flags.Structures, "Prevents placing structures.", "TZones"),
+                            new Flag(Flags.ItemEquip, "Prevents equipping items.", "TZones"),
+                            new Flag(Flags.ItemUnequip, "Prevents unequipping items.", "TZones"),
+                            new Flag(Flags.ItemDrop, "Prevents dropping items.", "TZones"),
+                            new Flag(Flags.Enter, "Prevents entering the zone.", "TZones"),
+                            new Flag(Flags.Leave, "Prevents leaving the zone.", "TZones"),
+                            new Flag(Flags.Zombie, "Prevents zombie spawning.", "TZones"),
                             new Flag(Flags.InfiniteGenerator, "Refuels generators.", "TZones"),
-                            new Flag(Flags.NoVehicleCarjack, "Prevents carjacking vehicles", "TZones"),
-                            new Flag(Flags.NoVehicleSiphoning, "Prevents siphoning vehicles", "TZones")
+                            new Flag(Flags.VehicleCarjack, "Prevents carjacking vehicles", "TZones"),
+                            new Flag(Flags.VehicleSiphoning, "Prevents siphoning vehicles", "TZones")
                         });
                     }
                     else

@@ -4,7 +4,7 @@ using Tavstal.TLibrary.Models.Plugin;
 
 namespace Tavstal.TZones
 {
-    public class TZonesConfig : ConfigurationBase
+    public class ZonesConfig : ConfigurationBase
     {
         /*[JsonProperty(Order = 3)]
         public string StorageType { get; set; }*/
@@ -20,7 +20,7 @@ namespace Tavstal.TZones
         }
 
         // Required because of the library
-        public TZonesConfig() { }
-        public TZonesConfig(string fileName, string path) : base(fileName, path) { }
+        public ZonesConfig() { }
+        public ZonesConfig(string fileName, string path) : base(fileName, path) { }
     }
 }

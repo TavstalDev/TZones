@@ -4,34 +4,33 @@ namespace Tavstal.TZones.Utils.Constants
 {
     public static class Flags
     {
-        private static readonly List<string> _defaults = new List<string>()
+        public static List<string> Defaults { get; } = new List<string>()
         {
-            NoDamage, NoVehicleDamage, NoPlayerDamage, NoAnimalDamage, NoZombieDamage, NoTireDamage,
-            NoLockpick, NoBarricades, NoStructures, NoBarricadeSalvage, NoStructureSalvage, NoItemEquip, NoItemUnequip,
-            NoItemDrop, NoEnter, NoLeave, NoZombie, InfiniteGenerator, NoVehicleCarjack, NoVehicleSiphoning
+            Damage, VehicleDamage, PlayerDamage, AnimalDamage, ZombieDamage, TireDamage,
+            Lockpick, Barricades, Structures, BarricadeSalvage, StructureSalvage, ItemEquip, ItemUnequip,
+            ItemDrop, Enter, Leave, Zombie, InfiniteGenerator, VehicleCarjack, VehicleSiphoning
         };
-        public static List<string> Defaults => _defaults;
-        
-        public const string NoDamage = "NoDamage";
-        public const string NoVehicleDamage = "NoVehicleDamage";
-        public const string NoPlayerDamage = "NoPlayerDamage";
-        public const string NoAnimalDamage = "NoAnimalDamage";
-        public const string NoZombieDamage = "NoZombieDamage";
-        public const string NoTireDamage = "NoTireDamage";
-        public const string NoLockpick = "NoLockpick";
-        public const string NoBarricades = "NoBarricades";
-        public const string NoStructures = "NoStructures";
-        public const string NoBarricadeSalvage = "NoBarricadeSalvage";
-        public const string NoStructureSalvage = "NoStructureSalvage";
-        public const string NoItemEquip = "NoItemEquip";
-        public const string NoItemUnequip = "NoItemUnequip";
-        public const string NoItemDrop = "NoItemDrop";
-        public const string NoEnter = "NoEnter";
-        public const string NoLeave = "NoLeave";
-        public const string NoZombie = "NoZombie";
+
+        public const string Damage = "NoDamage";
+        public const string VehicleDamage = "NoVehicleDamage";
+        public const string PlayerDamage = "NoPlayerDamage";
+        public const string AnimalDamage = "NoAnimalDamage";
+        public const string ZombieDamage = "NoZombieDamage";
+        public const string TireDamage = "NoTireDamage";
+        public const string Lockpick = "NoLockpick";
+        public const string Barricades = "NoBarricades";
+        public const string Structures = "NoStructures";
+        public const string BarricadeSalvage = "NoBarricadeSalvage";
+        public const string StructureSalvage = "NoStructureSalvage";
+        public const string ItemEquip = "NoItemEquip";
+        public const string ItemUnequip = "NoItemUnequip";
+        public const string ItemDrop = "NoItemDrop";
+        public const string Enter = "NoEnter";
+        public const string Leave = "NoLeave";
+        public const string Zombie = "NoZombie";
         public const string InfiniteGenerator = "InfiniteGenerator";
-        public const string NoVehicleCarjack = "NoVehicleCarjack";
-        public const string NoVehicleSiphoning = "NoVehicleSiphoning";
+        public const string VehicleCarjack = "NoVehicleCarjack";
+        public const string VehicleSiphoning = "NoVehicleSiphoning";
         
     }
 }
