@@ -83,6 +83,7 @@ namespace Tavstal.TZones
             ZonesManager.SetDirty();
         }
 
+        public override Dictionary<string, string> LanguagePacks => new Dictionary<string, string>();
 
         public override Dictionary<string, string> DefaultLocalization =>
            new Dictionary<string, string>

@@ -12,6 +12,12 @@ using Tavstal.TZones.Models.Enums;
 
 namespace Tavstal.TZones.Utils.Managers
 {
+    /// <summary>
+    /// Manages database operations, extending the functionality of <see cref="DatabaseManagerBase"/>.
+    /// </summary>
+    /// <remarks>
+    /// This class is responsible for interacting with the database, including CRUD operations and other database-related tasks.
+    /// </remarks>
     public class DatabaseManager : DatabaseManagerBase
     {
         // ReSharper disable once InconsistentNaming
@@ -109,6 +115,13 @@ namespace Tavstal.TZones.Utils.Managers
         }
 
         #region Flags
+        /// <summary>
+        /// Asynchronously adds a new flag with the specified name, description, and registration details.
+        /// </summary>
+        /// <param name="name">The name of the flag to be added.</param>
+        /// <param name="description">A description of the flag.</param>
+        /// <param name="flagRegister">The registration details for the flag.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task AddFlagAsync(string name, string description, string flagRegister)
         {
             using (var connection = CreateConnection()) {
@@ -124,6 +137,11 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
 
+        /// <summary>
+        /// Asynchronously removes the flag with the specified ID.
+        /// </summary>
+        /// <param name="id">The ID of the flag to be removed.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task RemoveFlagAsync(ulong id)
         {
             using (var connection = CreateConnection()) {
@@ -138,6 +156,11 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
 
+        /// <summary>
+        /// Asynchronously retrieves a list of flags based on the specified query condition.
+        /// </summary>
+        /// <param name="whereClause">The condition used to filter the flags (e.g., SQL WHERE clause or custom filter).</param>
+        /// <returns>A task representing the asynchronous operation, with a list of <see cref="Flag"/> objects matching the condition.</returns>
         public async Task<List<Flag>> GetFlagsAsync(string whereClause)
         {
             List<Flag> flag = null;
@@ -156,6 +179,11 @@ namespace Tavstal.TZones.Utils.Managers
             return flag;
         }
 
+        /// <summary>
+        /// Asynchronously finds a flag based on the specified name.
+        /// </summary>
+        /// <param name="name">The name of the flag to find.</param>
+        /// <returns>A task representing the asynchronous operation, with the <see cref="Flag"/> object matching the name, or null if not found.</returns>
         public async Task<Flag> FindFlagAsync(string name)
         {
             Flag flag = null;
@@ -176,6 +204,13 @@ namespace Tavstal.TZones.Utils.Managers
         #endregion
 
         #region Zone Table
+        /// <summary>
+        /// Asynchronously adds a new zone with the specified name, description, and creator ID.
+        /// </summary>
+        /// <param name="name">The name of the zone to be added.</param>
+        /// <param name="description">A description of the zone.</param>
+        /// <param name="creatorId">The ID of the creator of the zone.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task AddZoneAsync(string name, string description, ulong creatorId)
         {
             using (var connection = CreateConnection()) {
@@ -191,6 +226,11 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
 
+        /// <summary>
+        /// Asynchronously removes the zone with the specified ID.
+        /// </summary>
+        /// <param name="zoneId">The ID of the zone to be removed.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task RemoveZoneAsync(ulong zoneId)
         {
             using (var connection = CreateConnection()) {
@@ -205,6 +245,12 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
 
+        /// <summary>
+        /// Asynchronously updates the description of the zone with the specified ID.
+        /// </summary>
+        /// <param name="zoneId">The ID of the zone to be updated.</param>
+        /// <param name="description">The new description for the zone.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task UpdateZoneAsync(ulong zoneId, string description)
         {
             using (var connection = CreateConnection()) 
@@ -220,6 +266,11 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
 
+        /// <summary>
+        /// Asynchronously retrieves a list of zones based on the specified query condition.
+        /// </summary>
+        /// <param name="whereClause">The condition used to filter the zones (e.g., SQL WHERE clause or custom filter).</param>
+        /// <returns>A task representing the asynchronous operation, with a list of <see cref="Zone"/> objects matching the condition.</returns>
         public async Task<List<Zone>> GetZonesAsync(string whereClause)
         {
             List<Zone> zones = null;
@@ -238,6 +289,11 @@ namespace Tavstal.TZones.Utils.Managers
             return zones;
         }
 
+        /// <summary>
+        /// Asynchronously finds a zone based on the specified query condition.
+        /// </summary>
+        /// <param name="whereClause">The condition used to filter the zone (e.g., SQL WHERE clause or custom filter).</param>
+        /// <returns>A task representing the asynchronous operation, with the <see cref="Zone"/> object matching the condition, or null if not found.</returns>
         public async Task<Zone> FindZoneAsync(string whereClause)
         {
             Zone zone = null;
@@ -258,6 +314,15 @@ namespace Tavstal.TZones.Utils.Managers
         #endregion
     
         #region Zone Nodes
+        /// <summary>
+        /// Asynchronously adds a new node to the specified zone with the given coordinates and node type.
+        /// </summary>
+        /// <param name="zoneId">The ID of the zone to which the node will be added.</param>
+        /// <param name="x">The X-coordinate of the node.</param>
+        /// <param name="y">The Y-coordinate of the node.</param>
+        /// <param name="z">The Z-coordinate of the node.</param>
+        /// <param name="type">The type of the node to be added (e.g., <see cref="ENodeType"/>).</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task AddNodeAsync(ulong zoneId, float x, float y, float z, ENodeType type)
         {
             using (var connection = CreateConnection()) {
@@ -273,6 +338,11 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
 
+        /// <summary>
+        /// Asynchronously removes the specified node.
+        /// </summary>
+        /// <param name="node">The node to be removed.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task RemoveNodeAsync(Node node)
         {
             using (var connection = CreateConnection()) {
@@ -287,6 +357,11 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
 
+        /// <summary>
+        /// Asynchronously retrieves a list of nodes based on the specified query condition.
+        /// </summary>
+        /// <param name="whereClause">The condition used to filter the nodes (e.g., SQL WHERE clause or custom filter).</param>
+        /// <returns>A task representing the asynchronous operation, with a list of <see cref="Node"/> objects matching the condition.</returns>
         public async Task<List<Node>> GetNodesAsync(string whereClause)
         {
             List<Node> nodes= null;
@@ -305,6 +380,11 @@ namespace Tavstal.TZones.Utils.Managers
             return nodes;
         }
 
+        /// <summary>
+        /// Asynchronously finds a node based on the specified query condition.
+        /// </summary>
+        /// <param name="whereClause">The condition used to filter the node (e.g., SQL WHERE clause or custom filter).</param>
+        /// <returns>A task representing the asynchronous operation, with the <see cref="Node"/> object matching the condition, or null if not found.</returns>
         public async Task<Node> FindNodeAsync(string whereClause)
         {
             Node node = null;
@@ -325,6 +405,12 @@ namespace Tavstal.TZones.Utils.Managers
         #endregion
 
         #region  Zone Flags
+        /// <summary>
+        /// Asynchronously adds a flag to the specified zone.
+        /// </summary>
+        /// <param name="zoneId">The ID of the zone to which the flag will be added.</param>
+        /// <param name="flagId">The ID of the flag to be added to the zone.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task AddZoneFlagAsync(ulong zoneId, ulong flagId)
         {
             using (var connection = CreateConnection()) {
@@ -340,6 +426,12 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
 
+        /// <summary>
+        /// Asynchronously removes a flag from the specified zone.
+        /// </summary>
+        /// <param name="zoneId">The ID of the zone from which the flag will be removed.</param>
+        /// <param name="flagId">The ID of the flag to be removed from the zone.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task RemoveZoneFlagAsync(ulong zoneId, ulong flagId)
         {
             using (var connection = CreateConnection()) {
@@ -354,6 +446,11 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
 
+        /// <summary>
+        /// Asynchronously retrieves a list of zone flags based on the specified query condition.
+        /// </summary>
+        /// <param name="whereClause">The condition used to filter the zone flags (e.g., SQL WHERE clause or custom filter).</param>
+        /// <returns>A task representing the asynchronous operation, with a list of <see cref="ZoneFlag"/> objects matching the condition.</returns>
         public async Task<List<ZoneFlag>> GetZoneFlagsAsync(string whereClause)
         {
             List<ZoneFlag> zflags = null;
@@ -372,6 +469,11 @@ namespace Tavstal.TZones.Utils.Managers
             return zflags;
         }
 
+        /// <summary>
+        /// Asynchronously finds a zone flag based on the specified query condition.
+        /// </summary>
+        /// <param name="whereClause">The condition used to filter the zone flag (e.g., SQL WHERE clause or custom filter).</param>
+        /// <returns>A task representing the asynchronous operation, with the <see cref="ZoneFlag"/> object matching the condition, or null if not found.</returns>
         public async Task<ZoneFlag> FindZoneFlagAsync(string whereClause)
         {
             ZoneFlag zflag = null;
@@ -392,6 +494,13 @@ namespace Tavstal.TZones.Utils.Managers
         #endregion
 
         #region Zone Events
+        /// <summary>
+        /// Asynchronously adds an event to the specified zone with the given event type and value.
+        /// </summary>
+        /// <param name="zoneId">The ID of the zone to which the event will be added.</param>
+        /// <param name="type">The type of event to be added (e.g., <see cref="EEventType"/>).</param>
+        /// <param name="value">The value associated with the event (e.g., event description or data).</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task AddZoneEventAsync(ulong zoneId, EEventType type, string value)
         {
             using (var connection = CreateConnection()) {
@@ -407,6 +516,12 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
 
+        /// <summary>
+        /// Asynchronously removes an event of the specified type from the specified zone.
+        /// </summary>
+        /// <param name="zoneId">The ID of the zone from which the event will be removed.</param>
+        /// <param name="eventType">The type of event to be removed (e.g., <see cref="EEventType"/>).</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task RemoveZoneEventAsync(ulong zoneId, EEventType eventType)
         {
             using (var connection = CreateConnection()) {
@@ -421,6 +536,13 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
 
+        /// <summary>
+        /// Asynchronously updates the value of an existing event in the specified zone.
+        /// </summary>
+        /// <param name="zoneId">The ID of the zone containing the event to be updated.</param>
+        /// <param name="eventType">The type of event to be updated (e.g., <see cref="EEventType"/>).</param>
+        /// <param name="newValue">The new value to update the event with.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task UpdateZoneEventAsync(ulong zoneId, EEventType eventType, string newValue)
         {
             using (var connection = CreateConnection()) 
@@ -437,6 +559,11 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
 
+        /// <summary>
+        /// Asynchronously retrieves a list of zone events based on the specified query condition.
+        /// </summary>
+        /// <param name="whereClause">The condition used to filter the zone events (e.g., SQL WHERE clause or custom filter).</param>
+        /// <returns>A task representing the asynchronous operation, with a list of <see cref="ZoneEvent"/> objects matching the condition.</returns>
         public async Task<List<ZoneEvent>> GetZoneEventsAsync(string whereClause)
         {
             List<ZoneEvent> events = null;
@@ -455,6 +582,11 @@ namespace Tavstal.TZones.Utils.Managers
             return events;
         }
 
+        /// <summary>
+        /// Asynchronously finds a zone event based on the specified query condition.
+        /// </summary>
+        /// <param name="whereClause">The condition used to filter the zone event (e.g., SQL WHERE clause or custom filter).</param>
+        /// <returns>A task representing the asynchronous operation, with the <see cref="ZoneEvent"/> object matching the condition, or null if not found.</returns>
         public async Task<ZoneEvent> FindZoneEventAsync(string whereClause)
         {
             ZoneEvent events = null;
@@ -475,6 +607,13 @@ namespace Tavstal.TZones.Utils.Managers
         #endregion
 
         #region Zone Blocks
+        /// <summary>
+        /// Asynchronously adds a block to the specified zone with the given Unturned ID and block type.
+        /// </summary>
+        /// <param name="zoneId">The ID of the zone to which the block will be added.</param>
+        /// <param name="unturnedId">The Unturned ID representing the specific block to be added.</param>
+        /// <param name="type">The type of block to be added (e.g., <see cref="EBlockType"/>).</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task AddBlockAsync(ulong zoneId, ushort unturnedId, EBlockType type)
         {
             using (var connection = CreateConnection()) {
@@ -490,6 +629,11 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
 
+        /// <summary>
+        /// Asynchronously removes the specified block.
+        /// </summary>
+        /// <param name="block">The block to be removed.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task RemoveBlockAsync(Block block)
         {
             using (var connection = CreateConnection()) {
@@ -505,6 +649,11 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
 
+        /// <summary>
+        /// Asynchronously retrieves a list of blocks based on the specified query condition.
+        /// </summary>
+        /// <param name="whereClause">The condition used to filter the blocks (e.g., SQL WHERE clause or custom filter).</param>
+        /// <returns>A task representing the asynchronous operation, with a list of <see cref="Block"/> objects matching the condition.</returns>
         public async Task<List<Block>> GetBlocksAsync(string whereClause)
         {
             List<Block> blocks = null;
@@ -523,6 +672,11 @@ namespace Tavstal.TZones.Utils.Managers
             return blocks;
         }
 
+        /// <summary>
+        /// Asynchronously finds a block based on the specified query condition.
+        /// </summary>
+        /// <param name="whereClause">The condition used to filter the block (e.g., SQL WHERE clause or custom filter).</param>
+        /// <returns>A task representing the asynchronous operation, with the <see cref="Block"/> object matching the condition, or null if not found.</returns>
         public async Task<Block> FindBlockAsync(string whereClause)
         {
             Block blocks = null;

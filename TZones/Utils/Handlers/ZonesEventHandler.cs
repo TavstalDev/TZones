@@ -12,10 +12,22 @@ using UnityEngine;
 
 namespace Tavstal.TZones.Utils.Handlers
 {
+    /// <summary>
+    /// A static class responsible for handling events related to zones, such as player interactions, zone creation, updates, and deletions.
+    /// </summary>
+    /// <remarks>
+    /// This class contains methods for attaching and detaching events, as well as handling specific actions within zones. It manages interactions like entering or leaving zones, zone updates, and the creation or deletion of zones.
+    /// </remarks>
     public static class ZonesEventHandler
     {
         private static bool _isAttached;
 
+        /// <summary>
+        /// Attaches event handlers for zone-related events, enabling the handling of player interactions and other zone actions.
+        /// </summary>
+        /// <remarks>
+        /// This method subscribes to events such as players entering or leaving zones, zone creation, update, and deletion, allowing the system to respond to changes and actions within zones.
+        /// </remarks>
         public static void AttachEvents()
         {
             if (_isAttached)
@@ -30,6 +42,12 @@ namespace Tavstal.TZones.Utils.Handlers
             ZonesManager.OnZoneDeleted += OnZoneDeleted;
         }
 
+        /// <summary>
+        /// Detaches event handlers for zone-related events, disabling the handling of player interactions and other zone actions.
+        /// </summary>
+        /// <remarks>
+        /// This method unsubscribes from events such as players entering or leaving zones, zone creation, update, and deletion, effectively stopping the system from responding to changes and actions within zones.
+        /// </remarks>
         public static void DetachEvents()
         {
             if (!_isAttached)
@@ -44,6 +62,16 @@ namespace Tavstal.TZones.Utils.Handlers
             ZonesManager.OnZoneDeleted -= OnZoneDeleted;
         }
 
+        /// <summary>
+        /// Handles the event when a player enters a zone, allowing for modifications to the entry conditions.
+        /// </summary>
+        /// <param name="player">The player who is entering the zone.</param>
+        /// <param name="zone">The zone that the player is entering.</param>
+        /// <param name="lastPosition">The player's last known position before entering the zone.</param>
+        /// <param name="shouldAllow">A flag indicating whether the player should be allowed to enter the zone. Set to false to prevent entry.</param>
+        /// <remarks>
+        /// This method allows modification of the player zone entry process. It can be used to block a player from entering the zone based on specific conditions, such as permissions or other criteria.
+        /// </remarks>
         private static void OnPlayerEnterZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition, ref bool shouldAllow)
         {
             if (!ZonesManager.ZoneEvents.TryGetValue(zone.Id, out var events))
@@ -115,6 +143,16 @@ namespace Tavstal.TZones.Utils.Handlers
             }
         }
 
+        /// <summary>
+        /// Handles the event when a player leaves a zone, allowing for modifications to the exit conditions.
+        /// </summary>
+        /// <param name="player">The player who is leaving the zone.</param>
+        /// <param name="zone">The zone the player is leaving.</param>
+        /// <param name="lastPosition">The player's last known position before leaving the zone.</param>
+        /// <param name="shouldAllow">A flag indicating whether the player should be allowed to leave the zone. Set to false to prevent exit.</param>
+        /// <remarks>
+        /// This method allows modification of the player zone exit process. It can be used to block or modify the conditions under which a player leaves the zone.
+        /// </remarks>
         private static void OnPlayerLeaveZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition, ref bool shouldAllow)
         {
             if (!ZonesManager.ZoneEvents.TryGetValue(zone.Id, out var events))
@@ -186,20 +224,40 @@ namespace Tavstal.TZones.Utils.Handlers
             }
         }
 
+        /// <summary>
+        /// Handles the event when a zone is created.
+        /// </summary>
+        /// <param name="zone">The zone that has been created.</param>
+        /// <remarks>
+        /// This method is triggered when a new zone is created in the system. It can be used to perform any necessary actions or initialize properties when a zone is created.
+        /// </remarks>
         private static void OnZoneCreated(Zone zone)
         {
             
         }
 
+        /// <summary>
+        /// Handles the event when a zone is updated.
+        /// </summary>
+        /// <param name="zone">The zone that has been updated.</param>
+        /// <remarks>
+        /// This method is triggered when an existing zone is updated. It can be used to perform any necessary actions or adjustments when a zone's properties are changed.
+        /// </remarks>
         private static void OnZoneUpdated(Zone zone)
         {
             
         }
 
+        /// <summary>
+        /// Handles the event when a zone is deleted.
+        /// </summary>
+        /// <param name="zone">The zone that has been deleted.</param>
+        /// <remarks>
+        /// This method is triggered when a zone is deleted from the system. It can be used to perform cleanup or other necessary actions when a zone is removed.
+        /// </remarks>
         private static void OnZoneDeleted(Zone zone)
         {
             
         }
-
     }
 }
