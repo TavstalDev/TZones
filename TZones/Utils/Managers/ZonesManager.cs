@@ -7,6 +7,7 @@ using Tavstal.TZones.Models.Enums;
 using UnityEngine;
 using Tavstal.TZones.Components;
 using SDG.Unturned;
+using Tavstal.TLibrary;
 using Block = Tavstal.TZones.Models.Core.Block;
 using ENodeType = Tavstal.TZones.Models.Enums.ENodeType;
 using Flag = Tavstal.TZones.Models.Core.Flag;
@@ -367,25 +368,28 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
 
-        private static void UpdateZombies(Zone zone) 
+        private static void UpdateZombies(Zone zone)
         {
+            if (!zone.HasFlag(Constants.Flags.Zombie) || ZombieManager.regions == null)
+                return;
             
-            if (zone.HasFlag(Constants.Flags.Zombie) && ZombieManager.regions != null) 
+            MainThreadDispatcher.RunOnMainThread(() =>
             {
                 foreach (ZombieRegion t in ZombieManager.regions.Where(t => t.zombies != null))
                 {
                     foreach (var zombie in t.zombies.Where(z => z))
                     {
-                        if (zombie.isDead) 
+                        if (zombie.isDead)
                             continue;
-                        if (!zone.IsPointInZone(zombie.transform.position)) 
+                        if (!zone.IsPointInZone(zombie.transform.position))
                             continue;
                         zombie.gear = 0;
                         zombie.isDead = true;
                         ZombieManager.sendZombieDead(zombie, Vector3.zero);
                     }
                 }
-            }
+            });
+
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
@@ -393,13 +397,17 @@ namespace Tavstal.TZones.Utils.Managers
         {
             if (!zone.HasFlag(Constants.Flags.InfiniteGenerator))
                 return;
-            InteractableGenerator[] generators = Object.FindObjectsOfType<InteractableGenerator>();
-            foreach (var generator in generators)
+
+            MainThreadDispatcher.RunOnMainThread(() =>
             {
-                if (zone.IsPointInZone(generator.transform.position) &&
-                    generator.fuel < generator.capacity - 10)
-                    BarricadeManager.sendFuel(generator.transform, generator.capacity);
-            }
+                InteractableGenerator[] generators = Object.FindObjectsOfType<InteractableGenerator>();
+                foreach (var generator in generators)
+                {
+                    if (zone.IsPointInZone(generator.transform.position) &&
+                        generator.fuel < generator.capacity - 10)
+                        BarricadeManager.sendFuel(generator.transform, generator.capacity);
+                }
+            });
         }
         #endregion
     }

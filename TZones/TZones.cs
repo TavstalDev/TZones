@@ -1,5 +1,6 @@
 ﻿using SDG.Unturned;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Tavstal.TZones.Utils.Handlers;
 using Tavstal.TZones.Utils.Managers;
 using Tavstal.TLibrary.Models.Plugin;
@@ -143,13 +144,13 @@ namespace Tavstal.TZones
            };
 
         #region Unity Update
-        private async void Update() {
+        private void Update() {
             _frame++;
             if (_frame % 10 != 0) {
                 return;
             }
-            
-            await ZonesManager.UpdateUnityAsync();
+
+            Task.Run(async () => await ZonesManager.UpdateUnityAsync());
         }
         #endregion
     }
