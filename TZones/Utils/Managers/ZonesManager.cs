@@ -35,6 +35,8 @@ namespace Tavstal.TZones.Utils.Managers
         public static Dictionary<ulong, List<ZoneEvent>> ZoneEvents => _zoneEvents;
         private static Dictionary<ulong, List<Block>> _zoneBlocks;
         public static Dictionary<ulong, List<Block>> ZoneBlocks => _zoneBlocks;
+        
+        private static List<InteractableGenerator> _interactableGeneratorCache = new List<InteractableGenerator>();
         #endregion
         
         #region Events
@@ -152,6 +154,17 @@ namespace Tavstal.TZones.Utils.Managers
         #endregion
 
         #region Methods
+        /// <summary>
+        /// Refreshes the cache of interactable generators by finding all instances of <see cref="InteractableGenerator"/> in the scene.
+        /// </summary>
+        /// <remarks>
+        /// This method updates the cached list of interactable generators, ensuring it reflects the current state of the scene.
+        /// </remarks>
+        public static void RefreshGeneratorCache()
+        {
+            _interactableGeneratorCache = Object.FindObjectsOfType<InteractableGenerator>().ToList();
+        }
+        
         /// <summary>
         /// Marks the current state as dirty, indicating that changes have been made and need to be processed.
         /// </summary>
@@ -294,12 +307,32 @@ namespace Tavstal.TZones.Utils.Managers
         public static List<Zone> GetZonesFromPosition(Vector3 position) 
         {
             List<Zone> zones = new List<Zone>();
-
             foreach (var data in _nodes) {
                 if (IsPointInNodes(data.Value, position)) {
                     Zone zone = _zones.FirstOrDefault(x => x.Id == data.Key);
                     if (zone != null)
                         zones.Add(zone);
+                }
+            }
+
+            return zones;
+        }
+        
+        /// <summary>
+        /// Retrieves the zone IDs that correspond to the specified position.
+        /// </summary>
+        /// <param name="position">The position to check for associated zone IDs.</param>
+        /// <returns>
+        /// A <see cref="HashSet{T}"/> containing the zone IDs that are associated with the given position.
+        /// </returns>
+        public static HashSet<ulong> GetZoneIdsFromPosition(Vector3 position) 
+        {
+            HashSet<ulong> zones = new HashSet<ulong>();
+            foreach (var data in _nodes) {
+                if (IsPointInNodes(data.Value, position)) {
+                    Zone zone = _zones.FirstOrDefault(x => x.Id == data.Key);
+                    if (zone != null)
+                        zones.Add(zone.Id);
                 }
             }
 
@@ -380,6 +413,26 @@ namespace Tavstal.TZones.Utils.Managers
             }
             return false;
         }
+        
+        /// <summary>
+        /// Checks if a specific flag is set for the given zone.
+        /// </summary>
+        /// <param name="zoneId">The ID of the zone to check.</param>
+        /// <param name="flagName">The name of the flag to check for.</param>
+        /// <returns>
+        /// <c>true</c> if the specified flag is set for the zone, otherwise <c>false</c>.
+        /// </returns>
+        public static bool HasFlag(ulong zoneId, string flagName) 
+        {
+            Flag flag = _flags.Find(x => x.Name == flagName);
+            if (flag == null) 
+                return false;
+
+            if (_zoneFlags.TryGetValue(zoneId, out List<ZoneFlag> flags)) {
+                return flags.Any(x => x.FlagId == flag.Id);
+            }
+            return false;
+        }
 
         /// <summary>
         /// Retrieves a flag based on the specified flag name.
@@ -399,6 +452,18 @@ namespace Tavstal.TZones.Utils.Managers
         public static Zone GetZone(string name)
         {
             return Zones.Find(x => x.Name == name);
+        }
+        
+        /// <summary>
+        /// Retrieves the zone associated with the specified zone ID.
+        /// </summary>
+        /// <param name="id">The ID of the zone to retrieve.</param>
+        /// <returns>
+        /// A <see cref="Zone"/> object representing the zone with the specified ID, or <c>null</c> if no zone with the given ID exists.
+        /// </returns>
+        public static Zone GetZone(ulong id)
+        {
+            return Zones.Find(x => x.Id == id);
         }
 
         /// <summary>
@@ -455,6 +520,21 @@ namespace Tavstal.TZones.Utils.Managers
                 return events.Find(x => x.Type == eventType);
             return null;
         }
+        
+        /// <summary>
+        /// Retrieves the event associated with the specified zone ID and event type.
+        /// </summary>
+        /// <param name="zoneId">The ID of the zone for which the event is being retrieved.</param>
+        /// <param name="eventType">The type of the event to retrieve.</param>
+        /// <returns>
+        /// A <see cref="ZoneEvent"/> representing the event associated with the specified zone and event type, or <c>null</c> if no such event exists.
+        /// </returns>
+        public static ZoneEvent GetEvent(ulong zoneId, EEventType eventType) 
+        {
+            if (_zoneEvents.TryGetValue(zoneId, out List<ZoneEvent> events))
+                return events.Find(x => x.Type == eventType);
+            return null;
+        }
 
         /// <summary>
         /// Checks if the specified entity is blocked in the given zone based on its ID and block type.
@@ -471,6 +551,23 @@ namespace Tavstal.TZones.Utils.Managers
         public static bool IsBlocked(this Zone zone, ushort unturnedId, EBlockType blockType) 
         {
             if (_zoneBlocks.TryGetValue(zone.Id, out List<Block> blocks)) {
+                return blocks.Any(x => x.UnturnedId == unturnedId && x.Type == blockType);
+            }
+            return false;
+        }
+        
+        /// <summary>
+        /// Checks if a specific block is applied to a given zone and Unturned ID based on the block type.
+        /// </summary>
+        /// <param name="zoneId">The ID of the zone to check.</param>
+        /// <param name="unturnedId">The Unturned ID associated with the block.</param>
+        /// <param name="blockType">The type of block to check for.</param>
+        /// <returns>
+        /// <c>true</c> if the specified block type is applied, otherwise <c>false</c>.
+        /// </returns>
+        public static bool IsBlocked(ulong zoneId, ushort unturnedId, EBlockType blockType) 
+        {
+            if (_zoneBlocks.TryGetValue(zoneId, out List<Block> blocks)) {
                 return blocks.Any(x => x.UnturnedId == unturnedId && x.Type == blockType);
             }
             return false;
@@ -492,12 +589,16 @@ namespace Tavstal.TZones.Utils.Managers
             UpdatePlayers();
 
             // Update Generators & Zombies
-            if (Zones == null)
+            if (Zones == null || Zones.Count == 0)
                 return;
             
-            Parallel.ForEach(Zones, zone => {
-                UpdateGenerators(zone);
-                UpdateZombies(zone);
+            MainThreadDispatcher.RunOnMainThread(() =>
+            {
+                foreach (Zone zone in Zones)
+                {
+                    UpdateGenerators(zone);
+                    UpdateZombies(zone);
+                }
             });
         }
         
@@ -514,31 +615,34 @@ namespace Tavstal.TZones.Utils.Managers
                 UnturnedPlayer uPlayer = UnturnedPlayer.FromSteamPlayer(steamPlayer);
                 ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
 
-                List<Zone> currentZones = GetZonesFromPosition(uPlayer.Position);
+                HashSet<ulong> currentZones = GetZoneIdsFromPosition(uPlayer.Position);
                 bool updateLastPos = true;
 
-                foreach (Zone zone in comp.Zones) 
+                foreach (var zoneId in comp.Zones)
                 {
-                    if (currentZones.All(x => x.Id != zone.Id))
+                    bool shouldAllow = true;
+                    // Check for zones that the player has left
+                    if (!currentZones.Contains(zoneId)) 
                     {
-                        bool shouldAllow = true;
-                        OnPlayerLeaveZone?.Invoke(uPlayer, zone, comp.LastPosition, ref shouldAllow);
+                        OnPlayerLeaveZone?.Invoke(uPlayer, GetZone(zoneId), comp.LastPosition, ref shouldAllow);
                         if (!shouldAllow)
                         {
-                            currentZones.Add(zone);
+                            currentZones.Add(zoneId);
                             updateLastPos = false;
                         }
                     }
                 }
-
-                foreach (Zone zone in currentZones.ToList()) {
-                    if (comp.Zones.All(x => x.Id != zone.Id)) 
+                
+                foreach (var zoneId in currentZones.ToList()) // .ToList prevents list edit errors
+                {
+                    bool shouldAllow = true;
+                    // Check for zones that the player has left
+                    if (!comp.Zones.Contains(zoneId)) 
                     {
-                        bool shouldAllow = true;
-                        OnPlayerEnterZone?.Invoke(uPlayer, zone, comp.LastPosition, ref shouldAllow);
+                        OnPlayerEnterZone?.Invoke(uPlayer, GetZone(zoneId), comp.LastPosition, ref shouldAllow);
                         if (!shouldAllow)
                         {
-                            currentZones.Remove(zone);
+                            currentZones.Remove(zoneId);
                             updateLastPos = false;
                         }
                     }
@@ -562,23 +666,16 @@ namespace Tavstal.TZones.Utils.Managers
             if (!zone.HasFlag(Constants.Flags.Zombie) || ZombieManager.regions == null)
                 return;
             
-            MainThreadDispatcher.RunOnMainThread(() =>
+            foreach (var zombie in ZombieManager.regions
+                         .Where(t => t.zombies != null) // Filter regions that have zombies
+                         .SelectMany(t => t.zombies) // Flatten the list of zombies from each region
+                         .Where(z => z && !z.isDead && zone.IsPointInZone(z.transform.position))) // Filter out dead zombies and those outside the zone
             {
-                foreach (ZombieRegion t in ZombieManager.regions.Where(t => t.zombies != null))
-                {
-                    foreach (var zombie in t.zombies.Where(z => z))
-                    {
-                        if (zombie.isDead)
-                            continue;
-                        if (!zone.IsPointInZone(zombie.transform.position))
-                            continue;
-                        zombie.gear = 0;
-                        zombie.isDead = true;
-                        ZombieManager.sendZombieDead(zombie, Vector3.zero);
-                    }
-                }
-            });
-
+                // The zombie is alive and within the zone
+                zombie.gear = 0;
+                zombie.isDead = true;
+                ZombieManager.sendZombieDead(zombie, Vector3.zero);
+            }
         }
 
         /// <summary>
@@ -592,18 +689,13 @@ namespace Tavstal.TZones.Utils.Managers
         {
             if (!zone.HasFlag(Constants.Flags.InfiniteGenerator))
                 return;
-
-            MainThreadDispatcher.RunOnMainThread(() =>
+            
+            foreach (var generator in _interactableGeneratorCache)
             {
-                // TODO: Find a better way to get all InteractableGenerators
-                InteractableGenerator[] generators = Object.FindObjectsOfType<InteractableGenerator>();
-                foreach (var generator in generators)
-                {
-                    if (zone.IsPointInZone(generator.transform.position) &&
-                        generator.fuel < generator.capacity - 10)
-                        BarricadeManager.sendFuel(generator.transform, generator.capacity);
-                }
-            });
+                if (zone.IsPointInZone(generator.transform.position) &&
+                    generator.fuel < generator.capacity - 10)
+                    BarricadeManager.sendFuel(generator.transform, generator.capacity);
+            }
         }
         #endregion
     }

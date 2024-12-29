@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Tavstal.TZones.Utils.Handlers;
 using Tavstal.TZones.Utils.Managers;
 using Tavstal.TLibrary.Models.Plugin;
+using UnityEngine;
 
 namespace Tavstal.TZones
 {
@@ -20,8 +21,7 @@ namespace Tavstal.TZones
         /// Used to prevent error spamming that is related to database configuration.
         /// </summary>
         public static bool IsConnectionAuthFailed { get; set; }
-
-        private static int _frame;
+        private static float _timer;
 
         /// <summary>
         /// Fired when the plugin is loaded.
@@ -29,7 +29,7 @@ namespace Tavstal.TZones
         public override void OnLoad()
         {
             Instance = this;
-            _frame = 0;
+            _timer = 0;
             // Attach event, which will be fired when all plugins are loaded.
             Level.onPostLevelLoaded += Event_OnPluginsLoaded;
             // Attach player related events
@@ -80,6 +80,7 @@ namespace Tavstal.TZones
                 return;
             }
 
+            ZonesManager.RefreshGeneratorCache();
             ZonesManager.SetDirty();
         }
 
@@ -146,10 +147,11 @@ namespace Tavstal.TZones
 
         #region Unity Update
         private void Update() {
-            _frame++;
-            if (_frame % 10 != 0) {
+            _timer += Time.deltaTime;
+            if (_timer < 1) {
                 return;
             }
+            _timer = 0f;
 
             Task.Run(async () => await ZonesManager.UpdateUnityAsync());
         }

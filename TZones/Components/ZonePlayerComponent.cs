@@ -8,14 +8,14 @@ namespace Tavstal.TZones.Components
 {
     public class ZonePlayerComponent : UnturnedPlayerComponent
     {
-        public List<Zone> Zones { get; set; }
+        public HashSet<ulong> Zones { get; set; }
         public Vector3 LastPosition { get; set; }
         public DateTime SpamPreventEnd { get; set; }
 
         protected override void Load()
         {
             base.Load();
-            Zones = new List<Zone>();
+            Zones = new HashSet<ulong>();
             LastPosition = Player.Position;
             SpamPreventEnd = DateTime.Now;
         }
