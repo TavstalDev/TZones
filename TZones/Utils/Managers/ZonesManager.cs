@@ -298,7 +298,35 @@ namespace Tavstal.TZones.Utils.Managers
             SetDirty();
             return 0;
         }
+        
+        /// <summary>
+        /// Checks if a custom flag with the specified name exists.
+        /// </summary>
+        /// <param name="name">The name of the custom flag to check for existence.</param>
+        /// <returns>True if the custom flag exists, otherwise false.</returns>
+        public static bool CustomFlagExistAsync(string name)
+        {
+            return Flags.Find(x => x.Name == name) != null;
+        }
+        
+        /// <summary>
+        /// Retrieves the list of all custom flags.
+        /// </summary>
+        /// <returns>A list of <see cref="Flag"/> objects representing all custom flags.</returns>
+        public static List<Flag> GetFlags()
+        {
+            return _flags;
+        }
 
+        /// <summary>
+        /// Retrieves the list of all zones.
+        /// </summary>
+        /// <returns>A list of <see cref="Zone"/> objects representing all zones.</returns>
+        public static List<Zone> GetZones()
+        {
+            return _zones;
+        }
+        
         /// <summary>
         /// Retrieves a list of zones based on the given position.
         /// </summary>
