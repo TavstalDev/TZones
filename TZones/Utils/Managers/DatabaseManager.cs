@@ -109,8 +109,8 @@ namespace Tavstal.TZones.Utils.Managers
             }
             catch (Exception ex)
             {
-                TZones.Logger.LogException("Error in checkSchema:");
-                TZones.Logger.LogError(ex);
+                TZones.Logger.Exception("Error in checkSchema:");
+                TZones.Logger.Error(ex);
             }
         }
 
@@ -132,7 +132,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in AddFlagAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in AddFlagAsync(): {ex}");    
                 }
             }
         }
@@ -151,7 +151,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in RemoveFlagAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in RemoveFlagAsync(): {ex}");    
                 }
             }
         }
@@ -172,7 +172,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in GetFlagsAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in GetFlagsAsync(): {ex}");    
                 }
             }
 
@@ -195,7 +195,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in FindFlagAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in FindFlagAsync(): {ex}");    
                 }
             }
 
@@ -221,7 +221,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in AddZoneAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in AddZoneAsync(): {ex}");    
                 }
             }
         }
@@ -240,7 +240,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in RemoveZoneAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in RemoveZoneAsync(): {ex}");    
                 }
             }
         }
@@ -261,7 +261,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in UpdateZoneAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in UpdateZoneAsync(): {ex}");    
                 }
             }
         }
@@ -282,7 +282,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in GetZonesAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in GetZonesAsync(): {ex}");    
                 }
             }
 
@@ -305,7 +305,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in FindZoneAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in FindZoneAsync(): {ex}");    
                 }
             }
 
@@ -333,7 +333,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in AddNodeAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in AddNodeAsync(): {ex}");    
                 }
             }
         }
@@ -352,7 +352,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in RemoveNodeAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in RemoveNodeAsync(): {ex}");    
                 }
             }
         }
@@ -373,7 +373,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in GetNodesAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in GetNodesAsync(): {ex}");    
                 }
             }
 
@@ -396,7 +396,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in FindNodeAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in FindNodeAsync(): {ex}");    
                 }
             }
 
@@ -421,7 +421,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in AddZoneFlagAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in AddZoneFlagAsync(): {ex}");    
                 }
             }
         }
@@ -441,7 +441,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in RemoveZoneFlagAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in RemoveZoneFlagAsync(): {ex}");    
                 }
             }
         }
@@ -462,7 +462,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in GetZoneFlagsAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in GetZoneFlagsAsync(): {ex}");    
                 }
             }
 
@@ -485,7 +485,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in FindZoneFlagAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in FindZoneFlagAsync(): {ex}");    
                 }
             }
 
@@ -511,7 +511,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in AddZoneEventAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in AddZoneEventAsync(): {ex}");    
                 }
             }
         }
@@ -531,7 +531,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in RemoveZoneEventAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in RemoveZoneEventAsync(): {ex}");    
                 }
             }
         }
@@ -554,7 +554,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in UpdateZoneEventAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in UpdateZoneEventAsync(): {ex}");    
                 }
             }
         }
@@ -575,7 +575,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in GetZoneEventsAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in GetZoneEventsAsync(): {ex}");    
                 }
             }
 
@@ -598,7 +598,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in FindZoneEventAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in FindZoneEventAsync(): {ex}");    
                 }
             }
 
@@ -624,7 +624,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in AddBlockAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in AddBlockAsync(): {ex}");    
                 }
             }
         }
@@ -644,7 +644,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in RemoveBlockAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in RemoveBlockAsync(): {ex}");    
                 }
             }
         }
@@ -665,7 +665,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in GetBlocksAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in GetBlocksAsync(): {ex}");    
                 }
             }
 
@@ -688,7 +688,7 @@ namespace Tavstal.TZones.Utils.Managers
                 }
                 catch (Exception ex) 
                 {
-                    TZones.Logger.LogException($"Error in FindBlockAsync(): {ex}");    
+                    TZones.Logger.Exception($"Error in FindBlockAsync(): {ex}");    
                 }
             }
 

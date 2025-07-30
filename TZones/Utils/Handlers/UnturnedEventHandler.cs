@@ -178,8 +178,8 @@ namespace Tavstal.TZones.Utils.Handlers
             }
             catch (Exception ex)
             {
-                TZones.Logger.LogException("Error in OnPlayerDamageRequested:");
-                TZones.Logger.LogError(ex);
+                TZones.Logger.Exception("Error in OnPlayerDamageRequested:");
+                TZones.Logger.Error(ex);
                 shouldAllow = true;
             }
         }
@@ -744,8 +744,8 @@ namespace Tavstal.TZones.Utils.Handlers
             }
             catch (Exception ex)
             {
-                TZones.Logger.LogException("Error in OnDamageAnimalRequested:");
-                TZones.Logger.LogError(ex);
+                TZones.Logger.Exception("Error in OnDamageAnimalRequested:");
+                TZones.Logger.Error(ex);
                 shouldAllow = true;
             }
         }
@@ -788,8 +788,8 @@ namespace Tavstal.TZones.Utils.Handlers
             }
             catch (Exception ex)
             {
-                TZones.Logger.LogException("Error in OnDamageZombieRequested:");
-                TZones.Logger.LogError(ex);
+                TZones.Logger.Exception("Error in OnDamageZombieRequested:");
+                TZones.Logger.Error(ex);
                 shouldAllow = true;
             }
         }
