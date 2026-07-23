@@ -15,9 +15,6 @@ namespace Tavstal.TZones.Utils.Handlers
     /// <summary>
     /// A static class responsible for handling events related to zones, such as player interactions, zone creation, updates, and deletions.
     /// </summary>
-    /// <remarks>
-    /// This class contains methods for attaching and detaching events, as well as handling specific actions within zones. It manages interactions like entering or leaving zones, zone updates, and the creation or deletion of zones.
-    /// </remarks>
     public static class ZonesEventHandler
     {
         private static bool _isAttached;
@@ -25,9 +22,6 @@ namespace Tavstal.TZones.Utils.Handlers
         /// <summary>
         /// Attaches event handlers for zone-related events, enabling the handling of player interactions and other zone actions.
         /// </summary>
-        /// <remarks>
-        /// This method subscribes to events such as players entering or leaving zones, zone creation, update, and deletion, allowing the system to respond to changes and actions within zones.
-        /// </remarks>
         public static void AttachEvents()
         {
             if (_isAttached)
@@ -35,19 +29,16 @@ namespace Tavstal.TZones.Utils.Handlers
 
             _isAttached = true;
 
-            ZonesManager.OnPlayerEnterZone += OnPlayerEnterZone;
-            ZonesManager.OnPlayerLeaveZone += OnPlayerLeaveZone;
-            ZonesManager.OnZoneCreated += OnZoneCreated;
-            ZonesManager.OnZoneUpdated += OnZoneUpdated;
-            ZonesManager.OnZoneDeleted += OnZoneDeleted;
+            ZoneManager.OnPlayerEnterZone += OnPlayerEnterZone;
+            ZoneManager.OnPlayerLeaveZone += OnPlayerLeaveZone;
+            ZoneManager.OnZoneCreated += OnZoneCreated;
+            ZoneManager.OnZoneUpdated += OnZoneUpdated;
+            ZoneManager.OnZoneDeleted += OnZoneDeleted;
         }
 
         /// <summary>
         /// Detaches event handlers for zone-related events, disabling the handling of player interactions and other zone actions.
         /// </summary>
-        /// <remarks>
-        /// This method unsubscribes from events such as players entering or leaving zones, zone creation, update, and deletion, effectively stopping the system from responding to changes and actions within zones.
-        /// </remarks>
         public static void DetachEvents()
         {
             if (!_isAttached)
@@ -55,11 +46,11 @@ namespace Tavstal.TZones.Utils.Handlers
 
             _isAttached = false;
 
-            ZonesManager.OnPlayerEnterZone -= OnPlayerEnterZone;
-            ZonesManager.OnPlayerLeaveZone -= OnPlayerLeaveZone;
-            ZonesManager.OnZoneCreated -= OnZoneCreated;
-            ZonesManager.OnZoneUpdated -= OnZoneUpdated;
-            ZonesManager.OnZoneDeleted -= OnZoneDeleted;
+            ZoneManager.OnPlayerEnterZone -= OnPlayerEnterZone;
+            ZoneManager.OnPlayerLeaveZone -= OnPlayerLeaveZone;
+            ZoneManager.OnZoneCreated -= OnZoneCreated;
+            ZoneManager.OnZoneUpdated -= OnZoneUpdated;
+            ZoneManager.OnZoneDeleted -= OnZoneDeleted;
         }
 
         /// <summary>
@@ -69,15 +60,13 @@ namespace Tavstal.TZones.Utils.Handlers
         /// <param name="zone">The zone that the player is entering.</param>
         /// <param name="lastPosition">The player's last known position before entering the zone.</param>
         /// <param name="shouldAllow">A flag indicating whether the player should be allowed to enter the zone. Set to false to prevent entry.</param>
-        /// <remarks>
-        /// This method allows modification of the player zone entry process. It can be used to block a player from entering the zone based on specific conditions, such as permissions or other criteria.
-        /// </remarks>
         private static void OnPlayerEnterZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition, ref bool shouldAllow)
         {
-            if (!ZonesManager.ZoneEvents.TryGetValue(zone.Id, out var events))
+            var events = ZoneManager.Queries.GetZoneEvents(zone.Id);
+            if (events == null)
                 return;
 
-            if (zone.HasFlag(Flags.Enter))
+            if (ZoneManager.Queries.HasFlag(zone, Flags.Enter))
             {
                 shouldAllow = false;
                 ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
@@ -99,7 +88,7 @@ namespace Tavstal.TZones.Utils.Handlers
             {
                 switch (zEvent.Type)
                 {
-                    case EEventType.EnterAddEffect:
+                    case EEventType.ADD_EFFECT_ENTER:
                     {
                         if (ushort.TryParse(zEvent.Value, out ushort effect))
                         {
@@ -108,7 +97,7 @@ namespace Tavstal.TZones.Utils.Handlers
 
                         break;
                     }
-                    case EEventType.EnterRemoveEffect:
+                    case EEventType.REMOVE_EFFECT_ENTER:
                     {
                         if (ushort.TryParse(zEvent.Value, out ushort effect))
                         {
@@ -117,26 +106,26 @@ namespace Tavstal.TZones.Utils.Handlers
 
                         break;
                     }
-                    case EEventType.EnterAddGroup:
+                    case EEventType.ADD_GROUP_ENTER:
                     {
                         R.Permissions.AddPlayerToGroup(zEvent.Value, player);
                         break;
                     }
-                    case EEventType.EnterRemoveGroup:
+                    case EEventType.REMOVE_GROUP_ENTER:
                     {
                         R.Permissions.RemovePlayerFromGroup(zEvent.Value, player);
                         break;
                     }
-                    case EEventType.EnterMessage:
+                    case EEventType.MESSAGE_ENTER:
                     {
                         TZones.Instance.SendPlainCommandReply(player, zEvent.Value);
                         break;
                     }
-                    case EEventType.LeaveMessage:
-                    case EEventType.LeaveAddGroup:
-                    case EEventType.LeaveRemoveGroup:
-                    case EEventType.LeaveAddEffect:
-                    case EEventType.LeaveRemoveEffect:
+                    case EEventType.MESSAGE_LEAVE:
+                    case EEventType.ADD_GROUP_LEAVE:
+                    case EEventType.REMOVE_GROUP_LEAVE:
+                    case EEventType.ADD_EFFECT_LEAVE:
+                    case EEventType.REMOVE_EFFECT_LEAVE:
                     default:
                         break;
                 }
@@ -150,15 +139,13 @@ namespace Tavstal.TZones.Utils.Handlers
         /// <param name="zone">The zone the player is leaving.</param>
         /// <param name="lastPosition">The player's last known position before leaving the zone.</param>
         /// <param name="shouldAllow">A flag indicating whether the player should be allowed to leave the zone. Set to false to prevent exit.</param>
-        /// <remarks>
-        /// This method allows modification of the player zone exit process. It can be used to block or modify the conditions under which a player leaves the zone.
-        /// </remarks>
         private static void OnPlayerLeaveZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition, ref bool shouldAllow)
         {
-            if (!ZonesManager.ZoneEvents.TryGetValue(zone.Id, out var events))
+            var events = ZoneManager.Queries.GetZoneEvents(zone.Id);
+            if (events == null)
                 return;
 
-            if (zone.HasFlag(Flags.Leave))
+            if (ZoneManager.Queries.HasFlag(zone, Flags.Leave))
             {
                 shouldAllow = false;
                 ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
@@ -180,7 +167,7 @@ namespace Tavstal.TZones.Utils.Handlers
             {
                 switch (zEvent.Type)
                 {
-                    case EEventType.LeaveAddEffect:
+                    case EEventType.ADD_EFFECT_LEAVE:
                     {
                         if (ushort.TryParse(zEvent.Value, out ushort effect))
                         {
@@ -189,17 +176,17 @@ namespace Tavstal.TZones.Utils.Handlers
 
                         break;
                     }
-                    case EEventType.LeaveAddGroup:
+                    case EEventType.ADD_GROUP_LEAVE:
                     {
                         R.Permissions.AddPlayerToGroup(zEvent.Value, player);
                         break;
                     }
-                    case EEventType.LeaveMessage:
+                    case EEventType.MESSAGE_LEAVE:
                     {
                         TZones.Instance.SendPlainCommandReply(player, zEvent.Value);
                         break;
                     }
-                    case EEventType.LeaveRemoveEffect:
+                    case EEventType.REMOVE_EFFECT_LEAVE:
                     {
                         if (ushort.TryParse(zEvent.Value, out ushort effect))
                         {
@@ -208,16 +195,16 @@ namespace Tavstal.TZones.Utils.Handlers
 
                         break;
                     }
-                    case EEventType.LeaveRemoveGroup:
+                    case EEventType.REMOVE_GROUP_LEAVE:
                     {
                         R.Permissions.RemovePlayerFromGroup(zEvent.Value, player);
                         break;
                     }
-                    case EEventType.EnterMessage:
-                    case EEventType.EnterAddGroup:
-                    case EEventType.EnterRemoveGroup:
-                    case EEventType.EnterAddEffect:
-                    case EEventType.EnterRemoveEffect:
+                    case EEventType.MESSAGE_ENTER:
+                    case EEventType.ADD_GROUP_ENTER:
+                    case EEventType.REMOVE_GROUP_ENTER:
+                    case EEventType.ADD_EFFECT_ENTER:
+                    case EEventType.REMOVE_EFFECT_ENTER:
                     default:
                         break;
                 }
@@ -228,9 +215,6 @@ namespace Tavstal.TZones.Utils.Handlers
         /// Handles the event when a zone is created.
         /// </summary>
         /// <param name="zone">The zone that has been created.</param>
-        /// <remarks>
-        /// This method is triggered when a new zone is created in the system. It can be used to perform any necessary actions or initialize properties when a zone is created.
-        /// </remarks>
         private static void OnZoneCreated(Zone zone)
         {
             
@@ -240,9 +224,6 @@ namespace Tavstal.TZones.Utils.Handlers
         /// Handles the event when a zone is updated.
         /// </summary>
         /// <param name="zone">The zone that has been updated.</param>
-        /// <remarks>
-        /// This method is triggered when an existing zone is updated. It can be used to perform any necessary actions or adjustments when a zone's properties are changed.
-        /// </remarks>
         private static void OnZoneUpdated(Zone zone)
         {
             
@@ -252,9 +233,6 @@ namespace Tavstal.TZones.Utils.Handlers
         /// Handles the event when a zone is deleted.
         /// </summary>
         /// <param name="zone">The zone that has been deleted.</param>
-        /// <remarks>
-        /// This method is triggered when a zone is deleted from the system. It can be used to perform cleanup or other necessary actions when a zone is removed.
-        /// </remarks>
         private static void OnZoneDeleted(Zone zone)
         {
             

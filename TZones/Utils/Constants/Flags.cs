@@ -5,9 +5,6 @@ namespace Tavstal.TZones.Utils.Constants
     /// <summary>
     /// A static class containing predefined zone flags and their default values.
     /// </summary>
-    /// <remarks>
-    /// This class holds a list of constants representing various flags that can be used within zones. These flags control actions such as damage prevention, item manipulation, and vehicle interactions.
-    /// </remarks>
     public static class Flags
     {
         /// <summary>

@@ -1,22 +1,25 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using MySqlConnector;
 using Rocket.API;
 using Rocket.Unturned.Player;
 using Tavstal.TLibrary.Extensions;
 using Tavstal.TLibrary.Helpers.Unturned;
 using Tavstal.TLibrary.Models.Commands;
+using Tavstal.TLibrary.Models.Database;
 using Tavstal.TLibrary.Models.Plugin;
 using Tavstal.TZones.Models.Core;
 using Tavstal.TZones.Models.Enums;
 using Tavstal.TZones.Utils.Managers;
+// ReSharper disable UnusedType.Global
 
 namespace Tavstal.TZones.Commands
 {
-    public class CommandZones: CommandBase
+    public class CommandZones: CustomCommandBase
     {
-        protected override IPlugin Plugin => TZones.Instance; 
+        public override IPlugin Plugin => TZones.Instance; 
+        public override bool UseBackgroundThread => false;
         public override AllowedCaller AllowedCaller => AllowedCaller.Both;
         public override string Name => "zones";
         public override string Help => "Manage zones.";
@@ -25,20 +28,21 @@ namespace Tavstal.TZones.Commands
         public override List<string> Permissions => new List<string> { "tzones.command.zones" };
 
         // 'help' subcommand is built-in, you don't need to add it
-        protected override List<SubCommand> SubCommands => new List<SubCommand>
+        public override List<ISubcommand> SubCommands => new List<ISubcommand>
         {
             new SubCommand("add", "", "add [zone | node | flag | event | block]", new List<string>(), new List<string> { "tzones.command.zones.add" }, 
+                Plugin, AllowedCaller,
                 async (caller, args) =>
                 {
                     if (args.Length < 1)
                     {
-                        TZones.Instance.SendCommandReply(caller, "command_zones_add_syntax");
+                        TZones.Instance.SendCommandReply(caller, "command_zones_add_syntax", TZones.Instance.Config.General.MessageIcon);
                         return;
                     }
 
                     if (!(caller is UnturnedPlayer player))
                     {
-                        TZones.Instance.SendCommandReply(caller, "error_not_player");
+                        TZones.Instance.SendCommandReply(caller, "error_not_player", TZones.Instance.Config.General.MessageIcon);
                         return;
                     }
 
@@ -48,28 +52,34 @@ namespace Tavstal.TZones.Commands
                         {
                             if (args.Length != 3)
                             {
-                                TZones.Instance.SendCommandReply(caller, "command_zones_add_zone_syntax");
+                                TZones.Instance.SendCommandReply(caller, "command_zones_add_zone_syntax", TZones.Instance.Config.General.MessageIcon);
                                 return;
                             }
 
-                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            Zone? zone = ZoneManager.Queries.GetZone(args[1]);
                             if (zone != null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zone_already_exist", zone.Name);
+                                TZones.Instance.SendCommandReply(caller, "error_zone_already_exist", TZones.Instance.Config.General.MessageIcon, zone.Name);
                                 return;
                             }
+
+                            await TZones.DatabaseManager.Zones.AddAsync(new Zone
+                            {
+                                Name = args[1],
+                                Description = args[2],
+                                CreatorId = ulong.Parse(caller.Id),
+                                CreationDate = DateTime.Now
+                            });
+                            ZoneManager.Cache.MakeDirty();
                             
-                            await TZones.DatabaseManager.AddZoneAsync(args[1], args[2], ulong.Parse(caller.Id));
-                            ZonesManager.SetDirty();
-                            
-                            TZones.Instance.SendCommandReply(caller, "command_zones_add_zone", args[1]);
+                            TZones.Instance.SendCommandReply(caller, "command_zones_add_zone", TZones.Instance.Config.General.MessageIcon, args[1]);
                             break;
                         }
                         case "node":
                         {
                             if (args.Length < 2 || args.Length > 3)
                             {
-                                TZones.Instance.SendCommandReply(caller, "command_zones_add_node_syntax");
+                                TZones.Instance.SendCommandReply(caller, "command_zones_add_node_syntax", TZones.Instance.Config.General.MessageIcon);
                                 return;
                             }
 
@@ -77,10 +87,10 @@ namespace Tavstal.TZones.Commands
                             if (args.Length > 2)
                                 type = args[2];
                             
-                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            Zone? zone = ZoneManager.Queries.GetZone(args[1]);
                             if (zone == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", TZones.Instance.Config.General.MessageIcon, args[1]);
                                 return;
                             }
                             
@@ -89,81 +99,92 @@ namespace Tavstal.TZones.Commands
                             {
                                 case "none":
                                 {
-                                    nodeType = ENodeType.None;
+                                    nodeType = ENodeType.NONE;
                                     break;
                                 }
                                 case "lower":
                                 case "low":
                                 {
-                                    nodeType = ENodeType.Lower;
+                                    nodeType = ENodeType.LOWER;
                                     break;
                                 }
                                 case "upper":
                                 case "up":
                                 {
-                                    nodeType = ENodeType.Upper;
+                                    nodeType = ENodeType.UPPER;
                                     break;
                                 }
                                 default:
                                 {
-                                    TZones.Instance.SendCommandReply(caller, "error_node_type_not_found", type);
+                                    TZones.Instance.SendCommandReply(caller, "error_node_type_not_found", TZones.Instance.Config.General.MessageIcon, type);
                                     return;
                                 }
                             }
+
+                            await TZones.DatabaseManager.Nodes.AddAsync(new Node
+                            {
+                                ZoneId = zone.Id,
+                                X = player.Position.x,
+                                Y = player.Position.y,
+                                Z = player.Position.z,
+                                Type = nodeType
+                            });
+                            ZoneManager.Cache.MakeDirty();
                             
-                            await TZones.DatabaseManager.AddNodeAsync(zone.Id, player.Position.x, player.Position.y, player.Position.z, nodeType);
-                            ZonesManager.SetDirty();
-                            
-                            TZones.Instance.SendCommandReply(caller, "command_zones_add_node");
+                            TZones.Instance.SendCommandReply(caller, "command_zones_add_node", TZones.Instance.Config.General.MessageIcon);
                             break;
                         }
                         case "flag":
                         {
                             if (args.Length != 3)
                             {
-                                TZones.Instance.SendCommandReply(caller, "command_zones_add_flag_syntax");
+                                TZones.Instance.SendCommandReply(caller, "command_zones_add_flag_syntax", TZones.Instance.Config.General.MessageIcon);
                                 return;
                             }
                             
-                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            Zone? zone = ZoneManager.Queries.GetZone(args[1]);
                             if (zone == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", TZones.Instance.Config.General.MessageIcon, args[1]);
                                 return;
                             }
                             
-                            Flag flag = ZonesManager.Flags.Find(x => x.Name == args[2]);
+                            Flag? flag = ZoneManager.Queries.GetFlag(args[2]);
                             if (flag == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_flag_not_found", args[2]);
+                                TZones.Instance.SendCommandReply(caller, "error_flag_not_found", TZones.Instance.Config.General.MessageIcon, args[2]);
                                 return;
                             }
 
-                            ZoneFlag zoneFlag = ZonesManager.ZoneFlags[zone.Id]?.Find(x => x.FlagId == flag.Id);
+                            ZoneFlag? zoneFlag = ZoneManager.Queries.GetZoneFlag(zone.Id, flag.Id);
                             if (zoneFlag != null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zoneflag_already_exist");
+                                TZones.Instance.SendCommandReply(caller, "error_zoneflag_already_exist", TZones.Instance.Config.General.MessageIcon);
                                 return;
                             }
+
+                            await TZones.DatabaseManager.ZoneFlags.AddAsync(new ZoneFlag
+                            {
+                                ZoneId = zone.Id,
+                                FlagId = flag.Id
+                            });
+                            ZoneManager.Cache.MakeDirty();
                             
-                            await TZones.DatabaseManager.AddZoneFlagAsync(zone.Id, flag.Id);
-                            ZonesManager.SetDirty();
-                            
-                            TZones.Instance.SendCommandReply(caller, "command_zones_add_flag");
+                            TZones.Instance.SendCommandReply(caller, "command_zones_add_flag", TZones.Instance.Config.General.MessageIcon);
                             break;
                         }
                         case "event":
                         {
                             if (args.Length != 4)
                             {
-                                TZones.Instance.SendCommandReply(caller, "command_zones_add_event_syntax");
+                                TZones.Instance.SendCommandReply(caller, "command_zones_add_event_syntax", TZones.Instance.Config.General.MessageIcon);
                                 return;
                             }
                             
-                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            Zone? zone = ZoneManager.Queries.GetZone(args[1]);
                             if (zone == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", TZones.Instance.Config.General.MessageIcon, args[1]);
                                 return;
                             }
 
@@ -174,14 +195,19 @@ namespace Tavstal.TZones.Commands
                             }
                             catch
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_event_type_not_found", args[2]);
+                                TZones.Instance.SendCommandReply(caller, "error_event_type_not_found", TZones.Instance.Config.General.MessageIcon, args[2]);
                                 return;
                             }
+
+                            await TZones.DatabaseManager.ZoneEvents.AddAsync(new ZoneEvent
+                            {
+                                ZoneId = zone.Id,
+                                Type = eventType,
+                                Value = args[3]
+                            });
+                            ZoneManager.Cache.MakeDirty();
                             
-                            await TZones.DatabaseManager.AddZoneEventAsync(zone.Id, eventType, args[3]);
-                            ZonesManager.SetDirty();
-                            
-                            TZones.Instance.SendCommandReply(caller, "command_zones_add_event");
+                            TZones.Instance.SendCommandReply(caller, "command_zones_add_event", TZones.Instance.Config.General.MessageIcon);
                             break;
                         }
                         case "block":
@@ -192,21 +218,21 @@ namespace Tavstal.TZones.Commands
                                 return;
                             }
                             
-                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            Zone? zone = ZoneManager.Queries.GetZone(args[1]);
                             if (zone == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", TZones.Instance.Config.General.MessageIcon, args[1]);
                                 return;
                             }
                             
-                            EBlockType blockType;
+                            ERestrictionType restrictionType;
                             try
                             {
-                                blockType = (EBlockType)Enum.Parse(typeof(EBlockType), args[2], true);
+                                restrictionType = (ERestrictionType)Enum.Parse(typeof(ERestrictionType), args[2], true);
                             }
                             catch
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_block_type_not_found", args[2]);
+                                TZones.Instance.SendCommandReply(caller, "error_block_type_not_found", TZones.Instance.Config.General.MessageIcon, args[2]);
                                 return;
                             }
                     
@@ -216,33 +242,38 @@ namespace Tavstal.TZones.Commands
                                 unturnedId = ushort.Parse(args[3]);
                             }
                             catch { /* ignored */}
+
+                            await TZones.DatabaseManager.Restrictions.AddAsync(new Restriction
+                            {
+                                ZoneId = zone.Id,
+                                Type = restrictionType,
+                                UnturnedId = unturnedId
+                            });
+                            ZoneManager.Cache.MakeDirty();
                             
-                            
-                            await TZones.DatabaseManager.AddBlockAsync(zone.Id, unturnedId, blockType);
-                            ZonesManager.SetDirty();
-                            
-                            TZones.Instance.SendCommandReply(caller, "command_zones_add_block");
+                            TZones.Instance.SendCommandReply(caller, "command_zones_add_block", TZones.Instance.Config.General.MessageIcon);
                             break;
                         }
                         default:
                         {
-                            TZones.Instance.SendCommandReply(caller, "command_zones_add_syntax");
+                            TZones.Instance.SendCommandReply(caller, "command_zones_add_syntax", TZones.Instance.Config.General.MessageIcon);
                             break;
                         }
                     }
                 }),
             new SubCommand("list", "", "list [[zone] <page> | [node | flag | event | block] [zoneName] <page>]", new List<string>(), new List<string> { "tzones.command.zones.list" }, 
+                Plugin, AllowedCaller,
                 (caller, args) =>
                 {
                     if (args.Length < 1)
                     {
-                        TZones.Instance.SendCommandReply(caller, "command_zones_list_syntax");
+                        TZones.Instance.SendCommandReply(caller, "command_zones_list_syntax", TZones.Instance.Config.General.MessageIcon);
                         return Task.CompletedTask;
                     }
                     
                     if (args.Length < 2 && !args[0].ToLower().Equals("zone"))
                     {
-                        TZones.Instance.SendCommandReply(caller, "command_zones_list_syntax");
+                        TZones.Instance.SendCommandReply(caller, "command_zones_list_syntax", TZones.Instance.Config.General.MessageIcon);
                         return Task.CompletedTask;
                     }
 
@@ -276,153 +307,153 @@ namespace Tavstal.TZones.Commands
                         case "zone":
                         {
                             nextPage = $"zone {page + 1}";
-                            var list = ZonesManager.Zones;
+                            var list = ZoneManager.Cache.Zones;
                             maxPage += list.Count / 3;
                             
                             for (int i = 0; i < 3; i++) 
                             {
                                 int index = i + 3 * (page - 1);
-                                if (!list.IsValidIndex(index)) 
+                                if (list.Count - 1 < index) 
                                 {
                                     reachedEnd = true;
                                     break;
                                 }
 
                                 var value = list[index];
-                                TZones.Instance.SendCommandReply(caller, "command_zones_list_zone", value.Id, value.Name, value.Description);
+                                TZones.Instance.SendCommandReply(caller, "command_zones_list_zone", TZones.Instance.Config.General.MessageIcon, value.Id, value.Name, value.Description);
                             }
                             break;
                         }
                         case "node":
                         {
                             nextPage = $"node {args[1]} {page + 1}";
-                            Zone zone = ZonesManager.Zones.FirstOrDefault(x => x.Name.EqualsIgnoreCase(args[1]));
+                            Zone? zone = ZoneManager.Queries.GetZone(args[1]);
                             if (zone == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", TZones.Instance.Config.General.MessageIcon, args[1]);
                                 return Task.CompletedTask;
                             }
                             
-                            var list = ZonesManager.Nodes[zone.Id];
+                            var list = ZoneManager.Queries.GetNodes(zone.Id) ?? new List<Node>();
                             maxPage += list.Count / 3;
                             
                             for (int i = 0; i < 3; i++) 
                             {
                                 int index = i + 3 * (page - 1);
-                                if (!list.IsValidIndex(index)) 
+                                if (list.Count - 1 < index) 
                                 {
                                     reachedEnd = true;
                                     break;
                                 }
 
                                 var value = list[index];
-                                TZones.Instance.SendCommandReply(caller, "command_zones_list_node", value.Id, value.Type.ToString(), value.X, value.Y, value.Z);
+                                TZones.Instance.SendCommandReply(caller, "command_zones_list_node", TZones.Instance.Config.General.MessageIcon, value.Id, value.Type.ToString(), value.X, value.Y, value.Z);
                             }
                             break;
                         }
                         case "flag":
                         {
                             nextPage = $"flag {args[1]} {page + 1}";
-                            Zone zone = ZonesManager.Zones.FirstOrDefault(x => x.Name.EqualsIgnoreCase(args[1]));
+                            Zone? zone = ZoneManager.Queries.GetZone(args[1]);
                             if (zone == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", TZones.Instance.Config.General.MessageIcon, args[1]);
                                 return Task.CompletedTask;
                             }
                             
-                            var list = ZonesManager.ZoneFlags[zone.Id];
+                            var list = ZoneManager.Queries.GetZoneFlags(zone.Id) ?? new  List<ZoneFlag>();
                             maxPage += list.Count / 3;
                             
                             for (int i = 0; i < 3; i++) 
                             {
                                 int index = i + 3 * (page - 1);
-                                if (!list.IsValidIndex(index)) 
+                                if (list.Count - 1 < index) 
                                 {
                                     reachedEnd = true;
                                     break;
                                 }
 
                                 var value = list[index];
-                                Flag flag = ZonesManager.Flags.Find(x => x.Id == value.FlagId);
-                                
-                                TZones.Instance.SendCommandReply(caller, "command_zones_list_flag", flag?.Name ?? "null", value.FlagId);
+                                Flag? flag = ZoneManager.Queries.GetFlag(value.FlagId);
+                                TZones.Instance.SendCommandReply(caller, "command_zones_list_flag", TZones.Instance.Config.General.MessageIcon, flag?.Name ?? "null", value.FlagId);
                             }
                             break;
                         }
                         case "event":
                         {
                             nextPage = $"event {args[1]} {page + 1}";
-                            Zone zone = ZonesManager.Zones.FirstOrDefault(x => x.Name.EqualsIgnoreCase(args[1]));
+                            Zone? zone = ZoneManager.Queries.GetZone(args[1]);
                             if (zone == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", TZones.Instance.Config.General.MessageIcon, args[1]);
                                 return Task.CompletedTask;
                             }
                             
-                            var list = ZonesManager.ZoneEvents[zone.Id];
+                            var list = ZoneManager.Queries.GetZoneEvents(zone.Id) ?? new  List<ZoneEvent>();
                             maxPage += list.Count / 3;
                             
                             for (int i = 0; i < 3; i++) 
                             {
                                 int index = i + 3 * (page - 1);
-                                if (!list.IsValidIndex(index)) 
+                                if (list.Count - 1 < index) 
                                 {
                                     reachedEnd = true;
                                     break;
                                 }
 
                                 var value = list[index];
-                                TZones.Instance.SendCommandReply(caller, "command_zones_list_event", value.Type.ToString(), value.Value);
+                                TZones.Instance.SendCommandReply(caller, "command_zones_list_event", TZones.Instance.Config.General.MessageIcon, value.Type.ToString(), value.Value);
                             }
                             break;
                         }
                         case "block":
                         {
                             nextPage = $"block {args[1]} {page + 1}";
-                            Zone zone = ZonesManager.Zones.FirstOrDefault(x => x.Name.EqualsIgnoreCase(args[1]));
+                            Zone? zone = ZoneManager.Queries.GetZone(args[1]);
                             if (zone == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", TZones.Instance.Config.General.MessageIcon, args[1]);
                                 return Task.CompletedTask;
                             }
-                            
-                            var list = ZonesManager.ZoneBlocks[zone.Id];
+
+                            var list = ZoneManager.Queries.GetZoneBlocks(zone.Id) ?? new List<Restriction>();
                             maxPage += list.Count / 3;
                             
                             for (int i = 0; i < 3; i++) 
                             {
                                 int index = i + 3 * (page - 1);
-                                if (!list.IsValidIndex(index)) 
+                                if (list.Count - 1 < index) 
                                 {
                                     reachedEnd = true;
                                     break;
                                 }
 
                                 var value = list[index];
-                                TZones.Instance.SendCommandReply(caller, "command_zones_list_block", value.Type.ToString(), value.UnturnedId);
+                                TZones.Instance.SendCommandReply(caller, "command_zones_list_block", TZones.Instance.Config.General.MessageIcon, value.Type.ToString(), value.UnturnedId);
                             }
                             break;
                         }
                         default:
                         {
-                            TZones.Instance.SendCommandReply(caller, "command_zones_list_syntax");
+                            TZones.Instance.SendCommandReply(caller, "command_zones_list_syntax", TZones.Instance.Config.General.MessageIcon);
                             return Task.CompletedTask;
                         }
                     }
                     
                     if (reachedEnd || maxPage <= page + 1)
-                        TZones.Instance.SendCommandReply(caller, "command_zones_list_end");
+                        TZones.Instance.SendCommandReply(caller, "command_zones_list_end", TZones.Instance.Config.General.MessageIcon);
                     else
-                        TZones.Instance.SendCommandReply(caller, "command_zones_list_next", nextPage);
+                        TZones.Instance.SendCommandReply(caller, "command_zones_list_next", TZones.Instance.Config.General.MessageIcon, nextPage);
                     
                     return Task.CompletedTask;
                 }),
             new SubCommand("remove", "", "remove [zone | node | flag | event | block]", new List<string>(), new List<string> { "tzones.command.zones.remove" }, 
+                Plugin, AllowedCaller,
                 async (caller, args) =>
                 {
                     if (args.Length < 1)
                     {
-                        TZones.Instance.SendCommandReply(caller, "command_zones_remove_syntax");
+                        TZones.Instance.SendCommandReply(caller, "command_zones_remove_syntax", TZones.Instance.Config.General.MessageIcon);
                         return;
                     }
 
@@ -432,35 +463,61 @@ namespace Tavstal.TZones.Commands
                         {
                             if (args.Length != 2)
                             {
-                                TZones.Instance.SendCommandReply(caller, "command_zones_remove_zone_syntax");
+                                TZones.Instance.SendCommandReply(caller, "command_zones_remove_zone_syntax", TZones.Instance.Config.General.MessageIcon);
                                 return;
                             }
 
-                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            Zone? zone = ZoneManager.Queries.GetZone(args[1]);
                             if (zone == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", TZones.Instance.Config.General.MessageIcon, args[1]);
                                 return;
                             }
 
-                            await TZones.DatabaseManager.RemoveZoneAsync(zone.Id);
-                            ZonesManager.SetDirty();
+                            MySqlConnection? connection = TZones.DatabaseManager.CreateConnection();
+                            if (connection == null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_database_connection", TZones.Instance.Config.General.MessageIcon);
+                                return;
+                            }
+
+                            await using var transaction = connection.BeginTransaction();
                             
-                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_zone", args[1]);
+                            try
+                            {
+                                var rangeValues = new List<object> { zone.Id };
+                                await TZones.DatabaseManager.ZoneFlags.DeleteRangeAsync("ZoneId", rangeValues, connection, transaction);
+                                await TZones.DatabaseManager.ZoneEvents.DeleteRangeAsync("ZoneId", rangeValues, connection, transaction);
+                                await TZones.DatabaseManager.Restrictions.DeleteRangeAsync("ZoneId", rangeValues, connection, transaction);
+                                await TZones.DatabaseManager.Nodes.DeleteRangeAsync("ZoneId", rangeValues, connection, transaction);
+                                await TZones.DatabaseManager.Zones.DeleteAsync(zone.Id, connection, transaction);
+
+                                await transaction.CommitAsync();
+                                ZoneManager.Cache.MakeDirty();
+                            }
+                            catch (Exception ex)
+                            {
+                                await transaction.RollbackAsync();
+                                TZones.Instance.SendCommandReply(caller, "error_exception", TZones.Instance.Config.General.MessageIcon);
+                                TZones.Logger.Error("Unexpected error occured while removing zones.", ex);
+                                return;
+                            }
+                            
+                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_zone", TZones.Instance.Config.General.MessageIcon, args[1]);
                             break;
                         }
                         case "node":
                         {
                             if (args.Length != 3)
                             {
-                                TZones.Instance.SendCommandReply(caller, "command_zones_remove_node_syntax");
+                                TZones.Instance.SendCommandReply(caller, "command_zones_remove_node_syntax", TZones.Instance.Config.General.MessageIcon);
                                 return;
                             }
 
-                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            Zone? zone = ZoneManager.Queries.GetZone(args[1]);
                             if (zone == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", TZones.Instance.Config.General.MessageIcon, args[1]);
                                 return;
                             }
 
@@ -471,31 +528,31 @@ namespace Tavstal.TZones.Commands
                             }
                             catch { /* ignore */}
                             
-                            Node node = ZonesManager.Nodes[zone.Id]?.Find(x => x.Id == nodeId);
+                            Node? node = ZoneManager.Queries.GetNode(zone.Id, nodeId);
                             if (node == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_node_not_found", zone.Name, args[2]);
+                                TZones.Instance.SendCommandReply(caller, "error_node_not_found", TZones.Instance.Config.General.MessageIcon, zone.Name, args[2]);
                                 return;
                             }
 
-                            await TZones.DatabaseManager.RemoveNodeAsync(node);
-                            ZonesManager.SetDirty();
+                            await TZones.DatabaseManager.Nodes.DeleteAsync(node.Id);
+                            ZoneManager.Cache.MakeDirty();
                             
-                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_node", node.Id);
+                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_node", TZones.Instance.Config.General.MessageIcon, node.Id);
                             break;
                         }
                         case "flag":
                         {
                             if (args.Length != 3)
                             {
-                                TZones.Instance.SendCommandReply(caller, "command_zones_remove_flag_syntax");
+                                TZones.Instance.SendCommandReply(caller, "command_zones_remove_flag_syntax", TZones.Instance.Config.General.MessageIcon);
                                 return;
                             }
                             
-                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            Zone? zone = ZoneManager.Queries.GetZone(args[1]);
                             if (zone == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", TZones.Instance.Config.General.MessageIcon, args[1]);
                                 return;
                             }
                             
@@ -506,31 +563,32 @@ namespace Tavstal.TZones.Commands
                             }
                             catch { /* ignore */}
                     
-                            ZoneFlag flag = ZonesManager.ZoneFlags[zone.Id]?.Find(x => x.FlagId == flagId);
+                            ZoneFlag? flag = ZoneManager.Queries.GetZoneFlag(zone.Id, flagId);
                             if (flag == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zoneflag_not_found", zone.Name, args[2]);
+                                TZones.Instance.SendCommandReply(caller, "error_zoneflag_not_found", TZones.Instance.Config.General.MessageIcon, zone.Name, args[2]);
                                 return;
                             }
 
-                            await TZones.DatabaseManager.RemoveZoneFlagAsync(zone.Id, flag.FlagId);
-                            ZonesManager.SetDirty();
+                            await TZones.DatabaseManager.ZoneFlags.DeleteAsync(QueryParameter.eq("ZoneId", zone.Id),
+                                QueryParameter.eq("FlagId", flag.Id));
+                            ZoneManager.Cache.MakeDirty();
                             
-                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_flag", flag.FlagId, zone.Name);
+                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_flag", TZones.Instance.Config.General.MessageIcon, flag.FlagId, zone.Name);
                             break;
                         }
                         case "event":
                         {
                             if (args.Length != 3)
                             {
-                                TZones.Instance.SendCommandReply(caller, "command_zones_remove_event_syntax");
+                                TZones.Instance.SendCommandReply(caller, "command_zones_remove_event_syntax", TZones.Instance.Config.General.MessageIcon);
                                 return;
                             }
                             
-                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            Zone? zone = ZoneManager.Queries.GetZone(args[1]);
                             if (zone == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", TZones.Instance.Config.General.MessageIcon, args[1]);
                                 return;
                             }
                             
@@ -541,46 +599,47 @@ namespace Tavstal.TZones.Commands
                             }
                             catch
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_event_type_not_found", args[2]);
+                                TZones.Instance.SendCommandReply(caller, "error_event_type_not_found", TZones.Instance.Config.General.MessageIcon, args[2]);
                                 return;
                             }
                             
-                            ZoneEvent zoneEvent = ZonesManager.ZoneEvents[zone.Id]?.Find(x => x.Type == eventType);
+                            ZoneEvent? zoneEvent = ZoneManager.Queries.GetZoneEvent(zone.Id, eventType);
                             if (zoneEvent == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zoneevent_not_found", zone.Name, args[2]);
+                                TZones.Instance.SendCommandReply(caller, "error_zoneevent_not_found", TZones.Instance.Config.General.MessageIcon, zone.Name, args[2]);
                                 return;
                             }
 
-                            await TZones.DatabaseManager.RemoveZoneEventAsync(zone.Id, zoneEvent.Type);
-                            ZonesManager.SetDirty();
+                            await TZones.DatabaseManager.ZoneEvents.DeleteAsync(QueryParameter.eq("ZoneId", zone.Id), 
+                                QueryParameter.eq("Type", zoneEvent.Type));
+                            ZoneManager.Cache.MakeDirty();
                             
-                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_event", zoneEvent.Type.ToString(), zone.Name);
+                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_event", TZones.Instance.Config.General.MessageIcon, zoneEvent.Type.ToString(), zone.Name);
                             break;
                         }
                         case "block":
                         {
                             if (args.Length != 4)
                             {
-                                TZones.Instance.SendCommandReply(caller, "command_zones_remove_block_syntax");
+                                TZones.Instance.SendCommandReply(caller, "command_zones_remove_block_syntax", TZones.Instance.Config.General.MessageIcon);
                                 return;
                             }
                             
-                            Zone zone = ZonesManager.Zones.Find(x => x.Name == args[1]);
+                            Zone? zone = ZoneManager.Queries.GetZone(args[1]);
                             if (zone == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", args[1]);
+                                TZones.Instance.SendCommandReply(caller, "error_zone_not_found", TZones.Instance.Config.General.MessageIcon, args[1]);
                                 return;
                             }
 
-                            EBlockType blockType;
+                            ERestrictionType restrictionType;
                             try
                             {
-                                blockType = (EBlockType)Enum.Parse(typeof(EBlockType), args[2], true);
+                                restrictionType = (ERestrictionType)Enum.Parse(typeof(ERestrictionType), args[2], true);
                             }
                             catch
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_block_type_not_found", args[2]);
+                                TZones.Instance.SendCommandReply(caller, "error_block_type_not_found", TZones.Instance.Config.General.MessageIcon, args[2]);
                                 return;
                             }
 
@@ -591,31 +650,28 @@ namespace Tavstal.TZones.Commands
                             }
                             catch { /* ignored */}
 
-                            Block block = ZonesManager.ZoneBlocks[zone.Id]?.Find(x => x.Type == blockType && x.UnturnedId == id);
-                            if (block == null)
+                            Restriction? restriction = ZoneManager.Queries.GetZoneBlock(zone.Id, restrictionType, id);
+                            if (restriction == null)
                             {
-                                TZones.Instance.SendCommandReply(caller, "error_zone_block_not_found", blockType.ToString(), id);
+                                TZones.Instance.SendCommandReply(caller, "error_zone_block_not_found", TZones.Instance.Config.General.MessageIcon, restrictionType.ToString(), id);
                                 return;
                             }
 
-                            await TZones.DatabaseManager.RemoveBlockAsync(block);
-                            ZonesManager.SetDirty();
+                            await TZones.DatabaseManager.Restrictions.DeleteAsync(restriction.Id);
+                            ZoneManager.Cache.MakeDirty();
                             
-                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_block");
+                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_block", TZones.Instance.Config.General.MessageIcon);
                             break; 
                         }
                         default:
                         {
-                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_syntax");
+                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_syntax", TZones.Instance.Config.General.MessageIcon);
                             break;
                         }
                     }
                 })
         };
 
-        protected override Task<bool> ExecutionRequested(IRocketPlayer caller, string[] args)
-        {
-            return Task.FromResult(false);
-        }
+        protected override bool HandleExecute(IRocketPlayer caller, string[] args) => false;
     }
 }
