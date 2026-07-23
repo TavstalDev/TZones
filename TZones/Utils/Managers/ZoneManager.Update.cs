@@ -1,0 +1,146 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Rocket.Unturned.Player;
+using SDG.Unturned;
+using Tavstal.TLibrary.Threading;
+using Tavstal.TZones.Components;
+using Tavstal.TZones.Models.Core;
+using UnityEngine;
+
+namespace Tavstal.TZones.Utils.Managers
+{
+    public class ZonesManager_Update
+    {
+        private ZonesManager_Cache _cache { get; }
+        private ZonesManager_Queries _queries { get; }
+        public bool IsUpdating {  get; set; }
+
+        public ZonesManager_Update(ZonesManager_Cache cache, ZonesManager_Queries queries)
+        {
+            _cache = cache;
+            _queries = queries;
+        }
+        
+        internal async Task UpdateAsync()
+        {
+            await _cache.CheckDirtyAsync();
+            
+            // Note: 
+            // Future performance issues might be solved with Parallel.ForEach instead of regular foreach
+            // Only use it at heavy load, or else it won't make it faster
+            UpdatePlayers();
+
+            // Update Generators & Zombies
+            var zones = _cache.Zones;
+            if (zones.Count == 0)
+                return;
+            
+            await MainThreadDispatcher.RunAsync(() =>
+            {
+                foreach (Zone zone in zones)
+                {
+                    UpdateGenerators(zone);
+                    UpdateZombies(zone);
+                }
+            });
+        }
+        
+        private void UpdatePlayers()
+        {
+            var existingZones = _cache.Zones;
+            if (Provider.clients.Count == 0)
+                return;
+            
+            foreach (SteamPlayer steamPlayer in Provider.clients) 
+            {
+                UnturnedPlayer uPlayer = UnturnedPlayer.FromSteamPlayer(steamPlayer);
+                ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
+
+                var currentZones = new HashSet<ulong>(ZoneManager.GetZoneIdsFromPosition(uPlayer.Position));
+                bool updateLastPos = true;
+
+                foreach (var zoneId in comp.Zones)
+                {
+                    bool shouldAllow = true;
+                    // Check for zones that the player has left
+                    if (currentZones.Contains(zoneId))
+                        continue;
+
+                    var zone = existingZones.FirstOrDefault(x => x.Id == zoneId);
+                    if (zone == null)
+                        continue;
+
+                    ZoneManager.FPlayerLeaveZone(uPlayer, zone, comp.LastPosition, ref shouldAllow);
+                    if (!shouldAllow)
+                    {
+                        currentZones.Add(zoneId);
+                        updateLastPos = false;
+                    }
+                }
+
+                foreach (var zoneId in currentZones.ToList()) // .ToList prevents list edit errors
+                {
+                    bool shouldAllow = true;
+                    // Check for zones that the player has left
+                    if (comp.Zones.Contains(zoneId))
+                        continue;
+
+                    var zone = existingZones.FirstOrDefault(x => x.Id == zoneId);
+                    if (zone == null)
+                    {
+                        currentZones.Remove(zoneId);
+                        continue;
+                    }
+
+                    ZoneManager.FPlayerEnterZone(uPlayer, zone, comp.LastPosition, ref shouldAllow);
+                    if (!shouldAllow)
+                    {
+                        currentZones.Remove(zoneId);
+                        updateLastPos = false;
+                    }
+                }
+
+                comp.Zones = currentZones;
+                if (updateLastPos)
+                    comp.LastPosition = uPlayer.Position;
+            }
+        }
+        
+        private void UpdateZombies(Zone zone)
+        {
+            if (ZombieManager.regions == null || !_queries.HasFlag(zone, Constants.Flags.Zombie))
+                return;
+            
+            foreach (var zombie in ZombieManager.regions
+                         .Where(t => t.zombies != null) // Filter regions that have zombies
+                         .SelectMany(t => t.zombies) // Flatten the list of zombies from each region
+                         .Where(z => z && !z.isDead && ZoneManager.IsPointInZone(zone, z.transform.position))) // Filter out dead zombies and those outside the zone
+            {
+                // The zombie is alive and within the zone
+                zombie.gear = 0;
+                zombie.isDead = true;
+                ZombieManager.sendZombieDead(zombie, Vector3.zero);
+            }
+        }
+        
+        private void UpdateGenerators(Zone zone)
+        {
+            if (!_queries.HasFlag(zone, Constants.Flags.InfiniteGenerator))
+                return;
+            
+            foreach (var generator in _cache.InteractableGeneratorCache)
+            {
+                if (generator.fuel > generator.capacity - 10)
+                    continue;
+                
+                if (!ZoneManager.IsPointInZone(zone, generator.transform.position))
+                    continue;
+                
+                BarricadeManager.sendFuel(generator.transform, generator.capacity);
+            }
+        }
+    }
+}
