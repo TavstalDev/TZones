@@ -1,26 +1,27 @@
-﻿using Newtonsoft.Json;
+﻿using Tavstal.TLibrary.Models.Config;
 using Tavstal.TZones.Models.Database;
-using Tavstal.TLibrary.Models.Plugin;
+using YamlDotNet.Serialization;
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace Tavstal.TZones
 {
-    public class ZonesConfig : ConfigurationBase
+    public class ZonesConfig : YamlConfiguration
     {
-        /*[JsonProperty(Order = 3)]
-        public string StorageType { get; set; }*/
-        [JsonProperty(Order = 3)]
-        public DatabaseData Database { get; set; }
+        [YamlMember(Order = 3)]
+        public DatabaseData Database { get; set; } = new  DatabaseData();
 
         public override void LoadDefaults()
         {
-            DebugMode = false;
-            Locale = "en";
-            DownloadLocalePacks = true;
-            Database = new DatabaseData("tzones_zones", "tzones_nodes", "tzones_flags", "tzones_zoneflags", "tzones_events", "tzones_blocklist");
+            General = new GeneralConfig
+            {
+                MessageIcon = "https://raw.githubusercontent.com/TavstalDev/TZones/refs/heads/master/assets/icon.png"
+            };
+            Database = new DatabaseData();
         }
 
         // Required because of the library
-        public ZonesConfig() { }
-        public ZonesConfig(string fileName, string path) : base(fileName, path) { }
+        public ZonesConfig() {}
+
+        public ZonesConfig(string fileName, string path) : base(fileName, path) {}
     }
 }
