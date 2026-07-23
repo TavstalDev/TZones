@@ -1,4 +1,3 @@
-using System;
 using Tavstal.TLibrary.Models;
 using Tavstal.TLibrary.Models.Database.Attributes;
 using Tavstal.TZones.Models.Enums;
@@ -6,19 +5,24 @@ using UnityEngine;
 
 namespace Tavstal.TZones.Models.Core
 {
-    [Serializable]
+    [SqlName("zones_nodes")]
     public class Node : SerializableVector3
     {
         [SqlMember(isPrimaryKey: true, isUnsigned: true, shouldAutoIncrement: true)]
         public ulong Id { get; set; }
+        
         [SqlMember(isUnsigned: true)]
         public ulong ZoneId { get; set; }
+        
         [SqlMember(columnType: "float")]
         public new float X { get; set; }
+        
         [SqlMember(columnType: "float")]
         public new float Y { get; set; }
+        
         [SqlMember(columnType: "float")]
         public new float Z { get; set; }
+        
         [SqlMember]
         public ENodeType Type { get; set; }
 

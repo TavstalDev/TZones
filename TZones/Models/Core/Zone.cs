@@ -3,21 +3,29 @@ using Tavstal.TLibrary.Models.Database.Attributes;
 
 namespace Tavstal.TZones.Models.Core
 {
-    [Serializable]
+    [SqlName("zones")]
     public class Zone
     {
         [SqlMember(isPrimaryKey: true, isUnsigned: true, shouldAutoIncrement: true)]
         public ulong Id { get; set; }
+        
         [SqlMember(columnType: "varchar(32)")]
         public string Name { get; set; }
+        
         [SqlMember(columnType: "varchar(128)", isNullable: true)]
         public string Description { get; set; }
+        
         [SqlMember(isUnsigned: true)]
         public ulong CreatorId { get; set; }
+        
         [SqlMember]
         public DateTime CreationDate { get; set; }
 
-        public Zone() { }
+        public Zone()
+        {
+            Name = string.Empty;
+            Description = string.Empty;
+        }
 
         public Zone(ulong id, string name, string description, ulong creatorId, DateTime creationDate)
         {
