@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Tavstal.TLibrary.Helpers.Unturned;
+// ReSharper disable UnusedType.Global
 
 namespace Tavstal.TZones.Commands
 {
@@ -17,17 +18,16 @@ namespace Tavstal.TZones.Commands
 
         public void Execute(IRocketPlayer caller, string[] command)
         {
-            // Please do not remove this region and its code, because the license require credits to the author.
-            #region Credits to Tavstal
-            TZones.Instance.SendPlainCommandReply(caller, "#########################################");
-            TZones.Instance.SendPlainCommandReply(caller, $"# This plugin uses TLibrary.");
-            TZones.Instance.SendPlainCommandReply(caller, $"# TLibrary Created By: Tavstal");
-            TZones.Instance.SendPlainCommandReply(caller, $"# Github: https://github.com/TavstalDev/TLibrary/tree/master");
-            #endregion
-            TZones.Instance.SendPlainCommandReply(caller, "#########################################");
-            TZones.Instance.SendPlainCommandReply(caller, $"# Build Version: {TZones.Version}");
-            TZones.Instance.SendPlainCommandReply(caller, $"# Build Date: {TZones.BuildDate}");
-            TZones.Instance.SendPlainCommandReply(caller, "#########################################");
+            var instance = TZones.Instance;
+            var config = instance.Config.General;
+            var icon = config.MessageIcon;
+            string message = string.Join(System.Environment.NewLine, 
+                $"&b&l[{instance.GetPluginName()}]&r System Info:",
+                $"&b • Version: &r{TZones.Version}",
+                $"&b • Build Date: &r{TZones.BuildDate}",
+                "&b • Developer: &rTavstal");
+            
+            instance.SendPlainCommandReply(caller, message, icon);
         }
     }
 }
