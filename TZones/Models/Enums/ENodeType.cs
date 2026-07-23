@@ -2,8 +2,8 @@ namespace Tavstal.TZones.Models.Enums
 {
     public enum ENodeType
     {
-        None = 0,
-        Upper = 1,
-        Lower = 2,
+        NONE = 0,
+        UPPER = 1,
+        LOWER = 2,
     }
 }
