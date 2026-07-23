@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections;
 using SDG.Unturned;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Text;
+using Tavstal.TLibrary.Extensions;
+using Tavstal.TLibrary.Models.Logging;
 using Tavstal.TZones.Utils.Handlers;
 using Tavstal.TZones.Utils.Managers;
 using Tavstal.TLibrary.Models.Plugin;
+using Tavstal.TLibrary.Threading;
 using UnityEngine;
 
 namespace Tavstal.TZones
@@ -15,55 +19,67 @@ namespace Tavstal.TZones
     // ReSharper disable once InconsistentNaming
     public class TZones : PluginBase<ZonesConfig>
     {
-        public static TZones Instance { get; private set; }
-        public new static readonly TLogger Logger = new TLogger("TZones", false);
-        public static DatabaseManager DatabaseManager { get; private set; }
-        /// <summary>
-        /// Used to prevent error spamming that is related to database configuration.
-        /// </summary>
-        public static bool IsConnectionAuthFailed { get; set; }
-        private static float _timer;
+        public static TZones Instance { get; private set; } = null!;
+        public static DatabaseManager DatabaseManager { get; private set; } = null!;
+        private static Coroutine? _updateRoutine;
+        private static bool isInitialized;
 
+        public override void OnPreLoad()
+        {
+            Instance = this;
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("────────────────────────────────────────────────────────");
+            sb.AppendLine();
+            sb.AppendLine("████████╗███████╗ ██████╗ ███╗   ██╗███████╗███████╗");
+            sb.AppendLine("╚══██╔══╝╚══███╔╝██╔═══██╗████╗  ██║██╔════╝██╔════╝");
+            sb.AppendLine("   ██║     ███╔╝ ██║   ██║██╔██╗ ██║█████╗  ███████╗");
+            sb.AppendLine("   ██║    ███╔╝  ██║   ██║██║╚██╗██║██╔══╝  ╚════██║");
+            sb.AppendLine("   ██║   ███████╗╚██████╔╝██║ ╚████║███████╗███████║");
+            sb.AppendLine("   ╚═╝   ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝╚══════╝");
+            sb.AppendLine();
+            sb.AppendLine("[ About ]");
+            sb.AppendLine(" ▸ Developer : Tavstal");
+            sb.AppendLine(" ▸ Discord   : @Tavstal");
+            sb.AppendLine(" ▸ Website   : https://redstoneplugins.com");
+            sb.AppendLine(" ▸ GitHub    : https://github.com/TavstalDev");
+            sb.AppendLine();
+            sb.AppendLine("[ Build ]");
+            sb.AppendLine($" ▸ Version   : {Version}");
+            sb.AppendLine($" ▸ Build Date: {BuildDate} UTC");
+            sb.AppendLine($" ▸ TLibrary  : {LibraryVersion}");
+            sb.AppendLine();
+            sb.AppendLine("[ Support ]");
+            sb.AppendLine(" ▸ Report issues or request features:");
+            sb.AppendLine(" ▸ https://github.com/TavstalDev/TZones/issues");
+            sb.AppendLine();
+            sb.AppendLine("────────────────────────────────────────────────────────");
+            Logger.Log(ELogLevel.COMMAND, sb.ToString(), includePrefixes: false, color:  ConsoleColor.Cyan);
+        }
+        
         /// <summary>
         /// Fired when the plugin is loaded.
         /// </summary>
         public override void OnLoad()
         {
             Instance = this;
-            _timer = 0;
+
             // Attach event, which will be fired when all plugins are loaded.
             Level.onPostLevelLoaded += Event_OnPluginsLoaded;
             // Attach player related events
-            UnturnedEventHandler.AttachEvents();
+            BarricadeEventHandler.AttachEvents();
+            EntityEventHandler.AttachEvents();
+            PlayerEventHandler.AttachEvents();
+            StructureEventHandler.AttachEvents();
+            VehicleEventHandler.AttachEvents();
             ZonesEventHandler.AttachEvents();
 
-            Logger.Log("████████╗███████╗ ██████╗ ███╗   ██╗███████╗███████╗", ConsoleColor.Cyan, prefix: null);
-            Logger.Log("╚══██╔══╝╚══███╔╝██╔═══██╗████╗  ██║██╔════╝██╔════╝", ConsoleColor.Cyan, prefix: null);
-            Logger.Log("   ██║     ███╔╝ ██║   ██║██╔██╗ ██║█████╗  ███████╗", ConsoleColor.Cyan, prefix: null);
-            Logger.Log("   ██║    ███╔╝  ██║   ██║██║╚██╗██║██╔══╝  ╚════██║", ConsoleColor.Cyan, prefix: null);
-            Logger.Log("   ██║   ███████╗╚██████╔╝██║ ╚████║███████╗███████║", ConsoleColor.Cyan, prefix: null);
-            Logger.Log("   ╚═╝   ╚══════╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝╚══════╝", ConsoleColor.Cyan, prefix: null);
-            Logger.Log("#########################################", prefix: null);
-            Logger.Log("#       Thanks for using this plugin!   #", prefix: null);
-            Logger.Log("#########################################", prefix: null);
-            Logger.Log("# Developed By: Tavstal", prefix: null);
-            Logger.Log("# Discord:      @Tavstal", prefix: null);
-            Logger.Log("# Website:      https://redstoneplugins.com", prefix: null);
-            Logger.Log("# GitHub:       https://tavstaldev.github.io", prefix: null);
-            Logger.Log("#########################################", prefix: null);
-            Logger.Log($"# Plugin Version:    {Version}", prefix: null);
-            Logger.Log($"# Build Date:        {BuildDate}", prefix: null);
-            Logger.Log($"# TLibrary Version:  {LibraryVersion}", prefix: null);
-            Logger.Log("#########################################", prefix: null);
-            Logger.Log("# Found an issue or have a suggestion?", prefix: null);
-            Logger.Log("# Report it here: https://github.com/TavstalDev/TZones/issues", prefix: null); 
-            Logger.Log("#########################################", prefix: null);
-
             DatabaseManager = new DatabaseManager(this, Config);
-            if (IsConnectionAuthFailed)
+            if (DatabaseManager.IsAuthenticationFailed)
                 return;
 
-            Logger.Log($"# {Name} has been loaded.");
+            isInitialized = true;
+            _updateRoutine = StartCoroutine(UpdateRoutine());
+            Logger.Info($"# {Name} has been loaded.");
         }
 
         /// <summary>
@@ -72,22 +88,33 @@ namespace Tavstal.TZones
         public override void OnUnLoad()
         {
             Level.onPostLevelLoaded -= Event_OnPluginsLoaded;
-            UnturnedEventHandler.DetachEvents();
+            BarricadeEventHandler.DetachEvents();
+            EntityEventHandler.DetachEvents();
+            PlayerEventHandler.DetachEvents();
+            StructureEventHandler.DetachEvents();
+            VehicleEventHandler.DetachEvents();
             ZonesEventHandler.DetachEvents();
-            Logger.Log($"# {Name} has been successfully unloaded.");
+
+            isInitialized = false;
+            if (_updateRoutine != null)
+            {
+                StopCoroutine(_updateRoutine);
+                _updateRoutine = null;
+            }
+            Logger.Info($"# {Name} has been successfully unloaded.");
         }
 
         private void Event_OnPluginsLoaded(int i)
         {
-            if (IsConnectionAuthFailed)
+            if (DatabaseManager.IsAuthenticationFailed)
             {
                 Logger.Warning($"# Unloading {GetPluginName()} due to database authentication error.");
                 this.UnloadPlugin();
                 return;
             }
 
-            ZonesManager.RefreshGeneratorCache();
-            ZonesManager.SetDirty();
+            ZoneManager.Cache.RefreshGeneratorCache();
+            ZoneManager.Cache.MakeDirty();
         }
 
         public override Dictionary<string, string> LanguagePacks => new Dictionary<string, string>();
@@ -98,6 +125,8 @@ namespace Tavstal.TZones
                { "prefix", "&d[TZones] " },
                { "error_not_player", "&cThis command can only be called by players." },
                { "error_player_not_found", "&cPlayer was not found." },
+               { "error_exception", "&cUnexpected error occured. Please report it to an administrator."},
+               { "error_database_connection", "&cFailed to connect to the database."},
                { "error_flag_not_found", "&cThe &e{0} &cflag does not exist." },
                { "error_zone_not_found", "&cThe &e{0} &czone does not exist." },
                { "error_node_not_found", "&cThe &e{1} &cnode does not exist in the &e{0} &czone." },
@@ -150,17 +179,35 @@ namespace Tavstal.TZones
                { "command_zones_remove_event", "&aYou have successfully removed the &e{0} &aevent." },
                { "command_zones_remove_block", "&aYou have successfully removed the block." },
            };
+        
+        private IEnumerator UpdateRoutine() {
+            var waitTime = new WaitForSeconds(1f);
 
-        #region Unity Update
-        private void Update() {
-            _timer += Time.deltaTime;
-            if (_timer < 1) {
-                return;
+            while (true) {
+                yield return waitTime;
+
+                if (!isInitialized || DatabaseManager.IsAuthenticationFailed)
+                    continue;
+
+                if (ZoneManager.Updater.IsUpdating)
+                    continue;
+
+                ZoneManager.Updater.IsUpdating  = true;
+                
+                BackgroundThreadDispatcher.Run(async () => {
+                    try {
+                        await ZoneManager.Updater.UpdateAsync();
+                    }
+                    catch (Exception ex) {
+                        Logger.Error("Unexpected error occured while running background update task.", ex);
+                    }
+                    finally
+                    {
+                        ZoneManager.Updater.IsUpdating = false;
+                    }
+                });
             }
-            _timer = 0f;
-
-            Task.Run(async () => await ZonesManager.UpdateUnityAsync());
+            // ReSharper disable once IteratorNeverReturns
         }
-        #endregion
     }
 }
