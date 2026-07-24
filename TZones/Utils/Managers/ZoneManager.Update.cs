@@ -12,18 +12,33 @@ using UnityEngine;
 
 namespace Tavstal.TZones.Utils.Managers
 {
+    /// <summary>
+    /// Handles periodic update logic for player zone tracking, generator refueling, and zombie removal.
+    /// </summary>
     public class ZonesManager_Update
     {
         private ZonesManager_Cache _cache { get; }
         private ZonesManager_Queries _queries { get; }
+
+        /// <summary>
+        /// Gets or sets whether an update cycle is currently in progress.
+        /// </summary>
         public bool IsUpdating {  get; set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ZonesManager_Update"/> class.
+        /// </summary>
+        /// <param name="cache">The zone data cache.</param>
+        /// <param name="queries">The zone query helper.</param>
         public ZonesManager_Update(ZonesManager_Cache cache, ZonesManager_Queries queries)
         {
             _cache = cache;
             _queries = queries;
         }
         
+        /// <summary>
+        /// Runs a full update cycle: refreshes dirty cache, updates player zone tracking, generators, and zombies.
+        /// </summary>
         internal async Task UpdateAsync()
         {
             await _cache.CheckDirtyAsync();
@@ -48,6 +63,9 @@ namespace Tavstal.TZones.Utils.Managers
             });
         }
         
+        /// <summary>
+        /// Iterates all connected players and fires enter/leave zone events based on their current position.
+        /// </summary>
         private void UpdatePlayers()
         {
             var existingZones = _cache.Zones;
@@ -109,6 +127,9 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
         
+        /// <summary>
+        /// Removes zombies inside zones that have the NoZombie flag.
+        /// </summary>
         private void UpdateZombies(Zone zone)
         {
             if (ZombieManager.regions == null || !_queries.HasFlag(zone, Constants.Flags.Zombie))
@@ -126,6 +147,9 @@ namespace Tavstal.TZones.Utils.Managers
             }
         }
         
+        /// <summary>
+        /// Refills generators inside zones that have the InfiniteGenerator flag.
+        /// </summary>
         private void UpdateGenerators(Zone zone)
         {
             if (!_queries.HasFlag(zone, Constants.Flags.InfiniteGenerator))

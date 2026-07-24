@@ -6,16 +6,26 @@ using Tavstal.TLibrary.Helpers.Unturned;
 
 namespace Tavstal.TZones.Commands
 {
+    /// <summary>
+    /// Command that displays the plugin version and build information.
+    /// </summary>
     public class CommandVersion : IRocketCommand
     {
+        /// <inheritdoc/>
         public AllowedCaller AllowedCaller => AllowedCaller.Both;
+        /// <inheritdoc/>
         public string Name => ("v" + Assembly.GetExecutingAssembly().GetName().Name);
+        /// <inheritdoc/>
         public string Help => "Gets the version of the plugin";
+        /// <inheritdoc/>
         public string Syntax => "";
+        /// <inheritdoc/>
         public List<string> Aliases => new List<string>();
+        /// <inheritdoc/>
         public List<string> Permissions => new List<string> { "example.command.version" };
 
 
+        /// <inheritdoc/>
         public void Execute(IRocketPlayer caller, string[] command)
         {
             var instance = TZones.Instance;

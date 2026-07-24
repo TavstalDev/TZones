@@ -11,10 +11,16 @@ using Tavstal.TZones.Utils.Managers;
 
 namespace Tavstal.TZones.Utils.Handlers
 {
+    /// <summary>
+    /// Handles player-related events such as damage, equip, dequip, and item drop, enforcing zone restrictions.
+    /// </summary>
     public static class PlayerEventHandler
     {
         private static bool _isAttached;
 
+        /// <summary>
+        /// Subscribes to all player events if not already attached.
+        /// </summary>
         public static void AttachEvents()
         {
             if (_isAttached)
@@ -27,6 +33,9 @@ namespace Tavstal.TZones.Utils.Handlers
             _isAttached = true;
         }
 
+        /// <summary>
+        /// Unsubscribes from all player events if currently attached.
+        /// </summary>
         public static void DetachEvents()
         {
             if (!_isAttached)
@@ -39,6 +48,9 @@ namespace Tavstal.TZones.Utils.Handlers
             _isAttached = true;
         }
         
+        /// <summary>
+        /// Registers per-player event handlers when a player connects.
+        /// </summary>
         private static void OnPlayerConnected(UnturnedPlayer player)
         {
             player.Inventory.onDropItemRequested += OnDropItemRequested;
@@ -47,6 +59,9 @@ namespace Tavstal.TZones.Utils.Handlers
         }
 
 
+        /// <summary>
+        /// Unregisters per-player event handlers when a player disconnects.
+        /// </summary>
         private static void OnPlayerDisconnected(UnturnedPlayer player)
         {
             player.Inventory.onDropItemRequested -= OnDropItemRequested;
@@ -54,6 +69,9 @@ namespace Tavstal.TZones.Utils.Handlers
             player.Player.equipment.onDequipRequested -= OnDequipRequested;
         }
         
+        /// <summary>
+        /// Handles player damage requests, blocking damage when the zone has the NoPlayerDamage flag.
+        /// </summary>
         private static void OnPlayerDamageRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
             try
@@ -90,6 +108,9 @@ namespace Tavstal.TZones.Utils.Handlers
             }
         }
         
+        /// <summary>
+        /// Handles equip requests, blocking equipping when the zone forbids item equip or the item is restricted.
+        /// </summary>
         private static void OnEquipRequested(PlayerEquipment equipment, ItemJar jar, ItemAsset asset, ref bool shouldAllow)
         {
             try
@@ -113,6 +134,9 @@ namespace Tavstal.TZones.Utils.Handlers
             }
         }
         
+        /// <summary>
+        /// Handles dequip requests, blocking unequipping when the zone forbids item deequip or the item is restricted.
+        /// </summary>
         private static void OnDequipRequested(PlayerEquipment equipment, ref bool shouldAllow)
         {
             try
@@ -136,6 +160,9 @@ namespace Tavstal.TZones.Utils.Handlers
             }
         }
         
+        /// <summary>
+        /// Handles item drop requests, blocking drops when the zone has the NoItemDrop flag.
+        /// </summary>
         private static void OnDropItemRequested(PlayerInventory inventory, Item item, ref bool shouldAllow)
         {
             try

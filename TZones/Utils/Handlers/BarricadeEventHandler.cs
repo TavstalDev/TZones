@@ -12,10 +12,16 @@ using UnityEngine;
 
 namespace Tavstal.TZones.Utils.Handlers
 {
+    /// <summary>
+    /// Handles barricade-related events such as deploy, damage, and salvage, enforcing zone restrictions.
+    /// </summary>
     public static class BarricadeEventHandler
     {
         private static bool _isAttached;
 
+        /// <summary>
+        /// Subscribes to all barricade events if not already attached.
+        /// </summary>
         public static void AttachEvents()
         {
             if (_isAttached)
@@ -28,6 +34,9 @@ namespace Tavstal.TZones.Utils.Handlers
             _isAttached = true;
         }
 
+        /// <summary>
+        /// Unsubscribes from all barricade events if currently attached.
+        /// </summary>
         public static void DetachEvents()
         {
             if (!_isAttached)
@@ -40,6 +49,9 @@ namespace Tavstal.TZones.Utils.Handlers
             _isAttached = true;
         }
         
+        /// <summary>
+        /// Handles barricade deploy requests, blocking placement when the zone forbids barricades or the item is restricted.
+        /// </summary>
         private static void OnDeployBarricadeRequested(Barricade barricade, ItemBarricadeAsset asset, Transform hit, ref Vector3 point, ref float angleX, ref float angleY, ref float angleZ, ref ulong owner, ref ulong group, ref bool shouldAllow)
         {
             try
@@ -80,6 +92,9 @@ namespace Tavstal.TZones.Utils.Handlers
             }
         }
         
+        /// <summary>
+        /// Handles barricade salvage requests, blocking salvage when the zone has the NoBarricadeSalvage flag.
+        /// </summary>
         private static void OnSalvageBarricadeRequested(BarricadeDrop barricade, SteamPlayer instigatorClient, ref bool shouldAllow)
         {
             try
@@ -119,6 +134,9 @@ namespace Tavstal.TZones.Utils.Handlers
             }
         }
         
+        /// <summary>
+        /// Handles barricade damage requests, blocking damage when the zone has the NoDamage flag.
+        /// </summary>
         private static void OnDamageBarricadeRequested(CSteamID instigatorSteamID, Transform barricadeTransform, ref ushort pendingTotalDamage, ref bool shouldAllow, EDamageOrigin damageOrigin)
         {
             try

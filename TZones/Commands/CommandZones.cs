@@ -16,15 +16,26 @@ using Tavstal.TZones.Utils.Managers;
 
 namespace Tavstal.TZones.Commands
 {
+    /// <summary>
+    /// Command for managing zones. Supports adding, listing, and removing zones, nodes, flags, events, and restrictions.
+    /// </summary>
     public class CommandZones: CustomCommandBase
     {
+        /// <inheritdoc/>
         public override IPlugin Plugin => TZones.Instance; 
+        /// <inheritdoc/>
         public override bool UseBackgroundThread => false;
+        /// <inheritdoc/>
         public override AllowedCaller AllowedCaller => AllowedCaller.Both;
+        /// <inheritdoc/>
         public override string Name => "zones";
+        /// <inheritdoc/>
         public override string Help => "Manage zones.";
+        /// <inheritdoc/>
         public override string Syntax => "add | list | remove";
+        /// <inheritdoc/>
         public override List<string> Aliases => new List<string> { "regions" };
+        /// <inheritdoc/>
         public override List<string> Permissions => new List<string> { "tzones.command.zones" };
 
         // 'help' subcommand is built-in, you don't need to add it
@@ -672,6 +683,7 @@ namespace Tavstal.TZones.Commands
                 })
         };
 
+        /// <inheritdoc/>
         protected override bool HandleExecute(IRocketPlayer caller, string[] args) => false;
     }
 }

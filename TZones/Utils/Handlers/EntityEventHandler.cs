@@ -8,10 +8,16 @@ using Tavstal.TZones.Utils.Managers;
 
 namespace Tavstal.TZones.Utils.Handlers
 {
+    /// <summary>
+    /// Handles entity-related events such as animal and zombie damage, enforcing zone restrictions.
+    /// </summary>
     public static class EntityEventHandler
     {
         private static bool _isAttached;
 
+        /// <summary>
+        /// Subscribes to all entity events if not already attached.
+        /// </summary>
         public static void AttachEvents()
         {
             if (_isAttached)
@@ -23,6 +29,9 @@ namespace Tavstal.TZones.Utils.Handlers
             _isAttached = true;
         }
 
+        /// <summary>
+        /// Unsubscribes from all entity events if currently attached.
+        /// </summary>
         public static void DetachEvents()
         {
             if (!_isAttached)
@@ -34,6 +43,9 @@ namespace Tavstal.TZones.Utils.Handlers
             _isAttached = true;
         }
         
+        /// <summary>
+        /// Handles animal damage requests, blocking damage when the zone has the NoAnimalDamage flag.
+        /// </summary>
         private static void OnDamageAnimalRequested(ref DamageAnimalParameters parameters, ref bool shouldAllow)
         {
             try
@@ -68,6 +80,9 @@ namespace Tavstal.TZones.Utils.Handlers
             }
         }
         
+        /// <summary>
+        /// Handles zombie damage requests, blocking damage when the zone has the NoZombieDamage flag.
+        /// </summary>
         private static void OnDamageZombieRequested(ref DamageZombieParameters parameters, ref bool shouldAllow)
         {
             try

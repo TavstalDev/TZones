@@ -6,18 +6,30 @@ using Tavstal.TLibrary.Models.Plugin;
 using Tavstal.TLibrary.Helpers.Unturned;
 using Tavstal.TZones.Models.Core;
 using Tavstal.TZones.Utils.Managers;
+// ReSharper disable UnusedType.Global
 
 namespace Tavstal.TZones.Commands
 {
+    /// <summary>
+    /// Command for managing zone flags. Supports adding, listing, and removing custom flags.
+    /// </summary>
     public class CommandFlags: CustomCommandBase
     {
+        /// <inheritdoc/>
         public override IPlugin Plugin => TZones.Instance;
+        /// <inheritdoc/>
         public override bool UseBackgroundThread => false;
+        /// <inheritdoc/>
         public override AllowedCaller AllowedCaller => AllowedCaller.Both;
+        /// <inheritdoc/>
         public override string Name => "flags";
+        /// <inheritdoc/>
         public override string Help => "Manage flags.";
+        /// <inheritdoc/>
         public override string Syntax => "list | add | remove";
+        /// <inheritdoc/>
         public override List<string> Aliases => new List<string>();
+        /// <inheritdoc/>
         public override List<string> Permissions => new List<string> { "tzones.command.flags" };
 
         // 'help' subcommand is built-in, you don't need to add it
@@ -101,6 +113,7 @@ namespace Tavstal.TZones.Commands
                 })
         };
 
+        /// <inheritdoc/>
         protected override bool HandleExecute(IRocketPlayer caller, string[] args) => false;
     }
 }

@@ -10,20 +10,46 @@ using Tavstal.TZones.Models.Core;
 
 namespace Tavstal.TZones.Utils.Managers
 {
+    /// <summary>
+    /// Manages all database operations and provides typed repositories for each data model.
+    /// </summary>
     public class DatabaseManager : DatabaseManagerBase
     {
+        /// <summary>
+        /// Repository for flag data.
+        /// </summary>
         public MySqlRepository<ulong, Flag> Flags { get; }
         
+        /// <summary>
+        /// Repository for zone data.
+        /// </summary>
         public MySqlRepository<ulong, Zone> Zones { get; }
         
+        /// <summary>
+        /// Repository for node data.
+        /// </summary>
         public MySqlRepository<ulong, Node> Nodes { get; }
         
+        /// <summary>
+        /// Repository for zone-flag association data.
+        /// </summary>
         public MySqlRepository<ulong, ZoneFlag> ZoneFlags { get; }
         
+        /// <summary>
+        /// Repository for zone event data.
+        /// </summary>
         public MySqlRepository<ulong, ZoneEvent> ZoneEvents { get; }
         
+        /// <summary>
+        /// Repository for restriction data.
+        /// </summary>
         public MySqlRepository<ulong, Restriction> Restrictions { get; }
 
+        /// <summary>
+        /// Initializes the database manager and its repositories.
+        /// </summary>
+        /// <param name="plugin">The plugin instance.</param>
+        /// <param name="config">The plugin configuration containing database settings.</param>
         public DatabaseManager(IPlugin plugin, ZonesConfig config) : base(plugin, config.Database)
         {
             Flags = new MySqlRepository<ulong, Flag>(this, config.Database.TablePrefix);
@@ -34,6 +60,9 @@ namespace Tavstal.TZones.Utils.Managers
             Restrictions = new MySqlRepository<ulong, Restriction>(this, config.Database.TablePrefix);
         }
         
+        /// <summary>
+        /// Verifies and creates the database schema, and seeds default flags if none exist.
+        /// </summary>
         public override async Task CheckSchemaAsync()
         {
             try

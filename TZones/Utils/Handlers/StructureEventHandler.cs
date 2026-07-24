@@ -12,10 +12,16 @@ using UnityEngine;
 
 namespace Tavstal.TZones.Utils.Handlers
 {
+    /// <summary>
+    /// Handles structure-related events such as deploy, damage, and salvage, enforcing zone restrictions.
+    /// </summary>
     public static class StructureEventHandler
     {
         private static bool _isAttached;
 
+        /// <summary>
+        /// Subscribes to all structure events if not already attached.
+        /// </summary>
         public static void AttachEvents()
         {
             if (_isAttached)
@@ -28,6 +34,9 @@ namespace Tavstal.TZones.Utils.Handlers
             _isAttached = true;
         }
 
+        /// <summary>
+        /// Unsubscribes from all structure events if currently attached.
+        /// </summary>
         public static void DetachEvents()
         {
             if (!_isAttached)
@@ -40,6 +49,9 @@ namespace Tavstal.TZones.Utils.Handlers
             _isAttached = true;
         }
         
+        /// <summary>
+        /// Handles structure deploy requests, blocking placement when the zone forbids structures or the item is restricted.
+        /// </summary>
         private static void OnDeployStructureRequested(Structure structure, ItemStructureAsset asset, ref Vector3 point, ref float angleX, ref float angleY, ref float angleZ, ref ulong owner, ref ulong group, ref bool shouldAllow)
         {
             try
@@ -77,6 +89,9 @@ namespace Tavstal.TZones.Utils.Handlers
             }
         }
         
+        /// <summary>
+        /// Handles structure salvage requests, blocking salvage when the zone has the NoStructureSalvage flag.
+        /// </summary>
         private static void OnSalvageStructureRequested(StructureDrop structure, SteamPlayer instigatorClient, ref bool shouldAllow)
         {
             try
@@ -113,6 +128,9 @@ namespace Tavstal.TZones.Utils.Handlers
             }
         }
         
+        /// <summary>
+        /// Handles structure damage requests, blocking damage when the zone has the NoDamage flag.
+        /// </summary>
         private static void OnDamageStructureRequested(CSteamID instigatorSteamID, Transform structureTransform, ref ushort pendingTotalDamage, ref bool shouldAllow, EDamageOrigin damageOrigin)
         {
             try

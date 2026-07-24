@@ -3,8 +3,14 @@ using YamlDotNet.Serialization;
 
 namespace Tavstal.TZones.Models.Database
 {
+    /// <summary>
+    /// Database configuration data for the TZones plugin.
+    /// </summary>
     public class DatabaseData : DatabaseConfigBase
     {
+        /// <summary>
+        /// The prefix applied to all TZones database tables.
+        /// </summary>
         // Note: It starts from 7 because there are 6 defined property in the base class
         [YamlMember(Order = 7)] 
         public string TablePrefix { get; set; } = "tzones_";
