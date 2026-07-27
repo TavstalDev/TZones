@@ -225,7 +225,7 @@ namespace Tavstal.TZones.Commands
                         {
                             if (args.Length != 4)
                             {
-                                TZones.Instance.SendCommandReply(caller, "command_zones_add_block_syntax");
+                                TZones.Instance.SendCommandReply(caller, "command_zones_add_block_syntax", TZones.Instance.Config.General.MessageIcon);
                                 return;
                             }
                             
@@ -567,25 +567,24 @@ namespace Tavstal.TZones.Commands
                                 return;
                             }
                             
-                            ulong flagId = 0;
-                            try
-                            {
-                                flagId = ulong.Parse(args[2]);
-                            }
-                            catch { /* ignore */}
-                    
-                            ZoneFlag? flag = ZoneManager.Queries.GetZoneFlag(zone.Id, flagId);
+                            Flag? flag = ZoneManager.Queries.GetFlag(args[2]);
                             if (flag == null)
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_flag_not_found", TZones.Instance.Config.General.MessageIcon, args[2]);
+                                return;
+                            }
+                            
+                            ZoneFlag? zoneFlag = ZoneManager.Queries.GetZoneFlag(zone.Id, flag.Id);
+                            if (zoneFlag == null)
                             {
                                 TZones.Instance.SendCommandReply(caller, "error_zoneflag_not_found", TZones.Instance.Config.General.MessageIcon, zone.Name, args[2]);
                                 return;
                             }
 
-                            await TZones.DatabaseManager.ZoneFlags.DeleteAsync(QueryParameter.eq("ZoneId", zone.Id),
-                                QueryParameter.eq("FlagId", flag.Id));
+                            await TZones.DatabaseManager.ZoneFlags.DeleteAsync(zoneFlag.Id);
                             ZoneManager.Cache.MakeDirty();
                             
-                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_flag", TZones.Instance.Config.General.MessageIcon, flag.FlagId, zone.Name);
+                            TZones.Instance.SendCommandReply(caller, "command_zones_remove_flag", TZones.Instance.Config.General.MessageIcon, flag.Name, zone.Name);
                             break;
                         }
                         case "event":
@@ -621,8 +620,7 @@ namespace Tavstal.TZones.Commands
                                 return;
                             }
 
-                            await TZones.DatabaseManager.ZoneEvents.DeleteAsync(QueryParameter.eq("ZoneId", zone.Id), 
-                                QueryParameter.eq("Type", zoneEvent.Type));
+                            await TZones.DatabaseManager.ZoneEvents.DeleteAsync(zoneEvent.Id);
                             ZoneManager.Cache.MakeDirty();
                             
                             TZones.Instance.SendCommandReply(caller, "command_zones_remove_event", TZones.Instance.Config.General.MessageIcon, zoneEvent.Type.ToString(), zone.Name);
