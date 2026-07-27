@@ -7,7 +7,6 @@ using Rocket.Unturned.Player;
 using Tavstal.TLibrary.Extensions;
 using Tavstal.TLibrary.Helpers.Unturned;
 using Tavstal.TLibrary.Models.Commands;
-using Tavstal.TLibrary.Models.Database;
 using Tavstal.TLibrary.Models.Plugin;
 using Tavstal.TZones.Models.Core;
 using Tavstal.TZones.Models.Enums;

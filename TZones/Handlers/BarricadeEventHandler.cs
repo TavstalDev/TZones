@@ -27,6 +27,7 @@ namespace Tavstal.TZones.Handlers
             if (_isAttached)
                 return;
 
+            BarricadeManager.onBarricadeSpawned += OnBarricadeSpawned;
             BarricadeManager.onDamageBarricadeRequested += OnDamageBarricadeRequested;
             BarricadeManager.onDeployBarricadeRequested += OnDeployBarricadeRequested;
             BarricadeDrop.OnSalvageRequested_Global += OnSalvageBarricadeRequested;
@@ -42,11 +43,18 @@ namespace Tavstal.TZones.Handlers
             if (!_isAttached)
                 return;
             
+            BarricadeManager.onBarricadeSpawned -= OnBarricadeSpawned;
             BarricadeManager.onDamageBarricadeRequested -= OnDamageBarricadeRequested;
             BarricadeManager.onDeployBarricadeRequested -= OnDeployBarricadeRequested;
             BarricadeDrop.OnSalvageRequested_Global -= OnSalvageBarricadeRequested;
 
             _isAttached = true;
+        }
+        
+        private static void OnBarricadeSpawned(BarricadeRegion region, BarricadeDrop drop)
+        {
+            if (drop.interactable is InteractableGenerator generator)
+                ZoneManager.Cache.AddGenerator(generator);
         }
         
         /// <summary>
@@ -82,9 +90,6 @@ namespace Tavstal.TZones.Handlers
                         break;
                     }
                 }
-
-                if (shouldAllow && asset.build == EBuild.GENERATOR)
-                    ZoneManager.Cache.RefreshGeneratorCache();
             }
             catch (Exception ex)
             {
@@ -127,7 +132,8 @@ namespace Tavstal.TZones.Handlers
                 }
 
                 if (shouldAllow && barricade.asset.build == EBuild.GENERATOR)
-                    ZoneManager.Cache.RefreshGeneratorCache();
+                    if (barricade.interactable is InteractableGenerator generator)
+                        ZoneManager.Cache.RemoveGenerator(generator);
             }
             catch (Exception ex)
             {
@@ -171,7 +177,8 @@ namespace Tavstal.TZones.Handlers
                 var barricade = BarricadeManager.FindBarricadeByRootTransform(barricadeTransform);
                 if (shouldAllow && barricade.GetServersideData().barricade.health - pendingTotalDamage <= 0 &&
                     barricade.asset.build == EBuild.GENERATOR)
-                    ZoneManager.Cache.RefreshGeneratorCache();
+                    if (barricade.interactable is InteractableGenerator generator)
+                        ZoneManager.Cache.RemoveGenerator(generator);
             }
             catch (Exception ex)
             {
