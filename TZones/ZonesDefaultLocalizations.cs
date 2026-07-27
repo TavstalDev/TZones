@@ -7,9 +7,8 @@ namespace Tavstal.TZones
         public static Dictionary<string, string> Values =>
            new Dictionary<string, string>
            {
-               { "prefix", "&d[TZones] " },
+               { "prefix", "&b[TZones] " },
                { "error_not_player", "&cThis command can only be called by players." },
-               { "error_player_not_found", "&cPlayer was not found." },
                { "error_exception", "&cUnexpected error occured. Please report it to an administrator."},
                { "error_database_connection", "&cFailed to connect to the database."},
                { "error_flag_not_found", "&cThe &e{0} &cflag does not exist." },
@@ -21,6 +20,7 @@ namespace Tavstal.TZones
                { "error_zoneevent_not_found", "&cThe &e{1} &azone event does not exist in the &e{0} &ezone." },
                { "error_block_type_not_found", "&cThe &e{0} &cblock type does not exist." },
                { "error_zone_block_not_found", "&cThe zone block with &e{0} &ctype and &e{1} &cid does not exist." },
+               { "error_zoneflag_already_exist", "&cThe &e{0} &cflag has been already added to the zone."},
                { "error_zone_already_exist", "&cThe &e{0} &czone already exists." },
                { "warn_zone_noenter", "&6You can not enter the &e{0} &6zone." },
                { "warn_zone_noleave", "&6You can not leave the &e{0} &6zone." },
@@ -60,7 +60,7 @@ namespace Tavstal.TZones
                { "command_zones_remove_block_syntax", "&cWrong syntax! Usage: /zones remove block [zoneName] [blockType] [id]" },
                { "command_zones_remove_zone", "&aYou have successfully removed the &e{0} &azone." },
                { "command_zones_remove_node", "&aYou have successfully removed the &e{0} &anode." },
-               { "command_zones_remove_flag", "&aYou have successfully removed the &e{0} &aflag from the &e{0} &azone." },
+               { "command_zones_remove_flag", "&aYou have successfully removed the &e{0} &aflag from the &e{1} &azone." },
                { "command_zones_remove_event", "&aYou have successfully removed the &e{0} &aevent." },
                { "command_zones_remove_block", "&aYou have successfully removed the block." },
            };
