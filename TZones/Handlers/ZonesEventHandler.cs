@@ -78,7 +78,7 @@ namespace Tavstal.TZones.Handlers
 
                 if (comp.SpamPreventEnd < DateTime.Now)
                 {
-                    TZones.Instance.SendCommandReply(player, "warn_zone_noenter", zone.Name);
+                    TZones.Instance.SendCommandReply(player, "warn_zone_noenter", TZones.Instance.Config.General.MessageIcon, zone.Name);
                     comp.SpamPreventEnd = DateTime.Now.AddSeconds(5);
                 }
                 return;
@@ -157,7 +157,7 @@ namespace Tavstal.TZones.Handlers
                 
                 if (comp.SpamPreventEnd < DateTime.Now)
                 {
-                    TZones.Instance.SendCommandReply(player, "warn_zone_noleave", zone.Name);
+                    TZones.Instance.SendCommandReply(player, "warn_zone_noleave", TZones.Instance.Config.General.MessageIcon, zone.Name);
                     comp.SpamPreventEnd = DateTime.Now.AddSeconds(5);
                 }
                 return;
