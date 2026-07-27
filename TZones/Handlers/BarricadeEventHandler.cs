@@ -10,7 +10,7 @@ using Tavstal.TZones.Utils.Constants;
 using Tavstal.TZones.Utils.Managers;
 using UnityEngine;
 
-namespace Tavstal.TZones.Utils.Handlers
+namespace Tavstal.TZones.Handlers
 {
     /// <summary>
     /// Handles barricade-related events such as deploy, damage, and salvage, enforcing zone restrictions.
@@ -54,6 +54,7 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnDeployBarricadeRequested(Barricade barricade, ItemBarricadeAsset asset, Transform hit, ref Vector3 point, ref float angleX, ref float angleY, ref float angleZ, ref ulong owner, ref ulong group, ref bool shouldAllow)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 UnturnedPlayer uPlayer = UnturnedPlayer.FromCSteamID((CSteamID)owner);
@@ -64,7 +65,7 @@ namespace Tavstal.TZones.Utils.Handlers
 
                 foreach (var zone in comp.Zones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.Barricades) ||
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoBarricades) ||
                         ZoneManager.Queries.IsBlocked(zone, asset.id, ERestrictionType.BUILD))
                     {
                         shouldAllow = false;
@@ -75,7 +76,7 @@ namespace Tavstal.TZones.Utils.Handlers
                 var objectZones = ZoneManager.GetZonesFromPosition(point);
                 foreach (Zone zone in objectZones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.Barricades) || ZoneManager.Queries.IsBlocked(zone, asset.id, ERestrictionType.BUILD))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoBarricades) || ZoneManager.Queries.IsBlocked(zone, asset.id, ERestrictionType.BUILD))
                     {
                         shouldAllow = false;
                         break;
@@ -88,7 +89,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnDeployBarricadeRequested)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
         
@@ -97,6 +98,7 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnSalvageBarricadeRequested(BarricadeDrop barricade, SteamPlayer instigatorClient, ref bool shouldAllow)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 UnturnedPlayer uPlayer = UnturnedPlayer.FromSteamPlayer(instigatorClient);
@@ -107,7 +109,7 @@ namespace Tavstal.TZones.Utils.Handlers
 
                 foreach (var zone in comp.Zones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.BarricadeSalvage))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoBarricadeSalvage))
                     {
                         shouldAllow = false;
                         break;
@@ -117,7 +119,7 @@ namespace Tavstal.TZones.Utils.Handlers
                 var objectZones = ZoneManager.GetZonesFromPosition(barricade.interactable.transform.position);
                 foreach (Zone zone in objectZones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.BarricadeSalvage))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoBarricadeSalvage))
                     {
                         shouldAllow = false;
                         break;
@@ -130,7 +132,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnSalvageBarricadeRequested)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
         
@@ -139,6 +141,7 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnDamageBarricadeRequested(CSteamID instigatorSteamID, Transform barricadeTransform, ref ushort pendingTotalDamage, ref bool shouldAllow, EDamageOrigin damageOrigin)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 UnturnedPlayer uPlayer = UnturnedPlayer.FromCSteamID(instigatorSteamID);
@@ -148,7 +151,7 @@ namespace Tavstal.TZones.Utils.Handlers
                 ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
                 foreach (var zone in comp.Zones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.Damage))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoDamage))
                     {
                         shouldAllow = false;
                         break;
@@ -158,7 +161,7 @@ namespace Tavstal.TZones.Utils.Handlers
                 var objectZones = ZoneManager.GetZonesFromPosition(barricadeTransform.position);
                 foreach (Zone zone in objectZones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.Damage))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoDamage))
                     {
                         shouldAllow = false;
                         break;
@@ -173,7 +176,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnDamageBarricadeRequested)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
     }

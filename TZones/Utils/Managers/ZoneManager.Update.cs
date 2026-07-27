@@ -132,7 +132,7 @@ namespace Tavstal.TZones.Utils.Managers
         /// </summary>
         private void UpdateZombies(Zone zone)
         {
-            if (ZombieManager.regions == null || !_queries.HasFlag(zone, Constants.Flags.Zombie))
+            if (ZombieManager.regions == null || !_queries.HasFlag(zone, Constants.Flags.NoZombie))
                 return;
             
             foreach (var zombie in ZombieManager.regions

@@ -10,7 +10,7 @@ using Tavstal.TZones.Utils.Constants;
 using Tavstal.TZones.Utils.Managers;
 using UnityEngine;
 
-namespace Tavstal.TZones.Utils.Handlers
+namespace Tavstal.TZones.Handlers
 {
     /// <summary>
     /// Handles vehicle-related events such as enter, exit, damage, lockpick, carjack, and siphon, enforcing zone restrictions.
@@ -62,6 +62,7 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnEnterVehicleRequested(Player player, InteractableVehicle vehicle, ref bool shouldAllow)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
@@ -78,7 +79,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnEnterVehicleRequested)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
         
@@ -87,6 +88,7 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnExitVehicleRequested(Player player, InteractableVehicle vehicle, ref bool shouldAllow, ref Vector3 pendingLocation, ref float pendingYaw)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
@@ -103,7 +105,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnExitVehicleRequested)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
         
@@ -112,6 +114,7 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnDamageVehicleRequested(CSteamID instigatorSteamID, InteractableVehicle vehicle, ref ushort pendingTotalDamage, ref bool canRepair, ref bool shouldAllow, EDamageOrigin damageOrigin)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 UnturnedPlayer uPlayer = UnturnedPlayer.FromCSteamID(instigatorSteamID);
@@ -122,7 +125,7 @@ namespace Tavstal.TZones.Utils.Handlers
 
                 foreach (var zone in comp.Zones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.VehicleDamage))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoVehicleDamage))
                     {
                         shouldAllow = false;
                         break;
@@ -132,7 +135,7 @@ namespace Tavstal.TZones.Utils.Handlers
                 var objectZones = ZoneManager.GetZonesFromPosition(vehicle.transform.position);
                 foreach (Zone zone in objectZones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.VehicleDamage))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoVehicleDamage))
                     {
                         shouldAllow = false;
                         break;
@@ -142,7 +145,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnDamageVehicleRequested)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
         
@@ -151,6 +154,7 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnDamageTireRequested(CSteamID instigatorSteamID, InteractableVehicle vehicle, int tireIndex, ref bool shouldAllow, EDamageOrigin damageOrigin)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 UnturnedPlayer uPlayer = UnturnedPlayer.FromCSteamID(instigatorSteamID);
@@ -161,7 +165,7 @@ namespace Tavstal.TZones.Utils.Handlers
 
                 foreach (var zone in comp.Zones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.TireDamage))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoTireDamage))
                     {
                         shouldAllow = false;
                         break;
@@ -171,7 +175,7 @@ namespace Tavstal.TZones.Utils.Handlers
                 var objectZones = ZoneManager.GetZonesFromPosition(vehicle.transform.position);
                 foreach (Zone zone in objectZones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.TireDamage))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoTireDamage))
                     {
                         shouldAllow = false;
                         break;
@@ -181,7 +185,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnDamageTireRequested)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
         
@@ -190,13 +194,14 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnSiphonVehicleRequested(InteractableVehicle vehicle, Player instigatingPlayer, ref bool shouldAllow, ref ushort desiredAmount)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 ZonePlayerComponent comp = instigatingPlayer.GetComponent<ZonePlayerComponent>();
 
                 foreach (var zone in comp.Zones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.VehicleSiphoning))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoVehicleSiphoning))
                     {
                         shouldAllow = false;
                         break;
@@ -206,7 +211,7 @@ namespace Tavstal.TZones.Utils.Handlers
                 var objectZones = ZoneManager.GetZonesFromPosition(vehicle.transform.position);
                 foreach (Zone zone in objectZones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.VehicleSiphoning))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoVehicleSiphoning))
                     {
                         shouldAllow = false;
                         break;
@@ -216,7 +221,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnSiphonVehicleRequested)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
         
@@ -225,13 +230,14 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnVehicleLockpicked(InteractableVehicle vehicle, Player instigatingPlayer, ref bool shouldAllow)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 ZonePlayerComponent comp = instigatingPlayer.GetComponent<ZonePlayerComponent>();
 
                 foreach (var zone in comp.Zones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.Lockpick))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoLockpick))
                     {
                         shouldAllow = false;
                         break;
@@ -241,7 +247,7 @@ namespace Tavstal.TZones.Utils.Handlers
                 var objectZones = ZoneManager.GetZonesFromPosition(vehicle.transform.position);
                 foreach (Zone zone in objectZones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.Lockpick))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoLockpick))
                     {
                         shouldAllow = false;
                         break;
@@ -251,7 +257,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnVehicleLockpicked)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
         
@@ -260,13 +266,14 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnVehicleCarjacked(InteractableVehicle vehicle, Player instigatingPlayer, ref bool shouldAllow, ref Vector3 force, ref Vector3 torque)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 ZonePlayerComponent comp = instigatingPlayer.GetComponent<ZonePlayerComponent>();
 
                 foreach (var zone in comp.Zones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.VehicleCarjack))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoVehicleCarjack))
                     {
                         shouldAllow = false;
                         break;
@@ -276,7 +283,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnVehicleCarjacked)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
     }

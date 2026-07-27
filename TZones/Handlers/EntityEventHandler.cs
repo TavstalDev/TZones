@@ -6,7 +6,7 @@ using Tavstal.TZones.Models.Core;
 using Tavstal.TZones.Utils.Constants;
 using Tavstal.TZones.Utils.Managers;
 
-namespace Tavstal.TZones.Utils.Handlers
+namespace Tavstal.TZones.Handlers
 {
     /// <summary>
     /// Handles entity-related events such as animal and zombie damage, enforcing zone restrictions.
@@ -48,6 +48,7 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnDamageAnimalRequested(ref DamageAnimalParameters parameters, ref bool shouldAllow)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 if (parameters.instigator is Player player)
@@ -55,7 +56,7 @@ namespace Tavstal.TZones.Utils.Handlers
                     ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
                     foreach (var zone in comp.Zones)
                     {
-                        if (ZoneManager.Queries.HasFlag(zone,Flags.AnimalDamage))
+                        if (ZoneManager.Queries.HasFlag(zone,Flags.NoAnimalDamage))
                         {
                             shouldAllow = false;
                             break;
@@ -65,7 +66,7 @@ namespace Tavstal.TZones.Utils.Handlers
                     var objectZones = ZoneManager.GetZonesFromPosition(parameters.animal.transform.position);
                     foreach (Zone zone in objectZones)
                     {
-                        if (ZoneManager.Queries.HasFlag(zone, Flags.AnimalDamage))
+                        if (ZoneManager.Queries.HasFlag(zone, Flags.NoAnimalDamage))
                         {
                             shouldAllow = false;
                             break;
@@ -76,7 +77,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnDamageAnimalRequested)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
         
@@ -85,6 +86,7 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnDamageZombieRequested(ref DamageZombieParameters parameters, ref bool shouldAllow)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 if (parameters.instigator is Player player)
@@ -93,7 +95,7 @@ namespace Tavstal.TZones.Utils.Handlers
 
                     foreach (var zone in comp.Zones)
                     {
-                        if (ZoneManager.Queries.HasFlag(zone,Flags.ZombieDamage))
+                        if (ZoneManager.Queries.HasFlag(zone,Flags.NoZombieDamage))
                         {
                             shouldAllow = false;
                             break;
@@ -103,7 +105,7 @@ namespace Tavstal.TZones.Utils.Handlers
                     var objectZones = ZoneManager.GetZonesFromPosition(parameters.zombie.transform.position);
                     foreach (Zone zone in objectZones)
                     {
-                        if (ZoneManager.Queries.HasFlag(zone, Flags.ZombieDamage))
+                        if (ZoneManager.Queries.HasFlag(zone, Flags.NoZombieDamage))
                         {
                             shouldAllow = false;
                             break;
@@ -114,7 +116,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnDamageZombieRequested)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
     }

@@ -9,7 +9,7 @@ using Tavstal.TZones.Models.Enums;
 using Tavstal.TZones.Utils.Constants;
 using Tavstal.TZones.Utils.Managers;
 
-namespace Tavstal.TZones.Utils.Handlers
+namespace Tavstal.TZones.Handlers
 {
     /// <summary>
     /// Handles player-related events such as damage, equip, dequip, and item drop, enforcing zone restrictions.
@@ -74,19 +74,31 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnPlayerDamageRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
+            bool isPvP = Provider.isPvP;
+            if (isPvP && !shouldAllow)
+                return;
+            
+            bool originalValue = shouldAllow;
             try
             {
                 ZonePlayerComponent comp = parameters.player.GetComponent<ZonePlayerComponent>();
                 UnturnedPlayer targetPlayer = UnturnedPlayer.FromCSteamID(parameters.killer);
+                bool hasNoDamageFlag = false;
+                bool hasAllowDamageFlag = false;
+                
                 if (targetPlayer != null && parameters.killer.isOnline())
                 {
                     ZonePlayerComponent targetComp = targetPlayer.GetComponent<ZonePlayerComponent>();
                     foreach (var zone in targetComp.Zones)
                     {
-                        if (ZoneManager.Queries.HasFlag(zone,Flags.PlayerDamage))
+                        if (ZoneManager.Queries.HasFlag(zone, Flags.NoPlayerDamage))
                         {
-                            shouldAllow = false;
+                            hasNoDamageFlag = true;
                             break;
+                        }
+                        if (!isPvP && ZoneManager.Queries.HasFlag(zone, Flags.AllowPlayerDamage))
+                        {
+                            hasAllowDamageFlag = true;
                         }
                     }
                 }
@@ -94,17 +106,30 @@ namespace Tavstal.TZones.Utils.Handlers
 
                 foreach (var zone in comp.Zones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone,Flags.PlayerDamage))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoPlayerDamage))
                     {
-                        shouldAllow = false;
+                        hasNoDamageFlag = true;
                         break;
                     }
+                    if (!isPvP && ZoneManager.Queries.HasFlag(zone, Flags.AllowPlayerDamage))
+                    {
+                        hasAllowDamageFlag = true;
+                    }
+                }
+                
+                if (hasNoDamageFlag)
+                {
+                    shouldAllow = false;
+                }
+                else if (hasAllowDamageFlag)
+                {
+                    shouldAllow = true;
                 }
             }
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnPlayerDamageRequested)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
         
@@ -113,13 +138,14 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnEquipRequested(PlayerEquipment equipment, ItemJar jar, ItemAsset asset, ref bool shouldAllow)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 ZonePlayerComponent comp = equipment.player.GetComponent<ZonePlayerComponent>();
 
                 foreach (var zone in comp.Zones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.ItemEquip) ||
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoItemEquip) ||
                         ZoneManager.Queries.IsBlocked(zone, asset.id, ERestrictionType.EQUP))
                     {
                         shouldAllow = false;
@@ -130,7 +156,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnEquipRequested)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
         
@@ -139,13 +165,14 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnDequipRequested(PlayerEquipment equipment, ref bool shouldAllow)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 ZonePlayerComponent comp = equipment.player.GetComponent<ZonePlayerComponent>();
 
                 foreach (var zone in comp.Zones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.ItemUnequip) ||
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoItemUnequip) ||
                         ZoneManager.Queries.IsBlocked(zone, equipment.asset.id, ERestrictionType.UNEQUIP))
                     {
                         shouldAllow = false;
@@ -156,7 +183,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnDequipRequested)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
         
@@ -165,13 +192,14 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnDropItemRequested(PlayerInventory inventory, Item item, ref bool shouldAllow)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 ZonePlayerComponent comp = inventory.player.GetComponent<ZonePlayerComponent>();
 
                 foreach (var zone in comp.Zones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.ItemDrop))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoItemDrop))
                     {
                         shouldAllow = false;
                         break;
@@ -181,7 +209,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnDropItemRequested)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
     }

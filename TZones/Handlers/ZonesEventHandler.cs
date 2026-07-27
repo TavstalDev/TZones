@@ -10,7 +10,7 @@ using Tavstal.TZones.Utils.Constants;
 using Tavstal.TZones.Utils.Managers;
 using UnityEngine;
 
-namespace Tavstal.TZones.Utils.Handlers
+namespace Tavstal.TZones.Handlers
 {
     /// <summary>
     /// A static class responsible for handling events related to zones, such as player interactions, zone creation, updates, and deletions.
@@ -59,14 +59,14 @@ namespace Tavstal.TZones.Utils.Handlers
         /// <param name="player">The player who is entering the zone.</param>
         /// <param name="zone">The zone that the player is entering.</param>
         /// <param name="lastPosition">The player's last known position before entering the zone.</param>
-        /// <param name="shouldAllow">A flag indicating whether the player should be allowed to enter the zone. Set to false to prevent entry.</param>
+        /// <param name="shouldAllow">A flag indicating whether the player should be allowed to enter the zone. Set to 'false' to prevent entry.</param>
         private static void OnPlayerEnterZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition, ref bool shouldAllow)
         {
             var events = ZoneManager.Queries.GetZoneEvents(zone.Id);
             if (events == null)
                 return;
 
-            if (ZoneManager.Queries.HasFlag(zone, Flags.Enter))
+            if (ZoneManager.Queries.HasFlag(zone, Flags.NoEnter))
             {
                 shouldAllow = false;
                 ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
@@ -145,7 +145,7 @@ namespace Tavstal.TZones.Utils.Handlers
             if (events == null)
                 return;
 
-            if (ZoneManager.Queries.HasFlag(zone, Flags.Leave))
+            if (ZoneManager.Queries.HasFlag(zone, Flags.NoLeave))
             {
                 shouldAllow = false;
                 ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();

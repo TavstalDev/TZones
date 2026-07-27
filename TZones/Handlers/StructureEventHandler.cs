@@ -10,7 +10,7 @@ using Tavstal.TZones.Utils.Constants;
 using Tavstal.TZones.Utils.Managers;
 using UnityEngine;
 
-namespace Tavstal.TZones.Utils.Handlers
+namespace Tavstal.TZones.Handlers
 {
     /// <summary>
     /// Handles structure-related events such as deploy, damage, and salvage, enforcing zone restrictions.
@@ -54,6 +54,7 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnDeployStructureRequested(Structure structure, ItemStructureAsset asset, ref Vector3 point, ref float angleX, ref float angleY, ref float angleZ, ref ulong owner, ref ulong group, ref bool shouldAllow)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 UnturnedPlayer uPlayer = UnturnedPlayer.FromCSteamID((CSteamID)owner);
@@ -63,7 +64,7 @@ namespace Tavstal.TZones.Utils.Handlers
                 ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
                 foreach (var zone in comp.Zones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.Structures) ||
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoStructures) ||
                         ZoneManager.Queries.IsBlocked(zone, asset.id, ERestrictionType.BUILD))
                     {
                         shouldAllow = false;
@@ -74,7 +75,7 @@ namespace Tavstal.TZones.Utils.Handlers
                 var objectZones = ZoneManager.GetZonesFromPosition(point);
                 foreach (Zone zone in objectZones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.Structures) || 
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoStructures) || 
                         ZoneManager.Queries.IsBlocked(zone, asset.id, ERestrictionType.BUILD))
                     {
                         shouldAllow = false;
@@ -85,7 +86,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnDeployStructureRequested)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
         
@@ -94,6 +95,7 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnSalvageStructureRequested(StructureDrop structure, SteamPlayer instigatorClient, ref bool shouldAllow)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 UnturnedPlayer uPlayer = UnturnedPlayer.FromSteamPlayer(instigatorClient);
@@ -104,7 +106,7 @@ namespace Tavstal.TZones.Utils.Handlers
 
                 foreach (var zone in comp.Zones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.StructureSalvage))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoStructureSalvage))
                     {
                         shouldAllow = false;
                         break;
@@ -114,7 +116,7 @@ namespace Tavstal.TZones.Utils.Handlers
                 var objectZones = ZoneManager.GetZonesFromPosition(structure.GetServersideData().point);
                 foreach (Zone zone in objectZones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.StructureSalvage))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoStructureSalvage))
                     {
                         shouldAllow = false;
                         break;
@@ -124,7 +126,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnSalvageStructureRequested)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
         
@@ -133,6 +135,7 @@ namespace Tavstal.TZones.Utils.Handlers
         /// </summary>
         private static void OnDamageStructureRequested(CSteamID instigatorSteamID, Transform structureTransform, ref ushort pendingTotalDamage, ref bool shouldAllow, EDamageOrigin damageOrigin)
         {
+            bool originalValue = shouldAllow;
             try
             {
                 UnturnedPlayer uPlayer = UnturnedPlayer.FromCSteamID(instigatorSteamID);
@@ -142,7 +145,7 @@ namespace Tavstal.TZones.Utils.Handlers
                 ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
                 foreach (var zone in comp.Zones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.Damage))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoDamage))
                     {
                         shouldAllow = false;
                         break;
@@ -152,7 +155,7 @@ namespace Tavstal.TZones.Utils.Handlers
                 var objectZones = ZoneManager.GetZonesFromPosition(structureTransform.position);
                 foreach (Zone zone in objectZones)
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.Damage))
+                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoDamage))
                     {
                         shouldAllow = false;
                         break;
@@ -162,7 +165,7 @@ namespace Tavstal.TZones.Utils.Handlers
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnDamageStructureRequested)}.", ex);
-                shouldAllow = true;
+                shouldAllow = originalValue;
             }
         }
     }
