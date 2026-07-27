@@ -12,79 +12,83 @@ namespace Tavstal.TZones.Utils.Constants
         /// </summary>
         public static List<string> Defaults { get; } = new List<string>()
         {
-            Damage, VehicleDamage, PlayerDamage, AnimalDamage, ZombieDamage, TireDamage,
-            Lockpick, Barricades, Structures, BarricadeSalvage, StructureSalvage, ItemEquip, ItemUnequip,
-            ItemDrop, Enter, Leave, Zombie, InfiniteGenerator, VehicleCarjack, VehicleSiphoning
+            NoDamage, NoVehicleDamage, AllowPlayerDamage, NoPlayerDamage, NoAnimalDamage, NoZombieDamage, NoTireDamage,
+            NoLockpick, NoBarricades, NoStructures, NoBarricadeSalvage, NoStructureSalvage, NoItemEquip, NoItemUnequip,
+            NoItemDrop, NoEnter, NoLeave, NoZombie, InfiniteGenerator, NoVehicleCarjack, NoVehicleSiphoning
         };
 
         /// <summary>
         /// A flag indicating that no damage is allowed.
         /// </summary>
-        public const string Damage = "NoDamage";
+        public const string NoDamage = "NoDamage";
         /// <summary>
         /// A flag indicating that no vehicle damage is allowed.
         /// </summary>
-        public const string VehicleDamage = "NoVehicleDamage";
+        public const string NoVehicleDamage = "NoVehicleDamage";
+        /// <summary>
+        /// A flag indicating that player damage is allowed.
+        /// </summary>
+        public const string AllowPlayerDamage = "AllowPlayerDamage";
         /// <summary>
         /// A flag indicating that no player damage is allowed.
         /// </summary>
-        public const string PlayerDamage = "NoPlayerDamage";
+        public const string NoPlayerDamage = "NoPlayerDamage";
         /// <summary>
         /// A flag indicating that no animal damage is allowed.
         /// </summary>
-        public const string AnimalDamage = "NoAnimalDamage";
+        public const string NoAnimalDamage = "NoAnimalDamage";
         /// <summary>
         /// A flag indicating that no zombie damage is allowed.
         /// </summary>
-        public const string ZombieDamage = "NoZombieDamage";
+        public const string NoZombieDamage = "NoZombieDamage";
         /// <summary>
         /// A flag indicating that no tire damage is allowed.
         /// </summary>
-        public const string TireDamage = "NoTireDamage";
+        public const string NoTireDamage = "NoTireDamage";
         /// <summary>
         /// A flag indicating that no lockpicking is allowed.
         /// </summary>
-        public const string Lockpick = "NoLockpick";
+        public const string NoLockpick = "NoLockpick";
         /// <summary>
         /// A flag indicating that no barricades can be placed.
         /// </summary>
-        public const string Barricades = "NoBarricades";
+        public const string NoBarricades = "NoBarricades";
         /// <summary>
         /// A flag indicating that no structures can be placed.
         /// </summary>
-        public const string Structures = "NoStructures";
+        public const string NoStructures = "NoStructures";
         /// <summary>
         /// A flag indicating that no barricades can be salvaged.
         /// </summary>
-        public const string BarricadeSalvage = "NoBarricadeSalvage";
+        public const string NoBarricadeSalvage = "NoBarricadeSalvage";
         /// <summary>
         /// A flag indicating that no structures can be salvaged.
         /// </summary>
-        public const string StructureSalvage = "NoStructureSalvage";
+        public const string NoStructureSalvage = "NoStructureSalvage";
         /// <summary>
         /// A flag indicating that no items can be equipped.
         /// </summary>
-        public const string ItemEquip = "NoItemEquip";
+        public const string NoItemEquip = "NoItemEquip";
         /// <summary>
         /// A flag indicating that no items can be unequipped.
         /// </summary>
-        public const string ItemUnequip = "NoItemUnequip";
+        public const string NoItemUnequip = "NoItemUnequip";
         /// <summary>
         /// A flag indicating that no items can be dropped.
         /// </summary>
-        public const string ItemDrop = "NoItemDrop";
+        public const string NoItemDrop = "NoItemDrop";
         /// <summary>
         /// A flag indicating that no entry is allowed into the zone.
         /// </summary>
-        public const string Enter = "NoEnter";
+        public const string NoEnter = "NoEnter";
         /// <summary>
         /// A flag indicating that no exit is allowed from the zone.
         /// </summary>
-        public const string Leave = "NoLeave";
+        public const string NoLeave = "NoLeave";
         /// <summary>
         /// A flag indicating that zombies are not allowed within the zone.
         /// </summary>
-        public const string Zombie = "NoZombie";
+        public const string NoZombie = "NoZombie";
         /// <summary>
         /// A flag indicating that the generator in the zone is infinite.
         /// </summary>
@@ -92,10 +96,10 @@ namespace Tavstal.TZones.Utils.Constants
         /// <summary>
         /// A flag indicating that vehicle carjacking is not allowed.
         /// </summary>
-        public const string VehicleCarjack = "NoVehicleCarjack";
+        public const string NoVehicleCarjack = "NoVehicleCarjack";
         /// <summary>
         /// A flag indicating that vehicle siphoning is not allowed.
         /// </summary>
-        public const string VehicleSiphoning = "NoVehicleSiphoning";
+        public const string NoVehicleSiphoning = "NoVehicleSiphoning";
     }
 }

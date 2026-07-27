@@ -97,24 +97,25 @@ namespace Tavstal.TZones.Utils.Managers
                     {
                         await Flags.AddRangeAsync(new List<Flag>
                         {
-                            new Flag(Constants.Flags.Damage, "Prevents barricade and structure damage.", "TZones"),
-                            new Flag(Constants.Flags.VehicleDamage, "Prevents vehicle damage.", "TZones"),
-                            new Flag(Constants.Flags.TireDamage, "Prevents tire damage.", "TZones"),
-                            new Flag(Constants.Flags.PlayerDamage, "Prevents player damage.", "TZones"),
-                            new Flag(Constants.Flags.AnimalDamage, "Prevents animal damage.", "TZones"),
-                            new Flag(Constants.Flags.ZombieDamage, "Prevents zombie damage.", "TZones"),
-                            new Flag(Constants.Flags.Lockpick, "Prevents lock picking.", "TZones"),
-                            new Flag(Constants.Flags.Barricades, "Prevents placing barricades.", "TZones"),
-                            new Flag(Constants.Flags.Structures, "Prevents placing structures.", "TZones"),
-                            new Flag(Constants.Flags.ItemEquip, "Prevents equipping items.", "TZones"),
-                            new Flag(Constants.Flags.ItemUnequip, "Prevents unequipping items.", "TZones"),
-                            new Flag(Constants.Flags.ItemDrop, "Prevents dropping items.", "TZones"),
-                            new Flag(Constants.Flags.Enter, "Prevents entering the zone.", "TZones"),
-                            new Flag(Constants.Flags.Leave, "Prevents leaving the zone.", "TZones"),
-                            new Flag(Constants.Flags.Zombie, "Prevents zombie spawning.", "TZones"),
+                            new Flag(Constants.Flags.NoDamage, "Prevents barricade and structure damage.", "TZones"),
+                            new Flag(Constants.Flags.NoVehicleDamage, "Prevents vehicle damage.", "TZones"),
+                            new Flag(Constants.Flags.NoTireDamage, "Prevents tire damage.", "TZones"),
+                            new Flag(Constants.Flags.AllowPlayerDamage, "Allows player damage.", "TZones"),
+                            new Flag(Constants.Flags.NoPlayerDamage, "Prevents player damage.", "TZones"),
+                            new Flag(Constants.Flags.NoAnimalDamage, "Prevents animal damage.", "TZones"),
+                            new Flag(Constants.Flags.NoZombieDamage, "Prevents zombie damage.", "TZones"),
+                            new Flag(Constants.Flags.NoLockpick, "Prevents lock picking.", "TZones"),
+                            new Flag(Constants.Flags.NoBarricades, "Prevents placing barricades.", "TZones"),
+                            new Flag(Constants.Flags.NoStructures, "Prevents placing structures.", "TZones"),
+                            new Flag(Constants.Flags.NoItemEquip, "Prevents equipping items.", "TZones"),
+                            new Flag(Constants.Flags.NoItemUnequip, "Prevents unequipping items.", "TZones"),
+                            new Flag(Constants.Flags.NoItemDrop, "Prevents dropping items.", "TZones"),
+                            new Flag(Constants.Flags.NoEnter, "Prevents entering the zone.", "TZones"),
+                            new Flag(Constants.Flags.NoLeave, "Prevents leaving the zone.", "TZones"),
+                            new Flag(Constants.Flags.NoZombie, "Prevents zombie spawning.", "TZones"),
                             new Flag(Constants.Flags.InfiniteGenerator, "Refuels generators.", "TZones"),
-                            new Flag(Constants.Flags.VehicleCarjack, "Prevents carjacking vehicles", "TZones"),
-                            new Flag(Constants.Flags.VehicleSiphoning, "Prevents siphoning vehicles", "TZones")
+                            new Flag(Constants.Flags.NoVehicleCarjack, "Prevents carjacking vehicles", "TZones"),
+                            new Flag(Constants.Flags.NoVehicleSiphoning, "Prevents siphoning vehicles", "TZones")
                         });
                     }
                 }
