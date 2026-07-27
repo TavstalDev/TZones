@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -43,18 +41,14 @@ namespace Tavstal.TZones.Utils.Managers
         {
             await _cache.CheckDirtyAsync();
             
-            // Note: 
-            // Future performance issues might be solved with Parallel.ForEach instead of regular foreach
-            // Only use it at heavy load, or else it won't make it faster
-            UpdatePlayers();
-
-            // Update Generators & Zombies
             var zones = _cache.Zones;
             if (zones.Count == 0)
                 return;
             
             await MainThreadDispatcher.RunAsync(() =>
             {
+                UpdatePlayers();
+                
                 foreach (Zone zone in zones)
                 {
                     UpdateGenerators(zone);
@@ -157,9 +151,6 @@ namespace Tavstal.TZones.Utils.Managers
             
             foreach (var generator in _cache.InteractableGeneratorCache)
             {
-                if (generator.fuel > generator.capacity - 10)
-                    continue;
-                
                 if (!ZoneManager.IsPointInZone(zone, generator.transform.position))
                     continue;
                 
