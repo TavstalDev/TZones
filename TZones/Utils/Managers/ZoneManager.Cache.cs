@@ -87,7 +87,7 @@ namespace Tavstal.TZones.Utils.Managers
         public ConcurrentDictionary<ulong, List<Restriction>> ZoneBlocks => _zoneBlocks;
         
         private readonly object _generatorLock = new object();
-        private List<InteractableGenerator> _interactableGeneratorCache = new List<InteractableGenerator>();
+        private readonly List<InteractableGenerator> _interactableGeneratorCache = new List<InteractableGenerator>();
 
         /// <summary>
         /// Gets a snapshot of all interactable generators in the level.
@@ -118,7 +118,24 @@ namespace Tavstal.TZones.Utils.Managers
         {
             lock (_generatorLock)
             {
-                _interactableGeneratorCache = Object.FindObjectsOfType<InteractableGenerator>().ToList();
+                _interactableGeneratorCache.Clear();
+                _interactableGeneratorCache.AddRange(Object.FindObjectsOfType<InteractableGenerator>().ToList());
+            }
+        }
+
+        public void AddGenerator(InteractableGenerator generator)
+        {
+            lock (_generatorLock)
+            {
+                _interactableGeneratorCache.Add(generator);
+            }
+        }
+
+        public void RemoveGenerator(InteractableGenerator generator)
+        {
+            lock (_generatorLock)
+            {
+                _interactableGeneratorCache.Remove(generator);
             }
         }
         
