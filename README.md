@@ -81,61 +81,62 @@ A basic zones plugin with database support.
 
 ## Default Available Flags
 
-| Flag | Description |
-|------|-------------|
-| `NoDamage` | No damage is allowed |
-| `NoVehicleDamage` | No vehicle damage is allowed |
-| `NoPlayerDamage` | No player damage is allowed |
-| `NoAnimalDamage` | No animal damage is allowed |
-| `NoZombieDamage` | No zombie damage is allowed |
-| `NoTireDamage` | No tire damage is allowed |
-| `NoLockpick` | No lockpicking is allowed |
-| `NoBarricades` | No barricades can be placed |
-| `NoStructures` | No structures can be placed |
-| `NoBarricadeSalvage` | No barricades can be salvaged |
-| `NoStructureSalvage` | No structures can be salvaged |
-| `NoItemEquip` | No items can be equipped |
-| `NoItemUnequip` | No items can be unequipped |
-| `NoItemDrop` | No items can be dropped |
-| `NoEnter` | No entry is allowed into the zone |
-| `NoLeave` | No exit is allowed from the zone |
-| `NoZombie` | Zombies are not allowed within the zone |
-| `InfiniteGenerator` | The generator in the zone is infinite |
-| `NoVehicleCarjack` | Vehicle carjacking is not allowed |
-| `NoVehicleSiphoning` | Vehicle siphoning is not allowed |
+| Flag                 | Description                                    |
+|----------------------|------------------------------------------------|
+| `NoDamage`           | No damage is allowed                           |
+| `NoVehicleDamage`    | No vehicle damage is allowed                   |
+| `AllowPlayerDamage`  | Allows player damage. (Only works in PvE mode) |
+| `NoPlayerDamage`     | No player damage is allowed                    |
+| `NoAnimalDamage`     | No animal damage is allowed                    |
+| `NoZombieDamage`     | No zombie damage is allowed                    |
+| `NoTireDamage`       | No tire damage is allowed                      |
+| `NoLockpick`         | No lockpicking is allowed                      |
+| `NoBarricades`       | No barricades can be placed                    |
+| `NoStructures`       | No structures can be placed                    |
+| `NoBarricadeSalvage` | No barricades can be salvaged                  |
+| `NoStructureSalvage` | No structures can be salvaged                  |
+| `NoItemEquip`        | No items can be equipped                       |
+| `NoItemUnequip`      | No items can be unequipped                     |
+| `NoItemDrop`         | No items can be dropped                        |
+| `NoEnter`            | No entry is allowed into the zone              |
+| `NoLeave`            | No exit is allowed from the zone               |
+| `NoZombie`           | Zombies are not allowed within the zone        |
+| `InfiniteGenerator`  | The generator in the zone is infinite          |
+| `NoVehicleCarjack`   | Vehicle carjacking is not allowed              |
+| `NoVehicleSiphoning` | Vehicle siphoning is not allowed               |
 
 ## Event Types
 
-| Event | Description |
-|-------|-------------|
-| `MESSAGE_ENTER` | Triggered when a player enters the zone |
-| `MESSAGE_LEAVE` | Triggered when a player leaves the zone |
-| `ADD_GROUP_ENTER` | Adds a group to the player when they enter the zone |
-| `ADD_GROUP_LEAVE` | Adds a group to the player when they leave the zone |
-| `REMOVE_GROUP_ENTER` | Removes a group from the player when they enter the zone |
-| `REMOVE_GROUP_LEAVE` | Removes a group from the player when they leave the zone |
-| `ADD_EFFECT_ENTER` | Adds an effect to the player when they enter the zone |
-| `ADD_EFFECT_LEAVE` | Adds an effect to the player when they leave the zone |
+| Event                 | Description                                                |
+|-----------------------|------------------------------------------------------------|
+| `MESSAGE_ENTER`       | Triggered when a player enters the zone                    |
+| `MESSAGE_LEAVE`       | Triggered when a player leaves the zone                    |
+| `ADD_GROUP_ENTER`     | Adds a group to the player when they enter the zone        |
+| `ADD_GROUP_LEAVE`     | Adds a group to the player when they leave the zone        |
+| `REMOVE_GROUP_ENTER`  | Removes a group from the player when they enter the zone   |
+| `REMOVE_GROUP_LEAVE`  | Removes a group from the player when they leave the zone   |
+| `ADD_EFFECT_ENTER`    | Adds an effect to the player when they enter the zone      |
+| `ADD_EFFECT_LEAVE`    | Adds an effect to the player when they leave the zone      |
 | `REMOVE_EFFECT_ENTER` | Removes an effect from the player when they enter the zone |
 | `REMOVE_EFFECT_LEAVE` | Removes an effect from the player when they leave the zone |
 
 ## Node Types
 
-| Node | Description           |
-|------|-----------------------|
-| `NONE` | No specific node type |
-| `UPPER` | Upper bound node      |
-| `LOWER` | Lower bound node      |
+| Node     | Description           |
+|----------|-----------------------|
+| `NONE`   | No specific node type |
+| `UPPER`  | Upper bound node      |
+| `LOWER`  | Lower bound node      |
 
 ## Restriction Types
 
-| Restriction | Description                |
-|-------------|----------------------------|
-| `BUILD` | Restricts building         |
-| `EQUP` | Restricts equipping items  |
-| `UNEQUIP` | Restricts unequipping items |
+| Restriction     | Description                 |
+|-----------------|-----------------------------|
+| `BUILD`         | Restricts building          |
+| `EQUP`          | Restricts equipping items   |
+| `UNEQUIP`       | Restricts unequipping items |
 | `VEHICLE_ENTER` | Restricts entering vehicles |
-| `VEHICLE_LEAVE` | Restricts leaving vehicles |
+| `VEHICLE_LEAVE` | Restricts leaving vehicles  |
 
 ## Building from Source
 
