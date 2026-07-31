@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Rocket.Unturned;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
@@ -29,6 +30,7 @@ namespace Tavstal.TZones.Handlers
             U.Events.OnPlayerConnected += OnPlayerConnected;
             U.Events.OnPlayerDisconnected += OnPlayerDisconnected;
             DamageTool.damagePlayerRequested += OnPlayerDamageRequested;
+            DamageTool.onPlayerAllowedToDamagePlayer += OnPlayerAllowedToDamagePlayer;
             
             _isAttached = true;
         }
@@ -44,6 +46,7 @@ namespace Tavstal.TZones.Handlers
             U.Events.OnPlayerConnected -= OnPlayerConnected;
             U.Events.OnPlayerDisconnected -= OnPlayerDisconnected;
             DamageTool.damagePlayerRequested -= OnPlayerDamageRequested;
+            DamageTool.onPlayerAllowedToDamagePlayer -= OnPlayerAllowedToDamagePlayer;
 
             _isAttached = true;
         }
@@ -74,62 +77,71 @@ namespace Tavstal.TZones.Handlers
         /// </summary>
         private static void OnPlayerDamageRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
-            bool isPvP = Provider.isPvP;
-            if (isPvP && !shouldAllow)
+            if (Provider.isPvP && !shouldAllow)
                 return;
             
             bool originalValue = shouldAllow;
             try
             {
-                ZonePlayerComponent comp = parameters.player.GetComponent<ZonePlayerComponent>();
-                UnturnedPlayer targetPlayer = UnturnedPlayer.FromCSteamID(parameters.killer);
-                bool hasNoDamageFlag = false;
-                bool hasAllowDamageFlag = false;
-                
-                if (targetPlayer != null && parameters.killer.isOnline())
-                {
-                    ZonePlayerComponent targetComp = targetPlayer.GetComponent<ZonePlayerComponent>();
-                    foreach (var zone in targetComp.Zones)
-                    {
-                        if (ZoneManager.Queries.HasFlag(zone, Flags.NoPlayerDamage))
-                        {
-                            hasNoDamageFlag = true;
-                            break;
-                        }
-                        if (!isPvP && ZoneManager.Queries.HasFlag(zone, Flags.AllowPlayerDamage))
-                        {
-                            hasAllowDamageFlag = true;
-                        }
-                    }
-                }
-
-
-                foreach (var zone in comp.Zones)
-                {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoPlayerDamage))
-                    {
-                        hasNoDamageFlag = true;
-                        break;
-                    }
-                    if (!isPvP && ZoneManager.Queries.HasFlag(zone, Flags.AllowPlayerDamage))
-                    {
-                        hasAllowDamageFlag = true;
-                    }
-                }
-                
-                if (hasNoDamageFlag)
+                ZonePlayerComponent victimComp = parameters.player.GetComponent<ZonePlayerComponent>();
+                if (victimComp.Zones.Any(x => ZoneManager.Queries.HasFlag(x, Flags.NoPlayerDamage)))
                 {
                     shouldAllow = false;
+                    return;
                 }
-                else if (hasAllowDamageFlag)
-                {
-                    shouldAllow = true;
-                }
+                
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+                if (parameters.killer == null)
+                    return;
+
+                UnturnedPlayer targetPlayer = UnturnedPlayer.FromCSteamID(parameters.killer);
+                if (targetPlayer == null || !targetPlayer.isOnline())
+                    return;
+
+                ZonePlayerComponent targetComp = targetPlayer.GetComponent<ZonePlayerComponent>();
+                if (targetComp.Zones.Any(x => ZoneManager.Queries.HasFlag(x, Flags.NoPlayerDamage)))
+                    shouldAllow = false;
             }
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnPlayerDamageRequested)}.", ex);
                 shouldAllow = originalValue;
+            }
+        }
+        
+        private static void OnPlayerAllowedToDamagePlayer(Player instigator, Player victim, ref bool isAllowed)
+        {
+            // Ignore if the server is pvp or the damage is already allowed
+            if (Provider.isPvP || isAllowed)
+                return;
+            
+            // Ignore if instigator is in vanish mode
+            if (!instigator.movement.canAddSimulationResultsToUpdates)
+                return;
+            
+            // Ignore if they are in the same group
+            if (instigator.quests.isMemberOfSameGroupAs(victim))
+                return;
+            
+            bool originalValue = isAllowed;
+            try
+            {
+                ZonePlayerComponent victimComp = victim.GetComponent<ZonePlayerComponent>();
+                bool isVictimInPvPZone =
+                    victimComp.Zones.Any(x => ZoneManager.Queries.HasFlag(x, Flags.AllowPlayerDamage));
+
+                ZonePlayerComponent killerComp = instigator.GetComponent<ZonePlayerComponent>();
+                bool isKillerInPvPZone = 
+                    killerComp.Zones.Any(x => ZoneManager.Queries.HasFlag(x, Flags.AllowPlayerDamage));
+                if (!isVictimInPvPZone || !isKillerInPvPZone)
+                    return;
+                
+                isAllowed = true;
+            }
+            catch (Exception ex)
+            {
+                TZones.Logger.Error($"Unexpected error occured in {nameof(OnPlayerAllowedToDamagePlayer)}.", ex);
+                isAllowed = originalValue;
             }
         }
         
