@@ -281,6 +281,39 @@ namespace Tavstal.TZones.Utils.Managers
 
             return isInside;
         }
+
+        public static bool HasFlag(string flagName, bool checkGlobal = true, params UnturnedPlayer[] players)
+        {
+            var flag = Queries.GetFlag(flagName);
+            if (flag == null)
+                return false;
+            return HasFlag(flag, checkGlobal, players);
+        }
+        
+        public static bool HasFlag(Flag flag, bool checkGlobal = true, params UnturnedPlayer?[] players)
+        {
+            if (players.Length == 0)
+                return false;
+
+            foreach (var player in players)
+            {
+                if (player == null)
+                    continue;
+                
+                var comp = ComponentManager.Get(player);
+                if (comp == null)
+                    continue;
+                
+                if (comp.Zones.Any(x => Queries.HasFlag(x, flag.Name)))
+                    return true;
+            }
+
+            if (checkGlobal)
+                return false;
+
+            var globalZone = Queries.GetZone("__global__");
+            return globalZone != null && Queries.HasFlag(globalZone, flag.Name);
+        }
         #endregion
     }
 }
