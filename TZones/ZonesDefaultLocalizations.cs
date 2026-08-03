@@ -22,6 +22,8 @@ namespace Tavstal.TZones
                { "error_zone_block_not_found", "&cThe zone block with &e{0} &ctype and &e{1} &cid does not exist." },
                { "error_zoneflag_already_exist", "&cThe &e{0} &cflag has been already added to the zone."},
                { "error_zone_already_exist", "&cThe &e{0} &czone already exists." },
+               { "error_zone_cannot_remove", "&cThe &e{0} &czone cannot be removed." },
+               { "error_zone_cannot_have_nodes", "&cThe &e{0} &czone cannot have nodes." },
                { "warn_zone_noenter", "&6You can not enter the &e{0} &6zone." },
                { "warn_zone_noleave", "&6You can not leave the &e{0} &6zone." },
                { "command_flags_add_syntax", "&cWrong syntax! Usage: /flags add [name] [description]" },

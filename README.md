@@ -81,29 +81,29 @@ A basic zones plugin with database support.
 
 ## Default Available Flags
 
-| Flag                 | Description                                    |
-|----------------------|------------------------------------------------|
-| `NoDamage`           | No damage is allowed                           |
-| `NoVehicleDamage`    | No vehicle damage is allowed                   |
-| `AllowPlayerDamage`  | Allows player damage. (Only works in PvE mode) |
-| `NoPlayerDamage`     | No player damage is allowed                    |
-| `NoAnimalDamage`     | No animal damage is allowed                    |
-| `NoZombieDamage`     | No zombie damage is allowed                    |
-| `NoTireDamage`       | No tire damage is allowed                      |
-| `NoLockpick`         | No lockpicking is allowed                      |
-| `NoBarricades`       | No barricades can be placed                    |
-| `NoStructures`       | No structures can be placed                    |
-| `NoBarricadeSalvage` | No barricades can be salvaged                  |
-| `NoStructureSalvage` | No structures can be salvaged                  |
-| `NoItemEquip`        | No items can be equipped                       |
-| `NoItemUnequip`      | No items can be unequipped                     |
-| `NoItemDrop`         | No items can be dropped                        |
-| `NoEnter`            | No entry is allowed into the zone              |
-| `NoLeave`            | No exit is allowed from the zone               |
-| `NoZombie`           | Zombies are not allowed within the zone        |
-| `InfiniteGenerator`  | The generator in the zone is infinite          |
-| `NoVehicleCarjack`   | Vehicle carjacking is not allowed              |
-| `NoVehicleSiphoning` | Vehicle siphoning is not allowed               |
+| Flag                 | Description                             |
+|----------------------|-----------------------------------------|
+| `NoDamage`           | No damage is allowed                    |
+| `NoVehicleDamage`    | No vehicle damage is allowed            |
+| `AllowPlayerDamage`  | Allows player damage.                   |
+| `NoPlayerDamage`     | No player damage is allowed             |
+| `NoAnimalDamage`     | No animal damage is allowed             |
+| `NoZombieDamage`     | No zombie damage is allowed             |
+| `NoTireDamage`       | No tire damage is allowed               |
+| `NoLockpick`         | No lockpicking is allowed               |
+| `NoBarricades`       | No barricades can be placed             |
+| `NoStructures`       | No structures can be placed             |
+| `NoBarricadeSalvage` | No barricades can be salvaged           |
+| `NoStructureSalvage` | No structures can be salvaged           |
+| `NoItemEquip`        | No items can be equipped                |
+| `NoItemUnequip`      | No items can be unequipped              |
+| `NoItemDrop`         | No items can be dropped                 |
+| `NoEnter`            | No entry is allowed into the zone       |
+| `NoLeave`            | No exit is allowed from the zone        |
+| `NoZombie`           | Zombies are not allowed within the zone |
+| `InfiniteGenerator`  | The generator in the zone is infinite   |
+| `NoVehicleCarjack`   | Vehicle carjacking is not allowed       |
+| `NoVehicleSiphoning` | Vehicle siphoning is not allowed        |
 
 ## Event Types
 
