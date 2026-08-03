@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Rocket.Unturned.Player;
+using Tavstal.TZones.Utils.Managers;
 using UnityEngine;
 
 namespace Tavstal.TZones.Components
@@ -8,7 +10,7 @@ namespace Tavstal.TZones.Components
     /// <summary>
     /// MonoBehaviour component attached to each player, tracking their current zone membership and position state.
     /// </summary>
-    public class ZonePlayerComponent : UnturnedPlayerComponent
+    public class ZoneComponent : UnturnedPlayerComponent
     {
         /// <summary>
         /// The set of zone ids the player is currently inside.
@@ -34,6 +36,17 @@ namespace Tavstal.TZones.Components
             Zones = new HashSet<ulong>();
             LastPosition = Player.Position;
             SpamPreventEnd = DateTime.Now;
+        }
+
+        public bool HasFlag(string flagName, bool checkGlobal = true)
+        {
+            if (Zones.Any(x => ZoneManager.Queries.HasFlag(x, flagName)))
+                return true;
+            
+            if (!checkGlobal)
+                return false;
+
+            var globalZone = ZoneManager.Queries.GetZone("__global__");
         }
     }
 }

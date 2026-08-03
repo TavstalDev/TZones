@@ -104,6 +104,12 @@ namespace Tavstal.TZones.Commands
                                 return;
                             }
                             
+                            if (zone.Name == "__global__")
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zone_cannot_have_nodes", TZones.Instance.Config.General.MessageIcon, zone.Name);
+                                return;
+                            }
+                            
                             ENodeType nodeType;
                             switch (type.ToLower())
                             {
@@ -484,6 +490,12 @@ namespace Tavstal.TZones.Commands
                                 return;
                             }
 
+                            if (zone.Name == "__global__")
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zone_cannot_remove", TZones.Instance.Config.General.MessageIcon, zone.Name);
+                                return;
+                            }
+
                             MySqlConnection? connection = TZones.DatabaseManager.CreateConnection();
                             if (connection == null)
                             {
@@ -528,6 +540,12 @@ namespace Tavstal.TZones.Commands
                             if (zone == null)
                             {
                                 TZones.Instance.SendCommandReply(caller, "error_zone_not_found", TZones.Instance.Config.General.MessageIcon, args[1]);
+                                return;
+                            }
+                            
+                            if (zone.Name == "__global__")
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zone_cannot_have_nodes", TZones.Instance.Config.General.MessageIcon, zone.Name);
                                 return;
                             }
 
