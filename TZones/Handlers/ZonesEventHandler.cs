@@ -69,7 +69,7 @@ namespace Tavstal.TZones.Handlers
             if (ZoneManager.Queries.HasFlag(zone, Flags.NoEnter))
             {
                 shouldAllow = false;
-                ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
+                ZoneComponent comp = ComponentManager.Get(player);
                 
                 if (player.IsInVehicle)
                     player.CurrentVehicle.forceRemovePlayer(out _, player.CSteamID, out _, out _);
@@ -148,7 +148,7 @@ namespace Tavstal.TZones.Handlers
             if (ZoneManager.Queries.HasFlag(zone, Flags.NoLeave))
             {
                 shouldAllow = false;
-                ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
+                ZoneComponent comp = ComponentManager.Get(player);
 
                 if (player.IsInVehicle)
                     player.CurrentVehicle.forceRemovePlayer(out _, player.CSteamID, out _, out _);

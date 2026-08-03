@@ -6,6 +6,7 @@ using SDG.Unturned;
 using Tavstal.TLibrary.Extensions;
 using Tavstal.TLibrary.Extensions.Unturned;
 using Tavstal.TZones.Components;
+using Tavstal.TZones.Models.Core;
 using Tavstal.TZones.Models.Enums;
 using Tavstal.TZones.Utils.Constants;
 using Tavstal.TZones.Utils.Managers;
@@ -30,7 +31,6 @@ namespace Tavstal.TZones.Handlers
             U.Events.OnPlayerConnected += OnPlayerConnected;
             U.Events.OnPlayerDisconnected += OnPlayerDisconnected;
             DamageTool.damagePlayerRequested += OnPlayerDamageRequested;
-            DamageTool.onPlayerAllowedToDamagePlayer += OnPlayerAllowedToDamagePlayer;
             
             _isAttached = true;
         }
@@ -46,7 +46,6 @@ namespace Tavstal.TZones.Handlers
             U.Events.OnPlayerConnected -= OnPlayerConnected;
             U.Events.OnPlayerDisconnected -= OnPlayerDisconnected;
             DamageTool.damagePlayerRequested -= OnPlayerDamageRequested;
-            DamageTool.onPlayerAllowedToDamagePlayer -= OnPlayerAllowedToDamagePlayer;
 
             _isAttached = true;
         }
@@ -83,65 +82,34 @@ namespace Tavstal.TZones.Handlers
             bool originalValue = shouldAllow;
             try
             {
-                ZonePlayerComponent victimComp = parameters.player.GetComponent<ZonePlayerComponent>();
+                var victimPLayer = UnturnedPlayer.FromPlayer(parameters.player);
+                ZoneComponent victimComp = ComponentManager.Get(victimPLayer);
                 if (victimComp.Zones.Any(x => ZoneManager.Queries.HasFlag(x, Flags.NoPlayerDamage)))
                 {
                     shouldAllow = false;
                     return;
                 }
-                
+
+                // TODO
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-                if (parameters.killer == null)
-                    return;
-
-                UnturnedPlayer targetPlayer = UnturnedPlayer.FromCSteamID(parameters.killer);
-                if (targetPlayer == null || !targetPlayer.isOnline())
-                    return;
-
-                ZonePlayerComponent targetComp = targetPlayer.GetComponent<ZonePlayerComponent>();
-                if (targetComp.Zones.Any(x => ZoneManager.Queries.HasFlag(x, Flags.NoPlayerDamage)))
-                    shouldAllow = false;
+                if (parameters.killer != null)
+                {
+                    UnturnedPlayer killerPlayer = UnturnedPlayer.FromCSteamID(parameters.killer);
+                    if (killerPlayer != null && killerPlayer.isOnline())
+                    {
+                        ZoneComponent targetComp = ComponentManager.Get(killerPlayer);
+                        if (targetComp.Zones.Any(x => ZoneManager.Queries.HasFlag(x, Flags.NoPlayerDamage)))
+                        {
+                            shouldAllow = false;
+                            return;
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnPlayerDamageRequested)}.", ex);
                 shouldAllow = originalValue;
-            }
-        }
-        
-        private static void OnPlayerAllowedToDamagePlayer(Player instigator, Player victim, ref bool isAllowed)
-        {
-            // Ignore if the server is pvp or the damage is already allowed
-            if (Provider.isPvP || isAllowed)
-                return;
-            
-            // Ignore if instigator is in vanish mode
-            if (!instigator.movement.canAddSimulationResultsToUpdates)
-                return;
-            
-            // Ignore if they are in the same group
-            if (instigator.quests.isMemberOfSameGroupAs(victim))
-                return;
-            
-            bool originalValue = isAllowed;
-            try
-            {
-                ZonePlayerComponent victimComp = victim.GetComponent<ZonePlayerComponent>();
-                bool isVictimInPvPZone =
-                    victimComp.Zones.Any(x => ZoneManager.Queries.HasFlag(x, Flags.AllowPlayerDamage));
-
-                ZonePlayerComponent killerComp = instigator.GetComponent<ZonePlayerComponent>();
-                bool isKillerInPvPZone = 
-                    killerComp.Zones.Any(x => ZoneManager.Queries.HasFlag(x, Flags.AllowPlayerDamage));
-                if (!isVictimInPvPZone || !isKillerInPvPZone)
-                    return;
-                
-                isAllowed = true;
-            }
-            catch (Exception ex)
-            {
-                TZones.Logger.Error($"Unexpected error occured in {nameof(OnPlayerAllowedToDamagePlayer)}.", ex);
-                isAllowed = originalValue;
             }
         }
         
@@ -153,8 +121,10 @@ namespace Tavstal.TZones.Handlers
             bool originalValue = shouldAllow;
             try
             {
-                ZonePlayerComponent comp = equipment.player.GetComponent<ZonePlayerComponent>();
+                UnturnedPlayer player = UnturnedPlayer.FromPlayer(equipment.player);
+                ZoneComponent comp = ComponentManager.Get(player);
 
+                // TODO
                 foreach (var zone in comp.Zones)
                 {
                     if (ZoneManager.Queries.HasFlag(zone, Flags.NoItemEquip) ||
@@ -180,8 +150,11 @@ namespace Tavstal.TZones.Handlers
             bool originalValue = shouldAllow;
             try
             {
-                ZonePlayerComponent comp = equipment.player.GetComponent<ZonePlayerComponent>();
-
+                UnturnedPlayer player = UnturnedPlayer.FromPlayer(equipment.player);
+                if (player == null)
+                    return;
+                
+                ZoneComponent comp = ComponentManager.Get(player);
                 foreach (var zone in comp.Zones)
                 {
                     if (ZoneManager.Queries.HasFlag(zone, Flags.NoItemUnequip) ||
@@ -191,6 +164,17 @@ namespace Tavstal.TZones.Handlers
                         break;
                     }
                 }
+                
+                if (!shouldAllow)
+                    return;
+                
+                Zone? globalZone = ZoneManager.Queries.GetZone("__global__");
+                if (globalZone == null)
+                    return;
+                
+                if (ZoneManager.Queries.HasFlag(globalZone, Flags.NoItemUnequip) ||
+                    ZoneManager.Queries.IsBlocked(globalZone, equipment.asset.id, ERestrictionType.UNEQUIP))
+                    shouldAllow = false;
             }
             catch (Exception ex)
             {
@@ -207,16 +191,14 @@ namespace Tavstal.TZones.Handlers
             bool originalValue = shouldAllow;
             try
             {
-                ZonePlayerComponent comp = inventory.player.GetComponent<ZonePlayerComponent>();
-
-                foreach (var zone in comp.Zones)
-                {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoItemDrop))
-                    {
-                        shouldAllow = false;
-                        break;
-                    }
-                }
+                UnturnedPlayer player = UnturnedPlayer.FromPlayer(inventory.player);
+                if (player == null)
+                    return;
+                
+                if (!ZoneManager.HasFlag(Flags.NoItemDrop, true, player))
+                    return;
+                
+                shouldAllow = false;
             }
             catch (Exception ex)
             {

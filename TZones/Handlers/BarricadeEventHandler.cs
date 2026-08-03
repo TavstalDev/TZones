@@ -69,7 +69,7 @@ namespace Tavstal.TZones.Handlers
                 if (uPlayer == null)
                     return;
 
-                ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
+                ZoneComponent comp = ComponentManager.Get(uPlayer);
 
                 foreach (var zone in comp.Zones)
                 {
@@ -110,7 +110,7 @@ namespace Tavstal.TZones.Handlers
                 if (uPlayer == null)
                     return;
 
-                ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
+                ZoneComponent comp = ComponentManager.Get(uPlayer);
 
                 foreach (var zone in comp.Zones)
                 {
@@ -154,7 +154,7 @@ namespace Tavstal.TZones.Handlers
                 if (uPlayer == null)
                     return;
 
-                ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
+                ZoneComponent comp = ComponentManager.Get(uPlayer);
                 foreach (var zone in comp.Zones)
                 {
                     if (ZoneManager.Queries.HasFlag(zone, Flags.NoDamage))

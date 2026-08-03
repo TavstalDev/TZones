@@ -53,7 +53,7 @@ namespace Tavstal.TZones.Handlers
             {
                 if (parameters.instigator is Player player)
                 {
-                    ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
+                    ZoneComponent comp = ComponentManager.Get(player);
                     foreach (var zone in comp.Zones)
                     {
                         if (ZoneManager.Queries.HasFlag(zone,Flags.NoAnimalDamage))
@@ -91,7 +91,7 @@ namespace Tavstal.TZones.Handlers
             {
                 if (parameters.instigator is Player player)
                 {
-                    ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
+                    ZoneComponent comp = ComponentManager.Get(player);
 
                     foreach (var zone in comp.Zones)
                     {

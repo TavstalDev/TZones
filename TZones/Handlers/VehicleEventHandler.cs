@@ -65,7 +65,7 @@ namespace Tavstal.TZones.Handlers
             bool originalValue = shouldAllow;
             try
             {
-                ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
+                ZoneComponent comp = ComponentManager.Get(player);
 
                 foreach (var zone in comp.Zones)
                 {
@@ -91,7 +91,7 @@ namespace Tavstal.TZones.Handlers
             bool originalValue = shouldAllow;
             try
             {
-                ZonePlayerComponent comp = player.GetComponent<ZonePlayerComponent>();
+                ZoneComponent comp = ComponentManager.Get(player);
 
                 foreach (var zone in comp.Zones)
                 {
@@ -121,7 +121,7 @@ namespace Tavstal.TZones.Handlers
                 if (uPlayer == null)
                     return;
 
-                ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
+                ZoneComponent comp = ComponentManager.Get(uPlayer);
 
                 foreach (var zone in comp.Zones)
                 {
@@ -161,7 +161,7 @@ namespace Tavstal.TZones.Handlers
                 if (uPlayer == null)
                     return;
 
-                ZonePlayerComponent comp = uPlayer.GetComponent<ZonePlayerComponent>();
+                ZoneComponent comp = ComponentManager.Get(uPlayer);
 
                 foreach (var zone in comp.Zones)
                 {
@@ -197,7 +197,7 @@ namespace Tavstal.TZones.Handlers
             bool originalValue = shouldAllow;
             try
             {
-                ZonePlayerComponent comp = instigatingPlayer.GetComponent<ZonePlayerComponent>();
+                ZoneComponent comp = instigatingPlayer= ComponentManager.Get();
 
                 foreach (var zone in comp.Zones)
                 {
@@ -233,7 +233,7 @@ namespace Tavstal.TZones.Handlers
             bool originalValue = shouldAllow;
             try
             {
-                ZonePlayerComponent comp = instigatingPlayer.GetComponent<ZonePlayerComponent>();
+                ZoneComponent comp = instigatingPlayer= ComponentManager.Get();
 
                 foreach (var zone in comp.Zones)
                 {
@@ -269,7 +269,7 @@ namespace Tavstal.TZones.Handlers
             bool originalValue = shouldAllow;
             try
             {
-                ZonePlayerComponent comp = instigatingPlayer.GetComponent<ZonePlayerComponent>();
+                ZoneComponent comp = instigatingPlayer= ComponentManager.Get();
 
                 foreach (var zone in comp.Zones)
                 {
