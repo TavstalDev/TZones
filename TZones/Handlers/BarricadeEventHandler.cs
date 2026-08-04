@@ -3,8 +3,6 @@ using Rocket.Unturned.Player;
 using SDG.Unturned;
 using Steamworks;
 using Tavstal.TLibrary.Extensions;
-using Tavstal.TZones.Components;
-using Tavstal.TZones.Models.Core;
 using Tavstal.TZones.Models.Enums;
 using Tavstal.TZones.Utils.Constants;
 using Tavstal.TZones.Utils.Managers;
@@ -62,34 +60,30 @@ namespace Tavstal.TZones.Handlers
         /// </summary>
         private static void OnDeployBarricadeRequested(Barricade barricade, ItemBarricadeAsset asset, Transform hit, ref Vector3 point, ref float angleX, ref float angleY, ref float angleZ, ref ulong owner, ref ulong group, ref bool shouldAllow)
         {
+            if (!shouldAllow)
+                return;
+            
             bool originalValue = shouldAllow;
             try
             {
-                UnturnedPlayer uPlayer = UnturnedPlayer.FromCSteamID((CSteamID)owner);
-                if (uPlayer == null)
+                UnturnedPlayer player = UnturnedPlayer.FromCSteamID((CSteamID)owner);
+                if (player == null)
                     return;
 
-                ZoneComponent comp = ComponentManager.Get(uPlayer);
-
-                foreach (var zone in comp.Zones)
+                if (ZoneManager.HasFlagOrBlocked(Flags.NoBarricades,
+                        TZones.Instance.Config.GlobalZoneFlagChecks.NoBarricades,
+                        player, asset.id, ERestrictionType.BUILD))
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoBarricades) ||
-                        ZoneManager.Queries.IsBlocked(zone, asset.id, ERestrictionType.BUILD))
-                    {
-                        shouldAllow = false;
-                        break;
-                    }
+                    shouldAllow = false;
+                    return;
                 }
 
-                var objectZones = ZoneManager.GetZonesFromPosition(point);
-                foreach (Zone zone in objectZones)
-                {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoBarricades) || ZoneManager.Queries.IsBlocked(zone, asset.id, ERestrictionType.BUILD))
-                    {
-                        shouldAllow = false;
-                        break;
-                    }
-                }
+                if (!ZoneManager.HasFlagOrBlocked(Flags.NoBarricades,
+                        TZones.Instance.Config.GlobalZoneFlagChecks.NoBarricades,
+                        point, asset.id, ERestrictionType.BUILD))
+                    return;
+
+                shouldAllow = false;
             }
             catch (Exception ex)
             {
@@ -103,42 +97,41 @@ namespace Tavstal.TZones.Handlers
         /// </summary>
         private static void OnSalvageBarricadeRequested(BarricadeDrop barricade, SteamPlayer instigatorClient, ref bool shouldAllow)
         {
+            if (!shouldAllow)
+                return;
+            
             bool originalValue = shouldAllow;
             try
             {
-                UnturnedPlayer uPlayer = UnturnedPlayer.FromSteamPlayer(instigatorClient);
-                if (uPlayer == null)
+                var point = barricade.interactable.transform.position;
+                UnturnedPlayer player = UnturnedPlayer.FromSteamPlayer(instigatorClient);
+                if (player == null)
                     return;
 
-                ZoneComponent comp = ComponentManager.Get(uPlayer);
-
-                foreach (var zone in comp.Zones)
+                if (ZoneManager.HasFlag(Flags.NoBarricadeSalvage, TZones.Instance.Config.GlobalZoneFlagChecks.NoBarricadeSalvage,
+                        player))
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoBarricadeSalvage))
-                    {
-                        shouldAllow = false;
-                        break;
-                    }
+                    shouldAllow = false;
+                    return;
                 }
 
-                var objectZones = ZoneManager.GetZonesFromPosition(barricade.interactable.transform.position);
-                foreach (Zone zone in objectZones)
-                {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoBarricadeSalvage))
-                    {
-                        shouldAllow = false;
-                        break;
-                    }
-                }
+                if (!ZoneManager.HasFlag(Flags.NoBarricadeSalvage,
+                        TZones.Instance.Config.GlobalZoneFlagChecks.NoBarricadeSalvage,
+                        point))
+                    return;
 
-                if (shouldAllow && barricade.asset.build == EBuild.GENERATOR)
-                    if (barricade.interactable is InteractableGenerator generator)
-                        ZoneManager.Cache.RemoveGenerator(generator);
+                shouldAllow = false;
             }
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnSalvageBarricadeRequested)}.", ex);
                 shouldAllow = originalValue;
+            }
+            finally
+            {
+                if (shouldAllow && barricade.asset.build == EBuild.GENERATOR)
+                    if (barricade.interactable is InteractableGenerator generator)
+                        ZoneManager.Cache.RemoveGenerator(generator);
             }
         }
         
@@ -147,43 +140,45 @@ namespace Tavstal.TZones.Handlers
         /// </summary>
         private static void OnDamageBarricadeRequested(CSteamID instigatorSteamID, Transform barricadeTransform, ref ushort pendingTotalDamage, ref bool shouldAllow, EDamageOrigin damageOrigin)
         {
+            if (!shouldAllow)
+                return;
+            
             bool originalValue = shouldAllow;
             try
             {
-                UnturnedPlayer uPlayer = UnturnedPlayer.FromCSteamID(instigatorSteamID);
-                if (uPlayer == null)
+                UnturnedPlayer player = UnturnedPlayer.FromCSteamID(instigatorSteamID);
+                if (player == null)
                     return;
 
-                ZoneComponent comp = ComponentManager.Get(uPlayer);
-                foreach (var zone in comp.Zones)
+                if (ZoneManager.HasFlag(Flags.NoDamage, TZones.Instance.Config.GlobalZoneFlagChecks.NoDamage,
+                        player))
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoDamage))
-                    {
-                        shouldAllow = false;
-                        break;
-                    }
+                    shouldAllow = false;
+                    return;
                 }
 
-                var objectZones = ZoneManager.GetZonesFromPosition(barricadeTransform.position);
-                foreach (Zone zone in objectZones)
-                {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoDamage))
-                    {
-                        shouldAllow = false;
-                        break;
-                    }
-                }
+                if (!ZoneManager.HasFlag(Flags.NoDamage,
+                        TZones.Instance.Config.GlobalZoneFlagChecks.NoDamage,
+                        barricadeTransform.position))
+                    return;
 
-                var barricade = BarricadeManager.FindBarricadeByRootTransform(barricadeTransform);
-                if (shouldAllow && barricade.GetServersideData().barricade.health - pendingTotalDamage <= 0 &&
-                    barricade.asset.build == EBuild.GENERATOR)
-                    if (barricade.interactable is InteractableGenerator generator)
-                        ZoneManager.Cache.RemoveGenerator(generator);
+                shouldAllow = false;
             }
             catch (Exception ex)
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnDamageBarricadeRequested)}.", ex);
                 shouldAllow = originalValue;
+            }
+            finally
+            {
+                var barricade = BarricadeManager.FindBarricadeByRootTransform(barricadeTransform);
+                if (barricade != null)
+                {
+                    if (shouldAllow && barricade.GetServersideData().barricade.health - pendingTotalDamage <= 0 &&
+                        barricade.asset.build == EBuild.GENERATOR)
+                        if (barricade.interactable is InteractableGenerator generator)
+                            ZoneManager.Cache.RemoveGenerator(generator);
+                }
             }
         }
     }

@@ -1,8 +1,7 @@
 using System;
+using Rocket.Unturned.Player;
 using SDG.Unturned;
 using Tavstal.TLibrary.Extensions;
-using Tavstal.TZones.Components;
-using Tavstal.TZones.Models.Core;
 using Tavstal.TZones.Utils.Constants;
 using Tavstal.TZones.Utils.Managers;
 
@@ -48,30 +47,28 @@ namespace Tavstal.TZones.Handlers
         /// </summary>
         private static void OnDamageAnimalRequested(ref DamageAnimalParameters parameters, ref bool shouldAllow)
         {
+            if (!shouldAllow)
+                return;
+            
             bool originalValue = shouldAllow;
             try
             {
                 if (parameters.instigator is Player player)
                 {
-                    ZoneComponent comp = ComponentManager.Get(player);
-                    foreach (var zone in comp.Zones)
+                    UnturnedPlayer uPlayer = UnturnedPlayer.FromPlayer(player);
+                    if (ZoneManager.HasFlag(Flags.NoAnimalDamage, TZones.Instance.Config.GlobalZoneFlagChecks.NoAnimalDamage,
+                            uPlayer))
                     {
-                        if (ZoneManager.Queries.HasFlag(zone,Flags.NoAnimalDamage))
-                        {
-                            shouldAllow = false;
-                            break;
-                        }
+                        shouldAllow = false;
+                        return;
                     }
 
-                    var objectZones = ZoneManager.GetZonesFromPosition(parameters.animal.transform.position);
-                    foreach (Zone zone in objectZones)
-                    {
-                        if (ZoneManager.Queries.HasFlag(zone, Flags.NoAnimalDamage))
-                        {
-                            shouldAllow = false;
-                            break;
-                        }
-                    }
+                    if (!ZoneManager.HasFlag(Flags.NoAnimalDamage,
+                            TZones.Instance.Config.GlobalZoneFlagChecks.NoAnimalDamage,
+                            parameters.animal.transform.position))
+                        return;
+
+                    shouldAllow = false;
                 }
             }
             catch (Exception ex)
@@ -86,31 +83,28 @@ namespace Tavstal.TZones.Handlers
         /// </summary>
         private static void OnDamageZombieRequested(ref DamageZombieParameters parameters, ref bool shouldAllow)
         {
+            if (!shouldAllow)
+                return;
+            
             bool originalValue = shouldAllow;
             try
             {
                 if (parameters.instigator is Player player)
                 {
-                    ZoneComponent comp = ComponentManager.Get(player);
-
-                    foreach (var zone in comp.Zones)
+                    UnturnedPlayer uPlayer = UnturnedPlayer.FromPlayer(player);
+                    if (ZoneManager.HasFlag(Flags.NoZombieDamage, TZones.Instance.Config.GlobalZoneFlagChecks.NoZombieDamage,
+                            uPlayer))
                     {
-                        if (ZoneManager.Queries.HasFlag(zone,Flags.NoZombieDamage))
-                        {
-                            shouldAllow = false;
-                            break;
-                        }
+                        shouldAllow = false;
+                        return;
                     }
 
-                    var objectZones = ZoneManager.GetZonesFromPosition(parameters.zombie.transform.position);
-                    foreach (Zone zone in objectZones)
-                    {
-                        if (ZoneManager.Queries.HasFlag(zone, Flags.NoZombieDamage))
-                        {
-                            shouldAllow = false;
-                            break;
-                        }
-                    }
+                    if (!ZoneManager.HasFlag(Flags.NoZombieDamage,
+                            TZones.Instance.Config.GlobalZoneFlagChecks.NoZombieDamage,
+                            parameters.zombie.transform.position))
+                        return;
+
+                    shouldAllow = false;
                 }
             }
             catch (Exception ex)

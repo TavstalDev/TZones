@@ -1,12 +1,8 @@
 using System;
-using System.Linq;
 using Rocket.Unturned;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
 using Tavstal.TLibrary.Extensions;
-using Tavstal.TLibrary.Extensions.Unturned;
-using Tavstal.TZones.Components;
-using Tavstal.TZones.Models.Core;
 using Tavstal.TZones.Models.Enums;
 using Tavstal.TZones.Utils.Constants;
 using Tavstal.TZones.Utils.Managers;
@@ -76,35 +72,23 @@ namespace Tavstal.TZones.Handlers
         /// </summary>
         private static void OnPlayerDamageRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
-            if (Provider.isPvP && !shouldAllow)
+            if (!shouldAllow)
                 return;
             
             bool originalValue = shouldAllow;
             try
             {
-                var victimPLayer = UnturnedPlayer.FromPlayer(parameters.player);
-                ZoneComponent victimComp = ComponentManager.Get(victimPLayer);
-                if (victimComp.Zones.Any(x => ZoneManager.Queries.HasFlag(x, Flags.NoPlayerDamage)))
-                {
-                    shouldAllow = false;
-                    return;
-                }
+                var victimPlayer = UnturnedPlayer.FromPlayer(parameters.player);
+                UnturnedPlayer? killerPlayer = UnturnedPlayer.FromCSteamID(parameters.killer);
+                var players = killerPlayer == null
+                    ? new[] { victimPlayer }
+                    : new[] { victimPlayer, killerPlayer };
 
-                // TODO
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-                if (parameters.killer != null)
-                {
-                    UnturnedPlayer killerPlayer = UnturnedPlayer.FromCSteamID(parameters.killer);
-                    if (killerPlayer != null && killerPlayer.isOnline())
-                    {
-                        ZoneComponent targetComp = ComponentManager.Get(killerPlayer);
-                        if (targetComp.Zones.Any(x => ZoneManager.Queries.HasFlag(x, Flags.NoPlayerDamage)))
-                        {
-                            shouldAllow = false;
-                            return;
-                        }
-                    }
-                }
+                if (ZoneManager.HasFlag(Flags.AllowPlayerDamage, TZones.Instance.Config.GlobalZoneFlagChecks.AllowPlayerDamage, players))
+                    return;
+
+                if (ZoneManager.HasFlag(Flags.NoPlayerDamage,  TZones.Instance.Config.GlobalZoneFlagChecks.NoPlayerDamage, players))
+                    shouldAllow = false;
             }
             catch (Exception ex)
             {
@@ -118,22 +102,20 @@ namespace Tavstal.TZones.Handlers
         /// </summary>
         private static void OnEquipRequested(PlayerEquipment equipment, ItemJar jar, ItemAsset asset, ref bool shouldAllow)
         {
+            if (!shouldAllow)
+                return;
+            
             bool originalValue = shouldAllow;
             try
             {
                 UnturnedPlayer player = UnturnedPlayer.FromPlayer(equipment.player);
-                ZoneComponent comp = ComponentManager.Get(player);
-
-                // TODO
-                foreach (var zone in comp.Zones)
-                {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoItemEquip) ||
-                        ZoneManager.Queries.IsBlocked(zone, asset.id, ERestrictionType.EQUP))
-                    {
-                        shouldAllow = false;
-                        break;
-                    }
-                }
+                if (player == null)
+                    return;
+                
+                if (!ZoneManager.HasFlagOrBlocked(Flags.NoItemEquip, TZones.Instance.Config.GlobalZoneFlagChecks.NoItemEquip, player, equipment.asset.id, ERestrictionType.EQUIP))
+                    return;
+                
+                shouldAllow = false;
             }
             catch (Exception ex)
             {
@@ -147,6 +129,9 @@ namespace Tavstal.TZones.Handlers
         /// </summary>
         private static void OnDequipRequested(PlayerEquipment equipment, ref bool shouldAllow)
         {
+            if (!shouldAllow)
+                return;
+            
             bool originalValue = shouldAllow;
             try
             {
@@ -154,27 +139,10 @@ namespace Tavstal.TZones.Handlers
                 if (player == null)
                     return;
                 
-                ZoneComponent comp = ComponentManager.Get(player);
-                foreach (var zone in comp.Zones)
-                {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoItemUnequip) ||
-                        ZoneManager.Queries.IsBlocked(zone, equipment.asset.id, ERestrictionType.UNEQUIP))
-                    {
-                        shouldAllow = false;
-                        break;
-                    }
-                }
+                if (!ZoneManager.HasFlagOrBlocked(Flags.NoItemUnequip, TZones.Instance.Config.GlobalZoneFlagChecks.NoItemUnequip, player, equipment.asset.id, ERestrictionType.UNEQUIP))
+                   return;
                 
-                if (!shouldAllow)
-                    return;
-                
-                Zone? globalZone = ZoneManager.Queries.GetZone("__global__");
-                if (globalZone == null)
-                    return;
-                
-                if (ZoneManager.Queries.HasFlag(globalZone, Flags.NoItemUnequip) ||
-                    ZoneManager.Queries.IsBlocked(globalZone, equipment.asset.id, ERestrictionType.UNEQUIP))
-                    shouldAllow = false;
+                shouldAllow = false;
             }
             catch (Exception ex)
             {
@@ -188,6 +156,9 @@ namespace Tavstal.TZones.Handlers
         /// </summary>
         private static void OnDropItemRequested(PlayerInventory inventory, Item item, ref bool shouldAllow)
         {
+            if (!shouldAllow)
+                return;
+            
             bool originalValue = shouldAllow;
             try
             {
@@ -195,7 +166,7 @@ namespace Tavstal.TZones.Handlers
                 if (player == null)
                     return;
                 
-                if (!ZoneManager.HasFlag(Flags.NoItemDrop, true, player))
+                if (!ZoneManager.HasFlag(Flags.NoItemDrop, TZones.Instance.Config.GlobalZoneFlagChecks.NoItemDrop, player))
                     return;
                 
                 shouldAllow = false;

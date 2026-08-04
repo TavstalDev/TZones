@@ -91,19 +91,13 @@ namespace Tavstal.TZones.Handlers
                     case EEventType.ADD_EFFECT_ENTER:
                     {
                         if (ushort.TryParse(zEvent.Value, out ushort effect))
-                        {
                             player.TriggerEffect(effect);
-                        }
-
                         break;
                     }
                     case EEventType.REMOVE_EFFECT_ENTER:
                     {
                         if (ushort.TryParse(zEvent.Value, out ushort effect))
-                        {
                             EffectManager.askEffectClearByID(effect, player.SteamPlayer().transportConnection);
-                        }
-
                         break;
                     }
                     case EEventType.ADD_GROUP_ENTER:
@@ -138,7 +132,7 @@ namespace Tavstal.TZones.Handlers
         /// <param name="player">The player who is leaving the zone.</param>
         /// <param name="zone">The zone the player is leaving.</param>
         /// <param name="lastPosition">The player's last known position before leaving the zone.</param>
-        /// <param name="shouldAllow">A flag indicating whether the player should be allowed to leave the zone. Set to false to prevent exit.</param>
+        /// <param name="shouldAllow">A flag indicating whether the player should be allowed to leave the zone. Set to 'false' to prevent exit.</param>
         private static void OnPlayerLeaveZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition, ref bool shouldAllow)
         {
             var events = ZoneManager.Queries.GetZoneEvents(zone.Id);
@@ -170,10 +164,7 @@ namespace Tavstal.TZones.Handlers
                     case EEventType.ADD_EFFECT_LEAVE:
                     {
                         if (ushort.TryParse(zEvent.Value, out ushort effect))
-                        {
                             player.TriggerEffect(effect);
-                        }
-
                         break;
                     }
                     case EEventType.ADD_GROUP_LEAVE:
@@ -189,10 +180,7 @@ namespace Tavstal.TZones.Handlers
                     case EEventType.REMOVE_EFFECT_LEAVE:
                     {
                         if (ushort.TryParse(zEvent.Value, out ushort effect))
-                        {
                             EffectManager.askEffectClearByID(effect, player.SteamPlayer().transportConnection);
-                        }
-
                         break;
                     }
                     case EEventType.REMOVE_GROUP_LEAVE:

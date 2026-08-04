@@ -3,8 +3,6 @@ using Rocket.Unturned.Player;
 using SDG.Unturned;
 using Steamworks;
 using Tavstal.TLibrary.Extensions;
-using Tavstal.TZones.Components;
-using Tavstal.TZones.Models.Core;
 using Tavstal.TZones.Models.Enums;
 using Tavstal.TZones.Utils.Constants;
 using Tavstal.TZones.Utils.Managers;
@@ -54,34 +52,30 @@ namespace Tavstal.TZones.Handlers
         /// </summary>
         private static void OnDeployStructureRequested(Structure structure, ItemStructureAsset asset, ref Vector3 point, ref float angleX, ref float angleY, ref float angleZ, ref ulong owner, ref ulong group, ref bool shouldAllow)
         {
+            if (!shouldAllow)
+                return;
+            
             bool originalValue = shouldAllow;
             try
             {
-                UnturnedPlayer uPlayer = UnturnedPlayer.FromCSteamID((CSteamID)owner);
-                if (uPlayer == null)
+                UnturnedPlayer player = UnturnedPlayer.FromCSteamID((CSteamID)owner);
+                if (player == null)
                     return;
 
-                ZoneComponent comp = ComponentManager.Get(uPlayer);
-                foreach (var zone in comp.Zones)
+                if (ZoneManager.HasFlagOrBlocked(Flags.NoStructures,
+                        TZones.Instance.Config.GlobalZoneFlagChecks.NoStructures,
+                        player, asset.id, ERestrictionType.BUILD))
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoStructures) ||
-                        ZoneManager.Queries.IsBlocked(zone, asset.id, ERestrictionType.BUILD))
-                    {
-                        shouldAllow = false;
-                        break;
-                    }
+                    shouldAllow = false;
+                    return;
                 }
 
-                var objectZones = ZoneManager.GetZonesFromPosition(point);
-                foreach (Zone zone in objectZones)
-                {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoStructures) || 
-                        ZoneManager.Queries.IsBlocked(zone, asset.id, ERestrictionType.BUILD))
-                    {
-                        shouldAllow = false;
-                        break;
-                    }
-                }
+                if (!ZoneManager.HasFlagOrBlocked(Flags.NoStructures,
+                        TZones.Instance.Config.GlobalZoneFlagChecks.NoStructures,
+                        point, asset.id, ERestrictionType.BUILD))
+                    return;
+
+                shouldAllow = false;
             }
             catch (Exception ex)
             {
@@ -95,33 +89,30 @@ namespace Tavstal.TZones.Handlers
         /// </summary>
         private static void OnSalvageStructureRequested(StructureDrop structure, SteamPlayer instigatorClient, ref bool shouldAllow)
         {
+            if (!shouldAllow)
+                return;
+            
             bool originalValue = shouldAllow;
             try
             {
-                UnturnedPlayer uPlayer = UnturnedPlayer.FromSteamPlayer(instigatorClient);
-                if (uPlayer == null)
+                var point = structure.GetServersideData().point;
+                UnturnedPlayer player = UnturnedPlayer.FromSteamPlayer(instigatorClient);
+                if (player == null)
                     return;
 
-                ZoneComponent comp = ComponentManager.Get(uPlayer);
-
-                foreach (var zone in comp.Zones)
+                if (ZoneManager.HasFlag(Flags.NoStructureSalvage, TZones.Instance.Config.GlobalZoneFlagChecks.NoStructureSalvage,
+                        player))
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoStructureSalvage))
-                    {
-                        shouldAllow = false;
-                        break;
-                    }
+                    shouldAllow = false;
+                    return;
                 }
 
-                var objectZones = ZoneManager.GetZonesFromPosition(structure.GetServersideData().point);
-                foreach (Zone zone in objectZones)
-                {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoStructureSalvage))
-                    {
-                        shouldAllow = false;
-                        break;
-                    }
-                }
+                if (!ZoneManager.HasFlag(Flags.NoStructureSalvage,
+                        TZones.Instance.Config.GlobalZoneFlagChecks.NoStructureSalvage,
+                        point))
+                    return;
+
+                shouldAllow = false;
             }
             catch (Exception ex)
             {
@@ -135,32 +126,29 @@ namespace Tavstal.TZones.Handlers
         /// </summary>
         private static void OnDamageStructureRequested(CSteamID instigatorSteamID, Transform structureTransform, ref ushort pendingTotalDamage, ref bool shouldAllow, EDamageOrigin damageOrigin)
         {
+            if (!shouldAllow)
+                return;
+            
             bool originalValue = shouldAllow;
             try
             {
-                UnturnedPlayer uPlayer = UnturnedPlayer.FromCSteamID(instigatorSteamID);
-                if (uPlayer == null)
+                UnturnedPlayer player = UnturnedPlayer.FromCSteamID(instigatorSteamID);
+                if (player == null)
                     return;
 
-                ZoneComponent comp = ComponentManager.Get(uPlayer);
-                foreach (var zone in comp.Zones)
+                if (ZoneManager.HasFlag(Flags.NoDamage, TZones.Instance.Config.GlobalZoneFlagChecks.NoDamage,
+                        player))
                 {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoDamage))
-                    {
-                        shouldAllow = false;
-                        break;
-                    }
+                    shouldAllow = false;
+                    return;
                 }
 
-                var objectZones = ZoneManager.GetZonesFromPosition(structureTransform.position);
-                foreach (Zone zone in objectZones)
-                {
-                    if (ZoneManager.Queries.HasFlag(zone, Flags.NoDamage))
-                    {
-                        shouldAllow = false;
-                        break;
-                    }
-                }
+                if (!ZoneManager.HasFlag(Flags.NoDamage,
+                        TZones.Instance.Config.GlobalZoneFlagChecks.NoDamage,
+                        structureTransform.position))
+                    return;
+
+                shouldAllow = false;
             }
             catch (Exception ex)
             {
