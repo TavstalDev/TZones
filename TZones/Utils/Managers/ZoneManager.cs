@@ -6,6 +6,7 @@ using Rocket.Unturned.Player;
 using Tavstal.TZones.Models.Core;
 using UnityEngine;
 using Tavstal.TLibrary.Extensions;
+using Tavstal.TZones.Models.Enums;
 using ENodeType = Tavstal.TZones.Models.Enums.ENodeType;
 using Flag = Tavstal.TZones.Models.Core.Flag;
 using Node = Tavstal.TZones.Models.Core.Node;
@@ -20,17 +21,17 @@ namespace Tavstal.TZones.Utils.Managers
         /// <summary>
         /// Provides access to the zone data cache.
         /// </summary>
-        public static ZonesManager_Cache Cache { get; } = new ZonesManager_Cache();
+        public static ZoneManager_Cache Cache { get; } = new ZoneManager_Cache();
 
         /// <summary>
         /// Provides read-only query methods for zone data.
         /// </summary>
-        public static ZonesManager_Queries Queries { get; } = new ZonesManager_Queries(Cache);
+        public static ZoneManager_Queries Queries { get; } = new ZoneManager_Queries(Cache);
 
         /// <summary>
         /// Provides periodic update logic for players, generators, and zombies.
         /// </summary>
-        public static ZonesManager_Update Updater { get; } = new ZonesManager_Update(Cache, Queries);
+        public static ZoneManager_Update Updater { get; } = new ZoneManager_Update(Cache, Queries);
         
         #region Events
         #region PlayerEnterZone
@@ -282,19 +283,20 @@ namespace Tavstal.TZones.Utils.Managers
             return isInside;
         }
 
-        public static bool HasFlag(string flagName, bool checkGlobal = true, params UnturnedPlayer[] players)
+        public static bool HasFlag(string flagName, EGlobalCheckMode globalCheckMode, params UnturnedPlayer[] players)
         {
             var flag = Queries.GetFlag(flagName);
             if (flag == null)
                 return false;
-            return HasFlag(flag, checkGlobal, players);
+            return HasFlag(flag, globalCheckMode, players);
         }
         
-        public static bool HasFlag(Flag flag, bool checkGlobal = true, params UnturnedPlayer?[] players)
+        public static bool HasFlag(Flag flag, EGlobalCheckMode globalCheckMode, params UnturnedPlayer?[] players)
         {
             if (players.Length == 0)
                 return false;
 
+            bool foundZone = false;
             foreach (var player in players)
             {
                 if (player == null)
@@ -304,15 +306,91 @@ namespace Tavstal.TZones.Utils.Managers
                 if (comp == null)
                     continue;
                 
+                if (!foundZone)
+                    foundZone = comp.Zones.Count > 0;
+                
                 if (comp.Zones.Any(x => Queries.HasFlag(x, flag.Name)))
                     return true;
             }
 
-            if (checkGlobal)
+            if (globalCheckMode == EGlobalCheckMode.NEVER || globalCheckMode == EGlobalCheckMode.NOT_IN_ZONE && foundZone)
                 return false;
 
             var globalZone = Queries.GetZone("__global__");
             return globalZone != null && Queries.HasFlag(globalZone, flag.Name);
+        }
+        
+        public static bool HasFlag(string flagName, EGlobalCheckMode globalCheckMode, Vector3 position)
+        {
+            var flag = Queries.GetFlag(flagName);
+            if (flag == null)
+                return false;
+            return HasFlag(flag, globalCheckMode, position);
+        }
+        
+        public static bool HasFlag(Flag flag, EGlobalCheckMode globalCheckMode, Vector3 position)
+        {
+            var zones = GetZonesFromPosition(position);
+            if (zones.Any(x => Queries.HasFlag(x, flag.Name)))
+                return true;
+
+            bool foundZone = zones.Count > 0;
+            if (globalCheckMode == EGlobalCheckMode.NEVER || globalCheckMode == EGlobalCheckMode.NOT_IN_ZONE && foundZone)
+                return false;
+
+            var globalZone = Queries.GetZone("__global__");
+            return globalZone != null && Queries.HasFlag(globalZone, flag.Name);
+        }
+        
+        public static bool HasFlagOrBlocked(string flagName, EGlobalCheckMode globalCheckMode, UnturnedPlayer player,
+            ushort id, ERestrictionType restrictionType)
+        {
+            var flag = Queries.GetFlag(flagName);
+            if (flag == null)
+                return false;
+            return HasFlagOrBlocked(flag, globalCheckMode, player, id, restrictionType);
+        }
+
+        public static bool HasFlagOrBlocked(Flag flag, EGlobalCheckMode globalCheckMode, UnturnedPlayer player,
+            ushort id, ERestrictionType restrictionType)
+        {
+            var comp = ComponentManager.Get(player);
+            if (comp == null)
+                return false;
+                
+            if (comp.Zones.Any(x => Queries.HasFlag(x, flag.Name) || Queries.IsBlocked(x, id, restrictionType)))
+                return true;
+
+            bool foundZone = comp.Zones.Count > 0;
+            if (globalCheckMode == EGlobalCheckMode.NEVER || globalCheckMode == EGlobalCheckMode.NOT_IN_ZONE && foundZone)
+                return false;
+
+            var globalZone = Queries.GetZone("__global__");
+            return globalZone != null && (Queries.HasFlag(globalZone, flag.Name) || Queries.IsBlocked(globalZone, id, restrictionType));
+        }
+        
+        public static bool HasFlagOrBlocked(string flagName, EGlobalCheckMode globalCheckMode, Vector3 position,
+            ushort id, ERestrictionType restrictionType)
+        {
+            var flag = Queries.GetFlag(flagName);
+            if (flag == null)
+                return false;
+            return HasFlagOrBlocked(flag, globalCheckMode, position, id, restrictionType);
+        }
+
+        public static bool HasFlagOrBlocked(Flag flag, EGlobalCheckMode globalCheckMode, Vector3 position,
+            ushort id, ERestrictionType restrictionType)
+        {
+            var zones = GetZonesFromPosition(position);
+            if (zones.Any(x => Queries.HasFlag(x, flag.Name) || Queries.IsBlocked(x, id, restrictionType)))
+                return true;
+
+            bool foundZone = zones.Count > 0;
+            if (globalCheckMode == EGlobalCheckMode.NEVER || globalCheckMode == EGlobalCheckMode.NOT_IN_ZONE && foundZone)
+                return false;
+
+            var globalZone = Queries.GetZone("__global__");
+            return globalZone != null && (Queries.HasFlag(globalZone, flag.Name) || Queries.IsBlocked(globalZone, id, restrictionType));
         }
         #endregion
     }
