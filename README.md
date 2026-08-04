@@ -104,6 +104,8 @@ A basic zones plugin with database support.
 | `InfiniteGenerator`  | The generator in the zone is infinite   |
 | `NoVehicleCarjack`   | Vehicle carjacking is not allowed       |
 | `NoVehicleSiphoning` | Vehicle siphoning is not allowed        |
+| `NoVehicleEnter`     | Entering vehicles is not allowed        |
+| `NoVehicleExit`      | Exiting vehicles is not allowed         |
 
 ## Event Types
 
@@ -133,10 +135,26 @@ A basic zones plugin with database support.
 | Restriction     | Description                 |
 |-----------------|-----------------------------|
 | `BUILD`         | Restricts building          |
-| `EQUP`          | Restricts equipping items   |
+| `EQUIP`         | Restricts equipping items   |
 | `UNEQUIP`       | Restricts unequipping items |
 | `VEHICLE_ENTER` | Restricts entering vehicles |
-| `VEHICLE_LEAVE` | Restricts leaving vehicles  |
+| `VEHICLE_EXIT`  | Restricts exiting vehicles  |
+
+## The `__global__` Zone
+
+The `__global__` zone is a special zone with no physical boundaries (it has no nodes) that applies its flags server-wide.
+
+- Create it like any other zone, but you cannot add nodes, events, or remove it.
+- Only flags assigned to it take effect.
+- Each flag's global behavior is controlled by the `GlobalZoneFlagChecks` section in the config:
+
+| Mode          | Description                                                            |
+|---------------|------------------------------------------------------------------------|
+| `ALWAYS`      | The flag is enforced everywhere, even inside other zones               |
+| `NOT_IN_ZONE` | The flag is only enforced when the player is not inside any other zone |
+| `NEVER`       | The global flag is never enforced                                      |
+
+A player is always restricted by a specific zone's flag, regardless of the global mode.
 
 ## Building from Source
 
