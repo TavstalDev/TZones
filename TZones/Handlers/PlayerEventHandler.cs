@@ -112,7 +112,7 @@ namespace Tavstal.TZones.Handlers
                 if (player == null)
                     return;
                 
-                if (!ZoneManager.HasFlagOrBlocked(Flags.NoItemEquip, TZones.Instance.Config.GlobalZoneFlagChecks.NoItemEquip, player, equipment.asset.id, ERestrictionType.EQUIP))
+                if (!ZoneManager.HasFlagOrBlocked(Flags.NoItemEquip, TZones.Instance.Config.GlobalZoneFlagChecks.NoItemEquip, player, asset.id, ERestrictionType.EQUIP))
                     return;
                 
                 shouldAllow = false;
