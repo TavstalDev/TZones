@@ -37,16 +37,5 @@ namespace Tavstal.TZones.Components
             LastPosition = Player.Position;
             SpamPreventEnd = DateTime.Now;
         }
-
-        public bool HasFlag(string flagName, bool checkGlobal = true)
-        {
-            if (Zones.Any(x => ZoneManager.Queries.HasFlag(x, flagName)))
-                return true;
-            
-            if (!checkGlobal)
-                return false;
-
-            var globalZone = ZoneManager.Queries.GetZone("__global__");
-        }
     }
 }
