@@ -7,6 +7,7 @@ using Tavstal.TZones.Models.Core;
 using UnityEngine;
 using Tavstal.TLibrary.Extensions;
 using Tavstal.TZones.Models.Enums;
+using Tavstal.TZones.Utils.Constants;
 using ENodeType = Tavstal.TZones.Models.Enums.ENodeType;
 using Flag = Tavstal.TZones.Models.Core.Flag;
 using Node = Tavstal.TZones.Models.Core.Node;
@@ -297,6 +298,8 @@ namespace Tavstal.TZones.Utils.Managers
                 return false;
 
             bool foundZone = false;
+            bool requireAllParticipants = flag.Name == Flags.AllowPlayerDamage;
+            int participantsHasFlag = 0;
             foreach (var player in players)
             {
                 if (player == null)
@@ -308,10 +311,16 @@ namespace Tavstal.TZones.Utils.Managers
                 
                 if (!foundZone)
                     foundZone = comp.Zones.Count > 0;
-                
+
                 if (comp.Zones.Any(x => Queries.HasFlag(x, flag.Name)))
-                    return true;
+                    if (requireAllParticipants)
+                        participantsHasFlag++;
+                    else
+                        return true;
             }
+            
+            if (requireAllParticipants && participantsHasFlag == players.Length)
+                return true;
 
             if (globalCheckMode == EGlobalCheckMode.NEVER || globalCheckMode == EGlobalCheckMode.NOT_IN_ZONE && foundZone)
                 return false;
