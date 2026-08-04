@@ -1,4 +1,5 @@
 ﻿using Tavstal.TLibrary.Models.Config;
+using Tavstal.TZones.Models.Config;
 using Tavstal.TZones.Models.Database;
 using YamlDotNet.Serialization;
 // ReSharper disable ClassNeverInstantiated.Global
@@ -15,6 +16,9 @@ namespace Tavstal.TZones
         /// </summary>
         [YamlMember(Order = 3)]
         public DatabaseData Database { get; set; } = new  DatabaseData();
+        
+        [YamlMember(Order = 4)]
+        public GlobalZoneFlagChecks GlobalZoneFlagChecks { get; set; } = new GlobalZoneFlagChecks();
 
         /// <summary>
         /// Loads the default configuration values.
@@ -26,6 +30,7 @@ namespace Tavstal.TZones
                 MessageIcon = "https://raw.githubusercontent.com/TavstalDev/TZones/refs/heads/master/assets/icon.png"
             };
             Database = new DatabaseData();
+            GlobalZoneFlagChecks = new GlobalZoneFlagChecks();
         }
 
         /// <summary>
