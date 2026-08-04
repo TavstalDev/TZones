@@ -8,15 +8,15 @@ namespace Tavstal.TZones.Utils.Managers
     /// <summary>
     /// Provides read-only query methods for looking up zone data from the cache.
     /// </summary>
-    public class ZonesManager_Queries
+    public class ZoneManager_Queries
     {
-        private readonly ZonesManager_Cache _cache;
+        private readonly ZoneManager_Cache _cache;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ZonesManager_Queries"/> class.
+        /// Initializes a new instance of the <see cref="ZoneManager_Queries"/> class.
         /// </summary>
         /// <param name="cache">The zone data cache to query against.</param>
-        public ZonesManager_Queries(ZonesManager_Cache cache)
+        public ZoneManager_Queries(ZoneManager_Cache cache)
         {
             _cache = cache;
         }

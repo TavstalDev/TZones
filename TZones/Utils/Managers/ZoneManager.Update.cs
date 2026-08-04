@@ -13,10 +13,10 @@ namespace Tavstal.TZones.Utils.Managers
     /// <summary>
     /// Handles periodic update logic for player zone tracking, generator refueling, and zombie removal.
     /// </summary>
-    public class ZonesManager_Update
+    public class ZoneManager_Update
     {
-        private ZonesManager_Cache _cache { get; }
-        private ZonesManager_Queries _queries { get; }
+        private ZoneManager_Cache _cache { get; }
+        private ZoneManager_Queries _queries { get; }
 
         /// <summary>
         /// Gets or sets whether an update cycle is currently in progress.
@@ -24,11 +24,11 @@ namespace Tavstal.TZones.Utils.Managers
         public bool IsUpdating {  get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ZonesManager_Update"/> class.
+        /// Initializes a new instance of the <see cref="ZoneManager_Update"/> class.
         /// </summary>
         /// <param name="cache">The zone data cache.</param>
         /// <param name="queries">The zone query helper.</param>
-        public ZonesManager_Update(ZonesManager_Cache cache, ZonesManager_Queries queries)
+        public ZoneManager_Update(ZoneManager_Cache cache, ZoneManager_Queries queries)
         {
             _cache = cache;
             _queries = queries;

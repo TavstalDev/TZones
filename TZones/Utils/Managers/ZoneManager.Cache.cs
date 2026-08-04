@@ -18,7 +18,7 @@ namespace Tavstal.TZones.Utils.Managers
     /// <summary>
     /// Provides an in-memory cache of all zone data, with thread-safe access and dirty-state tracking.
     /// </summary>
-    public class ZonesManager_Cache
+    public class ZoneManager_Cache
     {
         private bool _isDirty;
 
