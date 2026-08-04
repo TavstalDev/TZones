@@ -203,6 +203,12 @@ namespace Tavstal.TZones.Commands
                                 TZones.Instance.SendCommandReply(caller, "error_zone_not_found", TZones.Instance.Config.General.MessageIcon, args[1]);
                                 return;
                             }
+                            
+                            if (zone.Name == "__global__")
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zone_cannot_have_event", TZones.Instance.Config.General.MessageIcon, zone.Name);
+                                return;
+                            }
 
                             EEventType eventType;
                             try
@@ -402,6 +408,12 @@ namespace Tavstal.TZones.Commands
                             if (zone == null)
                             {
                                 TZones.Instance.SendCommandReply(caller, "error_zone_not_found", TZones.Instance.Config.General.MessageIcon, args[1]);
+                                return Task.CompletedTask;
+                            }
+                            
+                            if (zone.Name == "__global__")
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zone_cannot_have_event", TZones.Instance.Config.General.MessageIcon, zone.Name);
                                 return Task.CompletedTask;
                             }
                             
@@ -616,6 +628,12 @@ namespace Tavstal.TZones.Commands
                             if (zone == null)
                             {
                                 TZones.Instance.SendCommandReply(caller, "error_zone_not_found", TZones.Instance.Config.General.MessageIcon, args[1]);
+                                return;
+                            }
+                            
+                            if (zone.Name == "__global__")
+                            {
+                                TZones.Instance.SendCommandReply(caller, "error_zone_cannot_have_event", TZones.Instance.Config.General.MessageIcon, zone.Name);
                                 return;
                             }
                             
