@@ -10,11 +10,12 @@ namespace Tavstal.TZones.Utils.Constants
         /// <summary>
         /// A list of default flags that are commonly used within zones.
         /// </summary>
-        public static List<string> Defaults { get; } = new List<string>()
+        public static List<string> Defaults { get; } = new List<string>
         {
             NoDamage, NoVehicleDamage, AllowPlayerDamage, NoPlayerDamage, NoAnimalDamage, NoZombieDamage, NoTireDamage,
             NoLockpick, NoBarricades, NoStructures, NoBarricadeSalvage, NoStructureSalvage, NoItemEquip, NoItemUnequip,
-            NoItemDrop, NoEnter, NoLeave, NoZombie, InfiniteGenerator, NoVehicleCarjack, NoVehicleSiphoning
+            NoItemDrop, NoEnter, NoLeave, NoZombie, InfiniteGenerator, NoVehicleCarjack, NoVehicleSiphoning,
+            NoVehicleEnter, NoVehicleExit
         };
 
         /// <summary>
@@ -101,5 +102,13 @@ namespace Tavstal.TZones.Utils.Constants
         /// A flag indicating that vehicle siphoning is not allowed.
         /// </summary>
         public const string NoVehicleSiphoning = "NoVehicleSiphoning";
+        /// <summary>
+        /// A flag indicating that entering a vehicle is not allowed.
+        /// </summary>
+        public const string NoVehicleEnter = "NoVehicleEnter";
+        /// <summary>
+        /// A flag indicating that leaving a vehicle is not allowed.
+        /// </summary>
+        public const string NoVehicleExit = "NoVehicleExit";
     }
 }
