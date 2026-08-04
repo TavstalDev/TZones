@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Rocket.Unturned.Player;
-using Tavstal.TZones.Utils.Managers;
 using UnityEngine;
 
 namespace Tavstal.TZones.Components
