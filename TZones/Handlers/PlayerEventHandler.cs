@@ -27,6 +27,7 @@ namespace Tavstal.TZones.Handlers
             U.Events.OnPlayerConnected += OnPlayerConnected;
             U.Events.OnPlayerDisconnected += OnPlayerDisconnected;
             DamageTool.damagePlayerRequested += OnPlayerDamageRequested;
+            DamageTool.onPlayerAllowedToDamagePlayer += OnPlayerAllowedToDamagePlayer;
             
             _isAttached = true;
         }
@@ -42,6 +43,7 @@ namespace Tavstal.TZones.Handlers
             U.Events.OnPlayerConnected -= OnPlayerConnected;
             U.Events.OnPlayerDisconnected -= OnPlayerDisconnected;
             DamageTool.damagePlayerRequested -= OnPlayerDamageRequested;
+            DamageTool.onPlayerAllowedToDamagePlayer -= OnPlayerAllowedToDamagePlayer;
 
             _isAttached = true;
         }
@@ -72,7 +74,7 @@ namespace Tavstal.TZones.Handlers
         /// </summary>
         private static void OnPlayerDamageRequested(ref DamagePlayerParameters parameters, ref bool shouldAllow)
         {
-            if (!shouldAllow)
+            if (Provider.isPvP && !shouldAllow)
                 return;
             
             bool originalValue = shouldAllow;
@@ -94,6 +96,35 @@ namespace Tavstal.TZones.Handlers
             {
                 TZones.Logger.Error($"Unexpected error occured in {nameof(OnPlayerDamageRequested)}.", ex);
                 shouldAllow = originalValue;
+            }
+        }
+        
+        private static void OnPlayerAllowedToDamagePlayer(Player instigator, Player victim, ref bool isAllowed)
+        {
+            try
+            {
+                if (Provider.isPvP || isAllowed)
+                    return;
+
+                // Because the server is in PvE mode isAllowed should be rechecked
+                if (!Provider.modeConfigData.Gameplay.Friendly_Fire && instigator.quests.isMemberOfSameGroupAs(victim))
+                    return;
+
+                if (!instigator.movement.canAddSimulationResultsToUpdates)
+                    return;
+
+                UnturnedPlayer instigatorPlayer = UnturnedPlayer.FromPlayer(instigator);
+                UnturnedPlayer victimPlayer = UnturnedPlayer.FromPlayer(victim);
+                isAllowed = ZoneManager.HasFlag(Flags.AllowPlayerDamage,
+                    TZones.Instance.Config.GlobalZoneFlagChecks.AllowPlayerDamage, instigatorPlayer, victimPlayer);
+            }
+            finally
+            {
+                // ReSharper disable ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+                string instigatorName = instigator?.channel?.owner?.playerID?.characterName ?? "unknown";
+                string victimName =  victim?.channel?.owner?.playerID?.characterName ?? "unknown";
+                // ReSharper restore ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+                TZones.Logger.Debug($"OnPlayerAllowedToDamagePlayer: isAllowed={isAllowed}, instigator={instigatorName}, victim={victimName}");
             }
         }
         
