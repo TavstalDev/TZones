@@ -2,6 +2,7 @@ using System;
 using Rocket.Unturned;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
+using Steamworks;
 using Tavstal.TLibrary.Extensions;
 using Tavstal.TZones.Models.Enums;
 using Tavstal.TZones.Utils.Constants;
@@ -67,6 +68,7 @@ namespace Tavstal.TZones.Handlers
             player.Inventory.onDropItemRequested -= OnDropItemRequested;
             player.Player.equipment.onEquipRequested -= OnEquipRequested;
             player.Player.equipment.onDequipRequested -= OnDequipRequested;
+            ComponentManager.Invalidate(player.Id);
         }
         
         /// <summary>
@@ -80,11 +82,14 @@ namespace Tavstal.TZones.Handlers
             bool originalValue = shouldAllow;
             try
             {
-                var victimPlayer = UnturnedPlayer.FromPlayer(parameters.player);
-                UnturnedPlayer? killerPlayer = UnturnedPlayer.FromCSteamID(parameters.killer);
-                var players = killerPlayer == null
-                    ? new[] { victimPlayer }
-                    : new[] { victimPlayer, killerPlayer };
+                UnturnedPlayer victimPlayer = UnturnedPlayer.FromPlayer(parameters.player);
+                UnturnedPlayer killerPlayer = UnturnedPlayer.FromCSteamID(parameters.killer);
+                if (victimPlayer == null && killerPlayer == null)
+                    return;
+                
+                UnturnedPlayer[] players = killerPlayer == null || killerPlayer.Player == null || killerPlayer.CSteamID == CSteamID.Nil
+                    ? new[] { victimPlayer! }
+                    : new[] { victimPlayer!, killerPlayer };
 
                 if (ZoneManager.HasFlag(Flags.AllowPlayerDamage, TZones.Instance.Config.GlobalZoneFlagChecks.AllowPlayerDamage, players))
                     return;

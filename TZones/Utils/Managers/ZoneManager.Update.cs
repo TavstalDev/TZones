@@ -69,7 +69,9 @@ namespace Tavstal.TZones.Utils.Managers
             foreach (SteamPlayer steamPlayer in Provider.clients) 
             {
                 UnturnedPlayer uPlayer = UnturnedPlayer.FromSteamPlayer(steamPlayer);
-                ZoneComponent comp = ComponentManager.Get(uPlayer);
+                ZoneComponent? comp = ComponentManager.Get(uPlayer);
+                if (comp == null)
+                    continue;
 
                 var currentZones = new HashSet<ulong>(ZoneManager.GetZoneIdsFromPosition(uPlayer.Position));
                 bool updateLastPos = true;

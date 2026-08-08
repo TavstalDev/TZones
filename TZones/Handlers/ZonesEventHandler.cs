@@ -69,13 +69,16 @@ namespace Tavstal.TZones.Handlers
             if (ZoneManager.Queries.HasFlag(zone, Flags.NoEnter))
             {
                 shouldAllow = false;
-                ZoneComponent comp = ComponentManager.Get(player);
                 
                 if (player.IsInVehicle)
                     player.CurrentVehicle.forceRemovePlayer(out _, player.CSteamID, out _, out _);
 
                 player.Teleport(new Vector3(lastPosition.x, lastPosition.y, lastPosition.z), player.Rotation);
 
+                ZoneComponent? comp = ComponentManager.Get(player);
+                if (comp == null)
+                    return;
+                
                 if (comp.SpamPreventEnd < DateTime.Now)
                 {
                     TZones.Instance.SendCommandReply(player, "warn_zone_noenter", TZones.Instance.Config.General.MessageIcon, zone.Name);
@@ -142,12 +145,15 @@ namespace Tavstal.TZones.Handlers
             if (ZoneManager.Queries.HasFlag(zone, Flags.NoLeave))
             {
                 shouldAllow = false;
-                ZoneComponent comp = ComponentManager.Get(player);
 
                 if (player.IsInVehicle)
                     player.CurrentVehicle.forceRemovePlayer(out _, player.CSteamID, out _, out _);
 
                 player.Teleport(new Vector3(lastPosition.x, lastPosition.y, lastPosition.z), player.Rotation);
+                
+                ZoneComponent? comp = ComponentManager.Get(player);
+                if (comp == null)
+                    return;
                 
                 if (comp.SpamPreventEnd < DateTime.Now)
                 {
