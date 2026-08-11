@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using SDG.Unturned;
 using System.Collections.Generic;
 using System.Text;
 using Tavstal.TLibrary.Extensions;
@@ -73,21 +72,15 @@ namespace Tavstal.TZones
         public override void OnLoad()
         {
             Instance = this;
-
-            // Attach event, which will be fired when all plugins are loaded.
-            Level.onPostLevelLoaded += OnPluginsLoaded;
-            // Attach player related events
-            BarricadeEventHandler.AttachEvents();
-            EntityEventHandler.AttachEvents();
-            PlayerEventHandler.AttachEvents();
-            StructureEventHandler.AttachEvents();
-            VehicleEventHandler.AttachEvents();
-            ZonesEventHandler.AttachEvents();
-
+            
             DatabaseManager = new DatabaseManager(this, Config);
             if (DatabaseManager.IsAuthenticationFailed)
                 return;
 
+            RocketFlow.RocketFlow.Initialize();
+            RocketFlow.RocketFlow.RegisterAll(this);
+            ZonesEventHandler.AttachEvents();
+            
             isInitialized = true;
             _updateRoutine = StartCoroutine(UpdateRoutine());
             Logger.Info($"# {Name} has been loaded.");
@@ -98,12 +91,7 @@ namespace Tavstal.TZones
         /// </summary>
         public override void OnUnLoad()
         {
-            Level.onPostLevelLoaded -= OnPluginsLoaded;
-            BarricadeEventHandler.DetachEvents();
-            EntityEventHandler.DetachEvents();
-            PlayerEventHandler.DetachEvents();
-            StructureEventHandler.DetachEvents();
-            VehicleEventHandler.DetachEvents();
+            RocketFlow.RocketFlow.UnregisterAll(this);
             ZonesEventHandler.DetachEvents();
 
             isInitialized = false;
@@ -113,23 +101,6 @@ namespace Tavstal.TZones
                 _updateRoutine = null;
             }
             Logger.Info($"# {Name} has been successfully unloaded.");
-        }
-
-        /// <summary>
-        /// Called after all plugins have loaded. Validates the database connection and refreshes the zone cache.
-        /// </summary>
-        /// <param name="i">The level index passed by the level loaded event.</param>
-        private void OnPluginsLoaded(int i)
-        {
-            if (DatabaseManager.IsAuthenticationFailed)
-            {
-                Logger.Warning($"# Unloading {GetPluginName()} due to database authentication error.");
-                this.UnloadPlugin();
-                return;
-            }
-
-            ZoneManager.Cache.RefreshGeneratorCache();
-            ZoneManager.Cache.MakeDirty();
         }
 
         /// <summary>
