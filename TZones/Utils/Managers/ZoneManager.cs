@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Rocket.Unturned.Player;
+using Tavstal.RocketFlow.Core;
 using Tavstal.TZones.Models.Core;
 using UnityEngine;
 using Tavstal.TLibrary.Extensions;
 using Tavstal.TZones.Models.Enums;
+using Tavstal.TZones.Models.Events;
 using Tavstal.TZones.Utils.Constants;
 using ENodeType = Tavstal.TZones.Models.Enums.ENodeType;
 using Flag = Tavstal.TZones.Models.Core.Flag;
@@ -42,7 +44,7 @@ namespace Tavstal.TZones.Utils.Managers
         /// <param name="player">The player entering the zone.</param>
         /// <param name="zone">The zone being entered.</param>
         /// <param name="lastPosition">The player's last known position.</param>
-        /// <param name="shouldAllow">Set to false to prevent the player from entering.</param>
+        /// <param name="shouldAllow">Set to 'false' to prevent the player from entering.</param>
         public delegate void PlayerEnterZonedHandler(UnturnedPlayer player, Zone zone, Vector3 lastPosition, ref bool shouldAllow);
 
         /// <summary>
@@ -50,8 +52,19 @@ namespace Tavstal.TZones.Utils.Managers
         /// </summary>
         public static event PlayerEnterZonedHandler? OnPlayerEnterZone;
 
-        internal static void FPlayerEnterZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition,  ref bool shouldAllow) =>
-            OnPlayerEnterZone?.Invoke(player, zone, lastPosition, ref shouldAllow);
+        internal static void FPlayerEnterZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition,
+            ref bool shouldAllow)
+        {
+            try
+            {
+                OnPlayerEnterZone?.Invoke(player, zone, lastPosition, ref shouldAllow);
+            }
+            finally
+            {
+                var e = EventManager.Fire(new ZoneEnterEvent(player, zone, lastPosition, ref shouldAllow));
+                shouldAllow = e.ShouldAllow;
+            }
+        }
         #endregion
 
         #region PlayerLeaveZone
@@ -61,7 +74,7 @@ namespace Tavstal.TZones.Utils.Managers
         /// <param name="player">The player leaving the zone.</param>
         /// <param name="zone">The zone being left.</param>
         /// <param name="lastPosition">The player's last known position.</param>
-        /// <param name="shouldAllow">Set to false to prevent the player from leaving.</param>
+        /// <param name="shouldAllow">Set to 'false' to prevent the player from leaving.</param>
         public delegate void PlayerLeaveZonedHandler(UnturnedPlayer player, Zone zone, Vector3 lastPosition, ref bool shouldAllow);
 
         /// <summary>
@@ -69,8 +82,19 @@ namespace Tavstal.TZones.Utils.Managers
         /// </summary>
         public static event PlayerLeaveZonedHandler? OnPlayerLeaveZone;
 
-        internal static void FPlayerLeaveZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition, ref bool shouldAllow) =>
-            OnPlayerLeaveZone?.Invoke(player, zone, lastPosition, ref shouldAllow);
+        internal static void FPlayerLeaveZone(UnturnedPlayer player, Zone zone, Vector3 lastPosition,
+            ref bool shouldAllow)
+        {
+            try
+            {
+                OnPlayerLeaveZone?.Invoke(player, zone, lastPosition, ref shouldAllow);
+            }
+            finally
+            {
+                var e = EventManager.Fire(new ZoneLeaveEvent(player, zone, lastPosition, ref shouldAllow));
+                shouldAllow = e.ShouldAllow;
+            }
+        }
         #endregion
 
         #region ZoneCreated
@@ -85,8 +109,17 @@ namespace Tavstal.TZones.Utils.Managers
         /// </summary>
         public static event ZoneCreatedHandler? OnZoneCreated;
 
-        internal static void FZoneCreated(Zone zone) =>
-            OnZoneCreated?.Invoke(zone);
+        internal static void FZoneCreated(Zone zone)
+        {
+            try
+            {
+                OnZoneCreated?.Invoke(zone);
+            }
+            finally
+            {
+                EventManager.Fire(new ZoneCreatedEvent(zone));
+            }
+        }
         #endregion
 
         #region ZoneUpdated
@@ -101,8 +134,17 @@ namespace Tavstal.TZones.Utils.Managers
         /// </summary>
         public static event ZoneUpdatedHandler? OnZoneUpdated;
 
-        internal static void FZoneUpdated(Zone zone) =>
-            OnZoneUpdated?.Invoke(zone);
+        internal static void FZoneUpdated(Zone zone)
+        {
+            try
+            {
+                OnZoneUpdated?.Invoke(zone);
+            }
+            finally
+            {
+                EventManager.Fire(new ZoneUpdatedEvent(zone));
+            }
+        }
         #endregion
 
         #region ZoneDeleted
@@ -117,8 +159,17 @@ namespace Tavstal.TZones.Utils.Managers
         /// </summary>
         public static event ZoneDeletedHandler? OnZoneDeleted;
 
-        internal static void FZoneDeleted(Zone zone) =>
-            OnZoneDeleted?.Invoke(zone);
+        internal static void FZoneDeleted(Zone zone)
+        {
+            try
+            {
+                OnZoneDeleted?.Invoke(zone);
+            }
+            finally
+            {
+                EventManager.Fire(new ZoneDeletedEvent(zone));
+            }
+        }
         #endregion
         #endregion
 
@@ -157,7 +208,7 @@ namespace Tavstal.TZones.Utils.Managers
             if (targetFlag == null)
                 return 1;
 
-            if (Constants.Flags.Defaults.Contains(targetFlag.Name))
+            if (Flags.Defaults.Contains(targetFlag.Name))
                 return 2;
 
             await using var connection = TZones.DatabaseManager.CreateConnection();
