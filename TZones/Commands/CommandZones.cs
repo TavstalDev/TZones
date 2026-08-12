@@ -73,13 +73,14 @@ namespace Tavstal.TZones.Commands
                                 return;
                             }
 
-                            await TZones.DatabaseManager.Zones.AddAsync(new Zone
+                            zone = await TZones.DatabaseManager.Zones.AddAsync(new Zone
                             {
                                 Name = args[1],
                                 Description = args[2],
                                 CreatorId = ulong.Parse(caller.Id),
                                 CreationDate = DateTime.Now
                             });
+                            ZoneManager.FZoneCreated(zone!);
                             ZoneManager.Cache.MakeDirty();
                             
                             TZones.Instance.SendCommandReply(caller, "command_zones_add_zone", TZones.Instance.Config.General.MessageIcon, args[1]);
@@ -145,6 +146,7 @@ namespace Tavstal.TZones.Commands
                                 Z = player.Position.z,
                                 Type = nodeType
                             });
+                            ZoneManager.FZoneUpdated(zone);
                             ZoneManager.Cache.MakeDirty();
                             
                             TZones.Instance.SendCommandReply(caller, "command_zones_add_node", TZones.Instance.Config.General.MessageIcon);
@@ -184,6 +186,7 @@ namespace Tavstal.TZones.Commands
                                 ZoneId = zone.Id,
                                 FlagId = flag.Id
                             });
+                            ZoneManager.FZoneUpdated(zone);
                             ZoneManager.Cache.MakeDirty();
                             
                             TZones.Instance.SendCommandReply(caller, "command_zones_add_flag", TZones.Instance.Config.General.MessageIcon);
@@ -227,6 +230,7 @@ namespace Tavstal.TZones.Commands
                                 Type = eventType,
                                 Value = args[3]
                             });
+                            ZoneManager.FZoneUpdated(zone);
                             ZoneManager.Cache.MakeDirty();
                             
                             TZones.Instance.SendCommandReply(caller, "command_zones_add_event", TZones.Instance.Config.General.MessageIcon);
@@ -271,6 +275,7 @@ namespace Tavstal.TZones.Commands
                                 Type = restrictionType,
                                 UnturnedId = unturnedId
                             });
+                            ZoneManager.FZoneUpdated(zone);
                             ZoneManager.Cache.MakeDirty();
                             
                             TZones.Instance.SendCommandReply(caller, "command_zones_add_block", TZones.Instance.Config.General.MessageIcon);
@@ -527,6 +532,7 @@ namespace Tavstal.TZones.Commands
                                 await TZones.DatabaseManager.Zones.DeleteAsync(zone.Id, connection, transaction);
 
                                 await transaction.CommitAsync();
+                                ZoneManager.FZoneDeleted(zone);
                                 ZoneManager.Cache.MakeDirty();
                             }
                             catch (Exception ex)
@@ -576,6 +582,7 @@ namespace Tavstal.TZones.Commands
                             }
 
                             await TZones.DatabaseManager.Nodes.DeleteAsync(node.Id);
+                            ZoneManager.FZoneUpdated(zone);
                             ZoneManager.Cache.MakeDirty();
                             
                             TZones.Instance.SendCommandReply(caller, "command_zones_remove_node", TZones.Instance.Config.General.MessageIcon, node.Id);
@@ -611,6 +618,7 @@ namespace Tavstal.TZones.Commands
                             }
 
                             await TZones.DatabaseManager.ZoneFlags.DeleteAsync(zoneFlag.Id);
+                            ZoneManager.FZoneUpdated(zone);
                             ZoneManager.Cache.MakeDirty();
                             
                             TZones.Instance.SendCommandReply(caller, "command_zones_remove_flag", TZones.Instance.Config.General.MessageIcon, flag.Name, zone.Name);
@@ -656,6 +664,7 @@ namespace Tavstal.TZones.Commands
                             }
 
                             await TZones.DatabaseManager.ZoneEvents.DeleteAsync(zoneEvent.Id);
+                            ZoneManager.FZoneUpdated(zone);
                             ZoneManager.Cache.MakeDirty();
                             
                             TZones.Instance.SendCommandReply(caller, "command_zones_remove_event", TZones.Instance.Config.General.MessageIcon, zoneEvent.Type.ToString(), zone.Name);
@@ -702,6 +711,7 @@ namespace Tavstal.TZones.Commands
                             }
 
                             await TZones.DatabaseManager.Restrictions.DeleteAsync(restriction.Id);
+                            ZoneManager.FZoneUpdated(zone);
                             ZoneManager.Cache.MakeDirty();
                             
                             TZones.Instance.SendCommandReply(caller, "command_zones_remove_block", TZones.Instance.Config.General.MessageIcon);

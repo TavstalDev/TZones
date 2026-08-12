@@ -14,7 +14,7 @@
         <Product>TZones</Product>
         <Company>Tavstal</Company>
         <Copyright>Copyright © 2024-2026 Tavstal</Copyright>
-        <Description>"A basic zones plugin with database support.</Description>
+        <Description>A basic zones plugin with database support.</Description>
 
         <!-- Version -->
         <Version>1.2.6</Version>

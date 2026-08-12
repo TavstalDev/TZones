@@ -31,9 +31,6 @@ namespace Tavstal.TZones.Handlers
 
             ZoneManager.OnPlayerEnterZone += OnPlayerEnterZone;
             ZoneManager.OnPlayerLeaveZone += OnPlayerLeaveZone;
-            ZoneManager.OnZoneCreated += OnZoneCreated;
-            ZoneManager.OnZoneUpdated += OnZoneUpdated;
-            ZoneManager.OnZoneDeleted += OnZoneDeleted;
         }
 
         /// <summary>
@@ -48,9 +45,6 @@ namespace Tavstal.TZones.Handlers
 
             ZoneManager.OnPlayerEnterZone -= OnPlayerEnterZone;
             ZoneManager.OnPlayerLeaveZone -= OnPlayerLeaveZone;
-            ZoneManager.OnZoneCreated -= OnZoneCreated;
-            ZoneManager.OnZoneUpdated -= OnZoneUpdated;
-            ZoneManager.OnZoneDeleted -= OnZoneDeleted;
         }
 
         /// <summary>
@@ -203,33 +197,6 @@ namespace Tavstal.TZones.Handlers
                         break;
                 }
             }
-        }
-
-        /// <summary>
-        /// Handles the event when a zone is created.
-        /// </summary>
-        /// <param name="zone">The zone that has been created.</param>
-        private static void OnZoneCreated(Zone zone)
-        {
-            
-        }
-
-        /// <summary>
-        /// Handles the event when a zone is updated.
-        /// </summary>
-        /// <param name="zone">The zone that has been updated.</param>
-        private static void OnZoneUpdated(Zone zone)
-        {
-            
-        }
-
-        /// <summary>
-        /// Handles the event when a zone is deleted.
-        /// </summary>
-        /// <param name="zone">The zone that has been deleted.</param>
-        private static void OnZoneDeleted(Zone zone)
-        {
-            
         }
     }
 }
