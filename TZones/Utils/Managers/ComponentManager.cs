@@ -15,7 +15,8 @@ namespace Tavstal.TZones.Utils.Managers
 
         public static ZoneComponent? Get(UnturnedPlayer? player)
         {
-            if (player == null || player.CSteamID == CSteamID.Nil || player.Player == null)
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
+            if (player == null || player.CSteamID == null ||  player.CSteamID == CSteamID.Nil || player.Player == null)
                 return null;
             return  _components.GetOrAdd(player.Id, player.GetComponent<ZoneComponent>());
         }
