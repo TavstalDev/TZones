@@ -125,6 +125,9 @@ namespace Tavstal.TZones.Handlers
                 if (player == null)
                     return;
                 
+                if (e.Equipment == null || e.Equipment.asset == null)
+                    return;
+                
                 if (!ZoneManager.HasFlagOrBlocked(Flags.NoItemUnequip, TZones.Instance.Config.GlobalZoneFlagChecks.NoItemUnequip, player, e.Equipment.asset.id, ERestrictionType.UNEQUIP))
                    return;
                 

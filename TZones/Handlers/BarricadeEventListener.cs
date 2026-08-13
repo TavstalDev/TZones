@@ -68,10 +68,14 @@ namespace Tavstal.TZones.Handlers
             if (!e.ShouldAllow)
                 return;
             
+            var barricade = e.Barricade;
             bool originalValue = e.ShouldAllow;
             try
             {
-                var point = e.Barricade.interactable.transform.position;
+                if (barricade.interactable?.transform.position == null)
+                    return;
+                
+                var point = barricade.interactable.transform.position;
                 UnturnedPlayer player = UnturnedPlayer.FromSteamPlayer(e.InstigatorClient);
                 if (player == null)
                     return;
@@ -97,8 +101,8 @@ namespace Tavstal.TZones.Handlers
             }
             finally
             {
-                if (e.ShouldAllow && e.Barricade.asset.build == EBuild.GENERATOR)
-                    if (e.Barricade.interactable is InteractableGenerator generator)
+                if (e.ShouldAllow && barricade.asset.build == EBuild.GENERATOR)
+                    if (barricade.interactable != null && barricade.interactable is InteractableGenerator generator)
                         ZoneManager.Cache.RemoveGenerator(generator);
             }
         }
@@ -137,13 +141,17 @@ namespace Tavstal.TZones.Handlers
             }
             finally
             {
-                var barricade = BarricadeManager.FindBarricadeByRootTransform(e.BarricadeTransform);
-                if (barricade != null)
+                if (e.BarricadeTransform != null)
                 {
-                    if (e.ShouldAllow && barricade.GetServersideData().barricade.health - e.PendingTotalDamage <= 0 &&
-                        barricade.asset.build == EBuild.GENERATOR)
-                        if (barricade.interactable is InteractableGenerator generator)
-                            ZoneManager.Cache.RemoveGenerator(generator);
+                    var barricade = BarricadeManager.FindBarricadeByRootTransform(e.BarricadeTransform);
+                    if (barricade != null)
+                    {
+                        if (e.ShouldAllow &&
+                            barricade.GetServersideData().barricade.health - e.PendingTotalDamage <= 0 &&
+                            barricade.asset.build == EBuild.GENERATOR)
+                            if (barricade.interactable is InteractableGenerator generator)
+                                ZoneManager.Cache.RemoveGenerator(generator);
+                    }
                 }
             }
         }

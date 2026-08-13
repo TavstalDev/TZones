@@ -204,6 +204,9 @@ namespace Tavstal.TZones.Handlers
             bool originalValue = e.Allow;
             try
             {
+                if (e.InstigatingPlayer == null)
+                    return;
+                
                 UnturnedPlayer uPlayer = UnturnedPlayer.FromPlayer(e.InstigatingPlayer);
                 if (uPlayer == null)
                     return;
