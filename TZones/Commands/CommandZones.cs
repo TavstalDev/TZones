@@ -512,37 +512,46 @@ namespace Tavstal.TZones.Commands
                                 TZones.Instance.SendCommandReply(caller, "error_zone_cannot_remove", TZones.Instance.Config.General.MessageIcon, zone.Name);
                                 return;
                             }
-
+                            
                             MySqlConnection? connection = TZones.DatabaseManager.CreateConnection();
                             if (connection == null)
                             {
                                 TZones.Instance.SendCommandReply(caller, "error_database_connection", TZones.Instance.Config.General.MessageIcon);
                                 return;
                             }
-
-                            await using var transaction = connection.BeginTransaction();
                             
-                            try
+                            await using (connection)
                             {
-                                var rangeValues = new List<object> { zone.Id };
-                                await TZones.DatabaseManager.ZoneFlags.DeleteRangeAsync("ZoneId", rangeValues, connection, transaction);
-                                await TZones.DatabaseManager.ZoneEvents.DeleteRangeAsync("ZoneId", rangeValues, connection, transaction);
-                                await TZones.DatabaseManager.Restrictions.DeleteRangeAsync("ZoneId", rangeValues, connection, transaction);
-                                await TZones.DatabaseManager.Nodes.DeleteRangeAsync("ZoneId", rangeValues, connection, transaction);
-                                await TZones.DatabaseManager.Zones.DeleteAsync(zone.Id, connection, transaction);
+                                await connection.OpenAsync();
+                                using var transaction = connection.BeginTransaction();
 
-                                await transaction.CommitAsync();
-                                ZoneManager.FZoneDeleted(zone);
-                                ZoneManager.Cache.MakeDirty();
+                                try
+                                {
+                                    var rangeValues = new List<object> { zone.Id };
+                                    await TZones.DatabaseManager.ZoneFlags.DeleteRangeAsync("ZoneId", rangeValues,
+                                        connection, transaction);
+                                    await TZones.DatabaseManager.ZoneEvents.DeleteRangeAsync("ZoneId", rangeValues,
+                                        connection, transaction);
+                                    await TZones.DatabaseManager.Restrictions.DeleteRangeAsync("ZoneId", rangeValues,
+                                        connection, transaction);
+                                    await TZones.DatabaseManager.Nodes.DeleteRangeAsync("ZoneId", rangeValues,
+                                        connection, transaction);
+                                    await TZones.DatabaseManager.Zones.DeleteAsync(zone.Id, connection, transaction);
+
+                                    await transaction.CommitAsync();
+                                    ZoneManager.FZoneDeleted(zone);
+                                    ZoneManager.Cache.MakeDirty();
+                                }
+                                catch (Exception ex)
+                                {
+                                    await transaction.RollbackAsync();
+                                    TZones.Instance.SendCommandReply(caller, "error_exception",
+                                        TZones.Instance.Config.General.MessageIcon);
+                                    TZones.Logger.Error("Unexpected error occured while removing zones.", ex);
+                                    return;
+                                }
                             }
-                            catch (Exception ex)
-                            {
-                                await transaction.RollbackAsync();
-                                TZones.Instance.SendCommandReply(caller, "error_exception", TZones.Instance.Config.General.MessageIcon);
-                                TZones.Logger.Error("Unexpected error occured while removing zones.", ex);
-                                return;
-                            }
-                            
+
                             TZones.Instance.SendCommandReply(caller, "command_zones_remove_zone", TZones.Instance.Config.General.MessageIcon, args[1]);
                             break;
                         }
