@@ -71,8 +71,6 @@ namespace Tavstal.TZones
         /// </summary>
         public override void OnLoad()
         {
-            Instance = this;
-            
             DatabaseManager = new DatabaseManager(this, Config);
             if (DatabaseManager.IsAuthenticationFailed)
                 return;
